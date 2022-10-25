@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "description": "A prototype chat app",
   "scripts": {
-    "server": "ts-node backend/server.ts",
+    "server": "ts-node server.ts",
     "client": "npm run dev --prefix ../client",
-    "dev": "concurrently \"npx nodemon backend/server.ts\" \"npm run client\" \"npx prisma studio\"",
+    "dev": "concurrently \"npx nodemon server.ts\" \"npm run client\" \"npx prisma studio\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "update": "ncu -u && npm i"
   },
