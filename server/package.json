@@ -1,5 +1,5 @@
 {
-  "name": "chat-app",
+  "name": "chat-app-server",
   "version": "0.1.0",
   "description": "A prototype chat app",
   "scripts": {
