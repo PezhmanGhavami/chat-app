@@ -35,6 +35,7 @@ server
 io.on("connection", (socket) => {
   socket.on("hello!", () => {
     console.log(`hello from ${socket.id}`);
+    socket.emit("message", Date.now());
   });
 
   socket.on("disconnect", () => {
