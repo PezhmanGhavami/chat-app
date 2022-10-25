@@ -35,18 +35,12 @@ function Home() {
       <header className="App-header">
         <p>Connected: {"" + isConnected}</p>
         <p>Last message: {lastMessage || "-"}</p>
-        <button onClick={sendMessage}>Say hello!</button>
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          className="p-4 bg-white hover:opacity-75 text-slate-900"
+          onClick={sendMessage}
         >
-          Learn React
-        </a>
+          Say hello!
+        </button>
       </header>
     </div>
   );
