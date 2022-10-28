@@ -10,7 +10,7 @@ function ProtectedRoute({
   const { user } = useUser();
   const location = useLocation();
 
-  if (user?.isLoggedIn || true) {
+  if (user?.isLoggedIn) {
     return children;
   }
 
