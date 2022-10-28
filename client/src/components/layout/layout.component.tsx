@@ -1,8 +1,17 @@
 import { Outlet } from "react-router-dom";
 
+import Navigation from "../navigation/navigation.component";
+
 const Layout = () => {
   return (
-    <div className="min-h-screen bg-slate-900  text-slate-100">
+    <div>
+      <div>
+        a hamburger and some menu items
+        {/* A hidden navbar to change theme and logout */}
+      </div>
+      <div>
+        <Navigation />
+      </div>
       <main>
         <Outlet />
       </main>

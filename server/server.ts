@@ -24,6 +24,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(session);
 
+// app.get("/", (req, res) => {
+// TODO - for production return the react app
+// });
+
+app.use("/api/auth", authRouter);
+
+app.use("/api/*", (req, res) => {
+  res
+    .status(404)
+    .json({ status: "ERROR", message: "Not found." });
+});
+app.use("*", (req, res) => {
+  res.status(404).send("Not found");
+});
+
+app.use(errorHandler);
+
 server
   .listen(PORT, HOST, () => {
     console.log(`Server started at http://${HOST}:${PORT}`);
@@ -42,28 +59,3 @@ io.on("connection", (socket) => {
     console.log(`disconnect: ${socket.id}`);
   });
 });
-
-// app.get("/", (req, res) => {
-//   res.send("home");
-// });
-
-// app.use("/api/auth", authRouter);
-
-// app.use("/api/*", (req, res) => {
-//   res
-//     .status(404)
-//     .json({ status: "ERROR", message: "Not found." });
-// });
-// app.use("*", (req, res) => {
-//   res.status(404).send("Not found");
-// });
-
-// app.use(errorHandler);
-
-// app
-//   .listen(PORT, HOST, () => {
-//     console.log(`Server started at http://${HOST}:${PORT}`);
-//   })
-//   .on("error", (err) => {
-//     return console.error(err + "\n\n" + err.message);
-//   });

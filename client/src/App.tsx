@@ -1,30 +1,36 @@
 import { Routes, Route } from "react-router-dom";
 
 import Layout from "./components/layout/layout.component";
+import AuthLayout from "./components/auth-layout/auth-layout.component";
 import ProtectedRoute from "./components/protected-route/protected-route";
-import Home from "./components/home/home.component";
-import NotFound from "./pages/not-found/not-found";
+
+import Index from "./pages/index/index.page";
+import Chat from "./pages/chat/chat.page";
+import Signin from "./pages/signin/signin.page";
+import Signup from "./pages/signup/signup.page";
+import NotFound from "./pages/not-found/not-found.page";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Home />} />
-        {/* <Route
-          path="profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        /> */}
-        <Route path="shop/*" element={<div>shop</div>} />
-        <Route
-          path="checkout"
-          element={<div>checkout</div>}
-        />
-        <Route path="*" element={<NotFound />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Index />} />
+        <Route path="chat/:chatID" element={<Chat />} />
       </Route>
+
+      <Route path="/auth" element={<AuthLayout />}>
+        <Route path="/signin" element={<Signin />} />
+        <Route path="/signup" element={<Signup />} />
+      </Route>
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
