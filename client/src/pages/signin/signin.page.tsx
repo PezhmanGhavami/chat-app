@@ -62,6 +62,11 @@ const Signin = () => {
     }));
   };
 
+  // TODO - Add toastify
+  // TODO - Add a form validator
+  // TODO - maybe add a show password button
+  // FIXME - When you select an input using mouse, if you try to go to the next one with tab, the previous input stays focused
+
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>
   ) => {
@@ -78,7 +83,7 @@ const Signin = () => {
     });
     try {
       mutateUser(
-        await fetcher("/api/auth/login", {
+        await fetcher("/api/auth/signin", {
           method: "POST",
           headers,
           body: JSON.stringify(userData),
