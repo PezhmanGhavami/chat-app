@@ -1,6 +1,6 @@
+import { useState, ChangeEvent } from "react";
 import { Link } from "react-router-dom";
 
-// const colorAnimation = "transition-colors duration-300";
 export const authFormStyles = {
   formContainer: "max-w-sm mx-auto",
   h2: "text-center text-2xl pb-6",
@@ -34,7 +34,25 @@ export const authFormStyles = {
   },
 };
 
+const initialFormData = {
+  usernameOrEmail: "",
+  password: "",
+};
+
 const Signin = () => {
+  const [formData, setFormData] = useState(initialFormData);
+
+  const { usernameOrEmail, password } = formData;
+
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [event.target.name]: event.target.value,
+    }));
+  };
+
   return (
     <div className={authFormStyles.formContainer}>
       <h2 className={authFormStyles.h2}>
@@ -45,29 +63,33 @@ const Signin = () => {
           <div className={authFormStyles.inputContainer}>
             <label
               className={authFormStyles.label}
-              htmlFor=""
+              htmlFor="signin-username-or-password"
             >
               Username or email address
             </label>
             <input
               className={authFormStyles.input}
               type="text"
-              name=""
-              id=""
+              name="usernameOrEmail"
+              id="signin-username-or-password"
+              value={usernameOrEmail}
+              onChange={handleChange}
             />
           </div>
           <div className={authFormStyles.inputContainer}>
             <label
               className={authFormStyles.label}
-              htmlFor=""
+              htmlFor="signin-password"
             >
               Password
             </label>
             <input
               className={authFormStyles.input}
               type="password"
-              name=""
-              id=""
+              name="password"
+              id="signin-password"
+              value={password}
+              onChange={handleChange}
             />
           </div>
         </div>
