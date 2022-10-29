@@ -80,31 +80,39 @@ const handleRegister: IExpressEndpointHandler = async (
 };
 
 /**
- * @desc   Logins a user
- * @route  POST /api/auth/login
+ * @desc   Signs in a user
+ * @route  POST /api/auth/signin
  * @access Public
  * */
-const handleLogin: IExpressEndpointHandler = async (
+const handleSignin: IExpressEndpointHandler = async (
   req,
   res,
   next
 ) => {
   try {
-    const { email, password } = await req.body;
+    const { usernameOrEmail, password } = await req.body;
 
-    if (!email || !password) {
+    if (!usernameOrEmail || !password) {
       res.status(400);
       throw new Error("All fields are required.");
     }
 
-    const userExists = await prisma.user.findUnique({
+    const userExists = await prisma.user.findFirst({
       where: {
-        email,
+        OR: [
+          {
+            email: usernameOrEmail,
+          },
+          {
+            username: usernameOrEmail,
+          },
+        ],
       },
     });
+
     if (!userExists) {
       res.status(401);
-      throw new Error("Wrong email or password");
+      throw new Error("Wrong email/username or password");
     }
 
     const passwordIsCorrect = await bcrypt.compare(
@@ -113,7 +121,7 @@ const handleLogin: IExpressEndpointHandler = async (
     );
     if (!passwordIsCorrect) {
       res.status(401);
-      throw new Error("Wrong email or password");
+      throw new Error("Wrong email/username or password");
     }
     const user = {
       userID: userExists.id,
@@ -132,11 +140,11 @@ const handleLogin: IExpressEndpointHandler = async (
 };
 
 /**
- * @desc   Logs out a user
- * @route  GET /api/auth/logout
+ * @desc   Signs out a user
+ * @route  GET /api/auth/signout
  * @access Public
  * */
-const handleLogout: IExpressEndpointHandler = (
+const handleSignout: IExpressEndpointHandler = (
   req,
   res
 ) => {
@@ -179,7 +187,7 @@ const getUser: IExpressEndpointHandler = async (
 
 export {
   getUser,
-  handleLogin,
-  handleLogout,
+  handleSignin,
+  handleSignout,
   handleRegister,
 };

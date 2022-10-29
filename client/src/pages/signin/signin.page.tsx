@@ -1,5 +1,11 @@
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 import { Link } from "react-router-dom";
+
+import LoadingSpinner from "../../components/loading-spinner/loading-spinner.component";
+
+import useUser from "../../hooks/useUser";
+
+import fetcher from "../../utils/fetcher";
 
 export const authFormStyles = {
   formContainer: "max-w-sm mx-auto",
@@ -41,6 +47,9 @@ const initialFormData = {
 
 const Signin = () => {
   const [formData, setFormData] = useState(initialFormData);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { mutateUser } = useUser();
 
   const { usernameOrEmail, password } = formData;
 
@@ -53,12 +62,49 @@ const Signin = () => {
     }));
   };
 
+  const handleSubmit = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    setIsLoading(true);
+
+    const userData = {
+      usernameOrEmail,
+      password,
+    };
+
+    const headers = new Headers({
+      "Content-Type": "application/json",
+    });
+    try {
+      mutateUser(
+        await fetcher("/api/auth/login", {
+          method: "POST",
+          headers,
+          body: JSON.stringify(userData),
+        }),
+        false
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("Something went wrong.");
+      }
+    }
+
+    setIsLoading(false);
+  };
+
   return (
     <div className={authFormStyles.formContainer}>
       <h2 className={authFormStyles.h2}>
         Sign in to Chat App
       </h2>
-      <form className={authFormStyles.form}>
+      <form
+        onSubmit={handleSubmit}
+        className={authFormStyles.form}
+      >
         <div className={authFormStyles.inputsContainer}>
           <div className={authFormStyles.inputContainer}>
             <label
@@ -97,7 +143,7 @@ const Signin = () => {
           className={authFormStyles.submitButton}
           type="submit"
         >
-          Sign in
+          {isLoading ? <LoadingSpinner /> : "Sign in"}
         </button>
         <Link
           to={"/auth/signup"}

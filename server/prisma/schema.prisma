@@ -27,16 +27,17 @@ model Chat {
 }
 
 model User {
-  id               String    @id @default(cuid())
-  displayName      String?
-  email            String    @unique
-  password         String
-  activeConnection String[]
-  phoneNumber      Int?
-  authToken        String?
-  authTokenExp     Int?
-  chats            Chat[]
-  messages         Message[]
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id                String    @id @default(cuid())
+  displayName       String?
+  email             String    @unique
+  username          String?   @unique
+  password          String
+  activeConnections String[]
+  phoneNumber       Int?
+  authToken         String?
+  authTokenExp      Int?
+  chats             Chat[]
+  messages          Message[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }
