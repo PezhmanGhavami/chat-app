@@ -16,7 +16,7 @@ export const authFormStyles = {
   },
   get input() {
     return (
-      "w-full h-12 bg-transparent rounded-md border border-neutral-100 dark:border-neutral-700 group-hover:border-blue-600 focus:outline-none group-focus-within:border-blue-600 focus:ring-1 focus:ring-blue-600 " +
+      "w-full h-12 px-4 bg-transparent rounded-md border border-neutral-100 dark:border-neutral-700 group-hover:border-blue-600 focus:outline-none group-focus-within:border-blue-600 focus:ring-1 focus:ring-blue-600 " +
       this.colorAnimation
     );
   },
