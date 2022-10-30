@@ -236,7 +236,7 @@ const Signup = () => {
           {isLoading ? <LoadingSpinner /> : "Sign up"}
         </button>
         <Link
-          to={"/auth/signup"}
+          to={"/auth/signin"}
           tabIndex={6}
           className={authFormStyles.link}
         >
