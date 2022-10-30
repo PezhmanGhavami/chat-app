@@ -70,7 +70,6 @@ const Signin = () => {
   };
 
   // TODO - consider adding a live validator to the form
-  // FIXME - When you select an input using mouse, if you try to go to the next one with tab, the previous input stays focused
 
   const validateForm = (onSubmit: boolean = false) => {
     let formIsValid = true;
