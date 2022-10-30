@@ -1,5 +1,6 @@
 import { useState, ChangeEvent, FormEvent } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import LoadingSpinner from "../../components/loading-spinner/loading-spinner.component";
 
@@ -62,7 +63,6 @@ const Signin = () => {
     }));
   };
 
-  // TODO - Add toastify
   // TODO - Add a form validator
   // TODO - maybe add a show password button
   // FIXME - When you select an input using mouse, if you try to go to the next one with tab, the previous input stays focused
@@ -92,9 +92,9 @@ const Signin = () => {
       );
     } catch (error) {
       if (error instanceof Error) {
-        alert(error.message);
+        toast.error(error.message);
       } else {
-        alert("Something went wrong.");
+        toast.error("Something went wrong.");
       }
     }
 
