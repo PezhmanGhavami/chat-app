@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { redirect, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import useSWR from "swr";
 
 import fetcher from "../utils/fetcher";
@@ -18,13 +18,14 @@ export default function useUser() {
   );
 
   const location = useLocation();
+  let navigate = useNavigate();
 
   useEffect(() => {
     if (
       data?.isLoggedIn &&
       redirectRoutes.includes(location.pathname)
     ) {
-      redirect("/");
+      navigate("/");
     }
   }, [data]);
 
