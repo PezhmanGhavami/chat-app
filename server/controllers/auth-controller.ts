@@ -154,7 +154,7 @@ const handleSignout: IExpressEndpointHandler = (
 
 /**
  * @desc   Gets a user
- * @route  GET /api/auth/:id
+ * @route  GET /api/auth/
  * @access Private
  * */
 const getUser: IExpressEndpointHandler = async (

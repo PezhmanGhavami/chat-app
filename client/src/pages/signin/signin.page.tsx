@@ -100,10 +100,10 @@ const Signin = () => {
     }
 
     if (password === "" || !password) {
-      onSubmit &&
-        toast.error("You should provide a password.");
       formIsValid = false;
       passwordStatus = inputStatus.EMPTY;
+      onSubmit &&
+        toast.error("You should provide a password.");
     }
 
     return {
@@ -165,7 +165,7 @@ const Signin = () => {
           <div className={authFormStyles.inputContainer}>
             <label
               className={authFormStyles.label}
-              htmlFor="signin-username-or-password"
+              htmlFor="signin-username-or-email"
             >
               Username or email address
             </label>
@@ -173,7 +173,7 @@ const Signin = () => {
               className={authFormStyles.input}
               type="text"
               name="usernameOrEmail"
-              id="signin-username-or-password"
+              id="signin-username-or-email"
               value={usernameOrEmail}
               onChange={handleChange}
               autoFocus
