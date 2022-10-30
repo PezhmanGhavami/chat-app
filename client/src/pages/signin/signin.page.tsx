@@ -70,7 +70,6 @@ const Signin = () => {
   };
 
   // TODO - consider adding a live validator to the form
-  // TODO - maybe add a show password button
   // FIXME - When you select an input using mouse, if you try to go to the next one with tab, the previous input stays focused
 
   const validateForm = (onSubmit: boolean = false) => {
@@ -178,6 +177,8 @@ const Signin = () => {
               id="signin-username-or-password"
               value={usernameOrEmail}
               onChange={handleChange}
+              autoFocus
+              tabIndex={1}
             />
           </div>
           <div className={authFormStyles.inputContainer}>
@@ -194,17 +195,20 @@ const Signin = () => {
               id="signin-password"
               value={password}
               onChange={handleChange}
+              tabIndex={2}
             />
           </div>
         </div>
         <button
           className={authFormStyles.submitButton}
           type="submit"
+          tabIndex={3}
         >
           {isLoading ? <LoadingSpinner /> : "Sign in"}
         </button>
         <Link
           to={"/auth/signup"}
+          tabIndex={4}
           className={authFormStyles.link}
         >
           <span>or create a new account</span>
