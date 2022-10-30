@@ -46,6 +46,12 @@ const initialFormData = {
   password: "",
 };
 
+enum inputStatus {
+  EMPTY,
+  VALID,
+  INVALID,
+}
+
 const Signin = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
@@ -63,14 +69,61 @@ const Signin = () => {
     }));
   };
 
-  // TODO - Add a form validator
+  // TODO - consider adding a live validator to the form
   // TODO - maybe add a show password button
   // FIXME - When you select an input using mouse, if you try to go to the next one with tab, the previous input stays focused
+
+  const validateForm = (onSubmit: boolean = false) => {
+    let formIsValid = true;
+    let usernameOrEmailStatus = inputStatus.VALID;
+    let passwordStatus = inputStatus.VALID;
+    const emailRegex =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    const usernameRegex =
+      /^(?=[a-z0-9.]{3,20}$)[a-z0-9]+\.?[a-z0-9]+$/i;
+
+    if (
+      usernameOrEmail === "" ||
+      !usernameOrEmail ||
+      (!emailRegex.test(usernameOrEmail) &&
+        !usernameRegex.test(usernameOrEmail))
+    ) {
+      formIsValid = false;
+      usernameOrEmailStatus =
+        usernameOrEmail === "" || !usernameOrEmail
+          ? inputStatus.EMPTY
+          : inputStatus.INVALID;
+      onSubmit &&
+        toast.error(
+          usernameOrEmailStatus === inputStatus.EMPTY
+            ? "You should provide your username or email address."
+            : "Invalid email address or username format."
+        );
+    }
+
+    if (password === "" || !password) {
+      onSubmit &&
+        toast.error("You should provide a password.");
+      formIsValid = false;
+      passwordStatus = inputStatus.EMPTY;
+    }
+
+    return {
+      formIsValid,
+      usernameOrEmailStatus,
+      passwordStatus,
+    };
+  };
 
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
+
+    if (!validateForm(true).formIsValid) {
+      return;
+    }
+
     setIsLoading(true);
 
     const userData = {
