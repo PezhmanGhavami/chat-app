@@ -25,7 +25,7 @@ export default function useUser() {
       data?.isLoggedIn &&
       redirectRoutes.includes(location.pathname)
     ) {
-      navigate("/");
+      navigate("/", { replace: true });
     }
   }, [data]);
 
