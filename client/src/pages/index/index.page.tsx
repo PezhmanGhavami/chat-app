@@ -1,7 +1,7 @@
 function Index() {
   return (
-    <div className="h-[85vh] flex flex-col justify-center items-center">
-      <p className="text-4xl pb-4">
+    <div className="flex justify-center items-center h-full">
+      <p className="text-xl text-center bg-neutral-800 rounded-xl px-4 py-1">
         Select a chat to start messaging
       </p>
     </div>
