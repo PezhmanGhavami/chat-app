@@ -11,4 +11,7 @@ export interface IApiMessage {
 export interface IUser {
   isLoggedIn: boolean;
   userID: string;
+  displayName: string;
+  profilePicure: string | null;
+  username: string | null;
 }

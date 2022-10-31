@@ -12,6 +12,9 @@ declare module "iron-session" {
   interface IronSessionData {
     user?: {
       userID: string;
+      displayName: string;
+      profilePicure: string | null;
+      username: string | null;
       dateCreated: number;
     };
   }

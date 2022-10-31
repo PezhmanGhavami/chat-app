@@ -66,6 +66,9 @@ const handleRegister: IExpressEndpointHandler = async (
     const user = {
       userID: newUser.id,
       dateCreated: Date.now(),
+      displayName: newUser.displayName,
+      profilePicure: null,
+      username: null,
     };
     req.session.user = user;
     await req.session.save();
@@ -73,6 +76,9 @@ const handleRegister: IExpressEndpointHandler = async (
     return res.json({
       isLoggedIn: true,
       userID: newUser.id,
+      displayName: newUser.displayName,
+      profilePicure: null,
+      username: null,
     } as IUser);
   } catch (error) {
     next(error);
@@ -126,6 +132,9 @@ const handleSignin: IExpressEndpointHandler = async (
     const user = {
       userID: userExists.id,
       dateCreated: Date.now(),
+      displayName: userExists.displayName,
+      profilePicure: userExists.profilePicure,
+      username: userExists.username,
     };
     req.session.user = user;
     await req.session.save();
@@ -133,6 +142,9 @@ const handleSignin: IExpressEndpointHandler = async (
     return res.json({
       isLoggedIn: true,
       userID: userExists.id,
+      displayName: userExists.displayName,
+      profilePicure: userExists.profilePicure,
+      username: userExists.username,
     } as IUser);
   } catch (error) {
     next(error);
@@ -177,11 +189,17 @@ const getUser: IExpressEndpointHandler = async (
     return res.json({
       isLoggedIn: true,
       userID: user.userID,
+      displayName: user.displayName,
+      profilePicure: user.profilePicure,
+      username: user.username,
     } as IUser);
   }
   return res.json({
     isLoggedIn: false,
     userID: "",
+    displayName: "",
+    profilePicure: null,
+    username: null,
   } as IUser);
 };
 
