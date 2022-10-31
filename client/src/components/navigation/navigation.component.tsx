@@ -3,9 +3,14 @@ import {
   VscSearch,
   VscClose,
   VscMenu,
+  VscSignOut,
 } from "react-icons/vsc";
 
+import useUser from "../../hooks/useUser";
+
 import UserCardsContainer from "../user-cards-container/user-cards-container.component";
+import Overlay from "../overlay/overlay.component";
+import LoadingSpinner from "../loading-spinner/loading-spinner.component";
 
 const Navigation = ({
   connected,
@@ -13,11 +18,18 @@ const Navigation = ({
   connected: boolean;
 }) => {
   const [openSearch, setOpenSearch] = useState(false);
+  const [openMenu, setOpenMenu] = useState(false);
   const [searchInput, setSearchInput] = useState("");
+
+  const { user } = useUser();
 
   const toggleSearch = () => {
     setOpenSearch((prev) => !prev);
     setSearchInput("");
+  };
+
+  const toggleMenu = () => {
+    setOpenMenu((prev) => !prev);
   };
 
   const handleSearchChange = (
@@ -26,13 +38,68 @@ const Navigation = ({
     setSearchInput(event.target.value);
   };
 
+  if (!user) {
+    return (
+      <div className="pt-52">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
   return (
     <>
-      {/* Search bar */}
+      {/* Header (seach bar, menu, connection status) */}
       <header className="relative flex justify-between mb-3 pb-3 border-b border-neutral-100 dark:border-neutral-500">
-        <button className="text-lg p-2 pl-0  mr-8">
+        {/* The menu */}
+        <button
+          onClick={toggleMenu}
+          className="text-lg p-2 pl-0 mr-8"
+        >
           <VscMenu />
         </button>
+        {openMenu && <Overlay handleClick={toggleMenu} />}
+        <nav
+          className={`fixed left-0 inset-y-0 z-40 -translate-x-full transition-transform duration-200 w-2/3 sm:w-1/3 bg-neutral-800${
+            openMenu ? " translate-x-0" : ""
+          }`}
+        >
+          <div className="h-1/6 border-b p-4 sm:p-6 pb-2">
+            {/* TODO - make the bg color dynamic based on the name letter or just randomize it */}
+            <div className="bg-red-500 w-12 h-12 rounded-full overflow-hidden text-3xl flex justify-center items-center">
+              {user?.profilePicure ? (
+                <img
+                  src={user.profilePicure}
+                  alt={`${user.displayName}'s profile picture`}
+                />
+              ) : (
+                <div>
+                  {user.displayName[0].toLocaleUpperCase()}
+                </div>
+              )}
+            </div>
+
+            <p className="pt-4 capitalize">
+              {user.displayName}
+            </p>
+            <p className="opacity-60">{user.email}</p>
+          </div>
+          <div className="h-5/6 flex flex-col justify-between">
+            <div>
+              {/*TODO - Bunch of updates to fill the sapace things like update username email display name password etc */}
+            </div>
+            <div className="w-full px-4 sm:px-6 hover:bg-neutral-700">
+              <a
+                href="/api/auth/signout"
+                title="Click to sign out"
+                className="h-12 text-red-500 text-lg flex items-center space-x-2"
+              >
+                <VscSignOut />
+                <span> Signout</span>
+              </a>
+            </div>
+          </div>
+        </nav>
+        {/* Connection status and search bar toggle*/}
         <div className="flex-1 w-full flex justify-between">
           <p className="text-2xl">
             {connected ? (
@@ -46,14 +113,14 @@ const Navigation = ({
             )}
           </p>
           <button
-            className="z-10 rotate-[270deg] text-lg"
+            className="-rotate-90 text-lg"
             type="button"
             onClick={toggleSearch}
           >
             <VscSearch />
           </button>
         </div>
-
+        {/* Search bar */}
         {openSearch && (
           <form className="absolute z-10 left-0 bg-neutral-700 rounded-md overflow-hidden w-full">
             <div>

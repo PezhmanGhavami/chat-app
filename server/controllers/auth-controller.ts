@@ -65,6 +65,7 @@ const handleRegister: IExpressEndpointHandler = async (
 
     const user = {
       userID: newUser.id,
+      email: newUser.email,
       dateCreated: Date.now(),
       displayName: newUser.displayName,
       profilePicure: null,
@@ -76,6 +77,7 @@ const handleRegister: IExpressEndpointHandler = async (
     return res.json({
       isLoggedIn: true,
       userID: newUser.id,
+      email: newUser.email,
       displayName: newUser.displayName,
       profilePicure: null,
       username: null,
@@ -131,6 +133,7 @@ const handleSignin: IExpressEndpointHandler = async (
     }
     const user = {
       userID: userExists.id,
+      email: userExists.email,
       dateCreated: Date.now(),
       displayName: userExists.displayName,
       profilePicure: userExists.profilePicure,
@@ -142,6 +145,7 @@ const handleSignin: IExpressEndpointHandler = async (
     return res.json({
       isLoggedIn: true,
       userID: userExists.id,
+      email: userExists.email,
       displayName: userExists.displayName,
       profilePicure: userExists.profilePicure,
       username: userExists.username,
@@ -189,6 +193,7 @@ const getUser: IExpressEndpointHandler = async (
     return res.json({
       isLoggedIn: true,
       userID: user.userID,
+      email: user.email,
       displayName: user.displayName,
       profilePicure: user.profilePicure,
       username: user.username,
@@ -197,6 +202,7 @@ const getUser: IExpressEndpointHandler = async (
   return res.json({
     isLoggedIn: false,
     userID: "",
+    email: "",
     displayName: "",
     profilePicure: null,
     username: null,

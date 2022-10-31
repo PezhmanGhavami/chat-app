@@ -7,6 +7,10 @@ import fetcher from "../utils/fetcher";
 interface IUser {
   isLoggedIn: boolean;
   userID: string;
+  email: string;
+  displayName: string;
+  profilePicure: string | null;
+  username: string | null;
 }
 
 const redirectRoutes = ["/auth/signin", "/auth/signup"];
