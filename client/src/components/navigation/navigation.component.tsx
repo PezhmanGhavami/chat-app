@@ -49,7 +49,7 @@ const Navigation = ({
   return (
     <>
       {/* Header (seach bar, menu, connection status) */}
-      <header className="relative flex justify-between mb-3 pb-3 border-b border-neutral-100 dark:border-neutral-500">
+      <header className="relative flex justify-between mb-2 pb-3 h-[5%] border-b border-neutral-100 dark:border-neutral-500">
         {/* The menu */}
         <button
           onClick={toggleMenu}
@@ -59,7 +59,7 @@ const Navigation = ({
         </button>
         {openMenu && <Overlay handleClick={toggleMenu} />}
         <nav
-          className={`fixed left-0 inset-y-0 z-40 -translate-x-full transition-transform duration-200 w-2/3 sm:w-1/3 bg-neutral-800${
+          className={`fixed left-0 inset-y-0 z-40 -translate-x-full transition-transform duration-200 w-2/3 sm:w-64 md:w-72 lg:w-80 xl:w-96 bg-neutral-800${
             openMenu ? " translate-x-0" : ""
           }`}
         >

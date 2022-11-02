@@ -25,11 +25,11 @@ const Layout = () => {
   }, []);
 
   return (
-    <div className="w-screen min-h-screen grid grid-cols- sm:grid-cols-3">
-      <div className="bg-neutral-800 p-3">
+    <div className="w-screen h-screen flex">
+      <div className="bg-neutral-800 p-3 w-full h-full sm:w-64 md:w-72 lg:w-80 xl:w-96 z-10">
         <Navigation connected={isConnected} />
       </div>
-      <main className="sm:col-span-2">
+      <main className="fixed inset-0 translate-x-full sm:static sm:translate-x-0 sm:flex-1 sm-w-full">
         <Outlet />
       </main>
     </div>

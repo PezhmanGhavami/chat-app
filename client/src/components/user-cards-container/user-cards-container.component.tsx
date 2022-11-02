@@ -2,7 +2,16 @@ import UserCard from "../user-card/user-card.component";
 
 const UserCardsContainer = () => {
   return (
-    <div>
+    <div className="text-ellipsis h-[95%] overflow-scroll">
+      <UserCard />
+      <UserCard />
+      <UserCard />
+      <UserCard />
+      <UserCard />
+      <UserCard />
+      <UserCard />
+      <UserCard />
+      <UserCard />
       <UserCard />
       <UserCard />
       <UserCard />
