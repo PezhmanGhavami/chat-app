@@ -49,111 +49,113 @@ const Navigation = ({
   return (
     <>
       {/* Header (seach bar, menu, connection status) */}
-      <header className="relative flex justify-between mb-2 pb-3 h-[5%] border-b border-neutral-100 dark:border-neutral-500">
-        {/* The menu */}
-        <button
-          onClick={toggleMenu}
-          className="text-lg p-2 pl-0 mr-8"
-        >
-          <VscMenu />
-        </button>
-        {openMenu && <Overlay handleClick={toggleMenu} />}
-        <nav
-          className={`fixed left-0 inset-y-0 z-40 -translate-x-full transition-transform duration-200 w-2/3 sm:w-64 md:w-72 lg:w-80 xl:w-96 bg-neutral-800${
-            openMenu ? " translate-x-0" : ""
-          }`}
-        >
-          <div className="h-1/6 border-b p-4 sm:p-6 pb-2">
-            {/* TODO - make the bg color dynamic based on the name letter or just randomize it */}
-            <div className="bg-red-500 w-12 h-12 rounded-full overflow-hidden text-3xl flex justify-center items-center">
-              {user?.profilePicure ? (
-                <img
-                  src={user.profilePicure}
-                  alt={`${user.displayName}'s profile picture`}
-                />
-              ) : (
-                <div>
-                  {user.displayName[0].toLocaleUpperCase()}
-                </div>
-              )}
-            </div>
-
-            <p className="pt-4 capitalize">
-              {user.displayName}
-            </p>
-            <p className="opacity-60">{user.email}</p>
-          </div>
-          <div className="h-5/6 flex flex-col justify-between">
-            <div>
-              {/*TODO - Bunch of updates to fill the sapace things like update username email display name password etc */}
-            </div>
-            <div className="w-full px-4 sm:px-6 hover:bg-neutral-700">
-              <a
-                href="/api/auth/signout"
-                title="Click to sign out"
-                className="h-12 text-red-500 text-lg flex items-center space-x-2"
-              >
-                <VscSignOut />
-                <span> Signout</span>
-              </a>
-            </div>
-          </div>
-        </nav>
-        {/* Connection status and search bar toggle*/}
-        <div className="flex-1 w-full flex justify-between">
-          <p className="text-2xl">
-            {connected ? (
-              <span className="tracking-tight font-semibold">
-                Chat app
-              </span>
-            ) : (
-              <span className="animate-pulse">
-                Connecting...
-              </span>
-            )}
-          </p>
+      <div className="p-3">
+        <header className="relative flex justify-between mb-2 pb-3 h-[5%] border-b border-neutral-100 dark:border-neutral-500">
+          {/* The menu */}
           <button
-            className="-rotate-90 text-lg"
-            type="button"
-            onClick={toggleSearch}
+            onClick={toggleMenu}
+            className="text-lg p-2 pl-0 mr-8"
           >
-            <VscSearch />
+            <VscMenu />
           </button>
-        </div>
-        {/* Search bar */}
-        {openSearch && (
-          <form className="absolute z-10 left-0 bg-neutral-700 rounded-md overflow-hidden w-full">
-            <div>
-              <label
-                htmlFor="user-search"
-                className="sr-only"
-              >
-                Search
-              </label>
-              <div className="flex h-8 pr-1">
-                <input
-                  className="w-full pl-4 pr-6 bg-transparent focus:outline-none "
-                  type="text"
-                  name="search"
-                  id="user-search"
-                  placeholder="Search"
-                  value={searchInput}
-                  onChange={handleSearchChange}
-                  autoFocus
-                />
+          {openMenu && <Overlay handleClick={toggleMenu} />}
+          <nav
+            className={`fixed left-0 inset-y-0 z-40 -translate-x-full transition-transform duration-200 w-2/3 sm:w-64 md:w-72 lg:w-80 xl:w-96 bg-neutral-800${
+              openMenu ? " translate-x-0" : ""
+            }`}
+          >
+            <div className="h-1/6 border-b p-4 sm:p-6 pb-2">
+              {/* TODO - make the bg color dynamic based on the name letter or just randomize it */}
+              <div className="bg-red-500 w-12 h-12 rounded-full overflow-hidden text-3xl flex justify-center items-center">
+                {user?.profilePicure ? (
+                  <img
+                    src={user.profilePicure}
+                    alt={`${user.displayName}'s profile picture`}
+                  />
+                ) : (
+                  <div>
+                    {user.displayName[0].toLocaleUpperCase()}
+                  </div>
+                )}
+              </div>
 
-                <button
-                  className="text-lg"
-                  type="button"
-                  onClick={toggleSearch}
+              <p className="pt-4 capitalize">
+                {user.displayName}
+              </p>
+              <p className="opacity-60">{user.email}</p>
+            </div>
+            <div className="h-5/6 flex flex-col justify-between">
+              <div>
+                {/*TODO - Bunch of updates to fill the sapace things like update username email display name password etc */}
+              </div>
+              <div className="w-full px-4 sm:px-6 hover:bg-neutral-700">
+                <a
+                  href="/api/auth/signout"
+                  title="Click to sign out"
+                  className="h-12 text-red-500 text-lg flex items-center space-x-2"
                 >
-                  <VscClose />
-                </button>
+                  <VscSignOut />
+                  <span> Signout</span>
+                </a>
               </div>
             </div>
-          </form>
-        )}
-      </header>
+          </nav>
+          {/* Connection status and search bar toggle*/}
+          <div className="flex-1 w-full flex justify-between">
+            <p className="text-2xl">
+              {connected ? (
+                <span className="tracking-tight font-semibold">
+                  Chat app
+                </span>
+              ) : (
+                <span className="animate-pulse">
+                  Connecting...
+                </span>
+              )}
+            </p>
+            <button
+              className="-rotate-90 text-lg"
+              type="button"
+              onClick={toggleSearch}
+            >
+              <VscSearch />
+            </button>
+          </div>
+          {/* Search bar */}
+          {openSearch && (
+            <form className="absolute z-10 left-0 bg-neutral-700 rounded-md overflow-hidden w-full">
+              <div>
+                <label
+                  htmlFor="user-search"
+                  className="sr-only"
+                >
+                  Search
+                </label>
+                <div className="flex h-8 pr-1">
+                  <input
+                    className="w-full pl-4 pr-6 bg-transparent focus:outline-none "
+                    type="text"
+                    name="search"
+                    id="user-search"
+                    placeholder="Search"
+                    value={searchInput}
+                    onChange={handleSearchChange}
+                    autoFocus
+                  />
+
+                  <button
+                    className="text-lg"
+                    type="button"
+                    onClick={toggleSearch}
+                  >
+                    <VscClose />
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
+        </header>
+      </div>
       {/* User cards container - can be filled with users's chats or search results for new chats */}
       <UserCardsContainer />
     </>

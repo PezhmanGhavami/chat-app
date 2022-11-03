@@ -12,7 +12,7 @@ const unreadCount = 25;
 
 const UserCard = () => {
   return (
-    <div className="flex pb-2 group select-none">
+    <div className="flex pb-2 group select-none px-3">
       <div className="flex-none bg-red-500 w-12 h-12 rounded-full overflow-hidden text-3xl flex justify-center items-center">
         {user?.profilePicure ? (
           <img
@@ -40,7 +40,7 @@ const UserCard = () => {
               {lastMessage}
             </p>
           </div>
-          <span className="bg-neutral-600 rounded-full text-sm text-white tracking-tighter w-5 h-5 flex justify-center items-center">
+          <span className="flex-none bg-neutral-600 rounded-full text-sm text-white tracking-tighter w-5 h-5 flex justify-center items-center">
             {unreadCount}
           </span>
         </div>
