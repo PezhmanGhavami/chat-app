@@ -12,7 +12,7 @@ const unreadCount = 25;
 
 const UserCard = () => {
   return (
-    <div className="flex pb-2 group select-none px-3">
+    <div className="flex pt-2 px-3 group select-none hover:bg-neutral-700 border-b border-b-neutral-700 last-of-type:border-0">
       <div className="flex-none bg-red-500 w-12 h-12 rounded-full overflow-hidden text-3xl flex justify-center items-center">
         {user?.profilePicure ? (
           <img
@@ -25,7 +25,7 @@ const UserCard = () => {
           </div>
         )}
       </div>
-      <div className="pl-3 border-b w-full border-b-neutral-700 group-last:border-0 pb-2">
+      <div className="pb-3 pl-3 w-full">
         {/* Title and last message time */}
         <div className="flex justify-between">
           <h3>Chat title</h3>
