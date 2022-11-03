@@ -12,8 +12,8 @@ const unreadCount = 25;
 
 const UserCard = () => {
   return (
-    <div className="flex space-x-3 pb-2 group select-none w-full">
-      <div className="bg-red-500 w-12 h-12 rounded-full overflow-hidden text-3xl flex justify-center items-center">
+    <div className="flex pb-2 group select-none">
+      <div className="flex-none bg-red-500 w-12 h-12 rounded-full overflow-hidden text-3xl flex justify-center items-center">
         {user?.profilePicure ? (
           <img
             src={user.profilePicure}
@@ -25,7 +25,7 @@ const UserCard = () => {
           </div>
         )}
       </div>
-      <div className="flex-1 border-b border-b-neutral-700 group-last:border-0 pb-2">
+      <div className="pl-3 border-b w-full border-b-neutral-700 group-last:border-0 pb-2">
         {/* Title and last message time */}
         <div className="flex justify-between">
           <h3>Chat title</h3>
@@ -35,7 +35,11 @@ const UserCard = () => {
         </div>
         {/* Last message summary and unread messages */}
         <div className="flex justify-between">
-          <p className="text-neutral-400">{lastMessage}</p>
+          <div className="relative w-full mr-2">
+            <p className="absolute inset-0 truncate text-neutral-400">
+              {lastMessage}
+            </p>
+          </div>
           <span className="bg-neutral-600 rounded-full text-sm text-white tracking-tighter w-5 h-5 flex justify-center items-center">
             {unreadCount}
           </span>
