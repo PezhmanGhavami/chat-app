@@ -5,3 +5,18 @@
 body {
   @apply bg-white text-neutral-900 dark:bg-neutral-900 dark:text-white;
 }
+
+@media screen and (min-width: 640px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #8886;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #888a;
+  }
+}
