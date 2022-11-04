@@ -12,23 +12,19 @@ import {
 } from "react-icons/vsc";
 
 import useUser from "../../hooks/useUser";
-import { SocketContext } from "../layout/layout.component";
+import { SocketContext } from "../../context/socket.context";
 
 import UserCardsContainer from "../user-cards-container/user-cards-container.component";
 import Overlay from "../overlay/overlay.component";
 import LoadingSpinner from "../loading-spinner/loading-spinner.component";
 
-const Navigation = ({
-  connected,
-}: {
-  connected: boolean;
-}) => {
+const Navigation = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
   const [searchInput, setSearchInput] = useState("");
 
   const { user } = useUser();
-  const { socket } = useContext(SocketContext);
+  const { socket, isConnected } = useContext(SocketContext);
 
   useEffect(() => {
     socket.on("search-result", (res) => {
@@ -124,7 +120,7 @@ const Navigation = ({
           {/* Connection status and search bar toggle*/}
           <div className="flex-1 w-full flex justify-between">
             <p className="text-2xl">
-              {connected ? (
+              {isConnected ? (
                 <span className="tracking-tight font-semibold">
                   Chat app
                 </span>

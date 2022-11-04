@@ -53,6 +53,7 @@ server
 
 io.on("connection", (socket) => {
   socket.on("search-user", async (searchParam) => {
+    socket.emit("connect");
     const res = await prisma.user.findFirst({
       where: {
         OR: [
