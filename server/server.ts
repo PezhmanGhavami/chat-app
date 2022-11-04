@@ -4,6 +4,8 @@ import express from "express";
 import { Server as socketServer } from "socket.io";
 import { createServer } from "http";
 
+import { prisma } from "./utils/prisma-client";
+
 import authRouter from "./routes/auth-routes";
 
 import { session } from "./middlewares/session-middleware";
@@ -50,12 +52,23 @@ server
   });
 
 io.on("connection", (socket) => {
-  socket.on("hello!", () => {
-    console.log(`hello from ${socket.id}`);
-    socket.emit("message", Date.now());
+  socket.on("search-user", async (searchParam) => {
+    const res = await prisma.user.findFirst({
+      where: {
+        OR: [
+          {
+            email: { contains: searchParam },
+          },
+          { username: { contains: searchParam } },
+          { displayName: { contains: searchParam } },
+        ],
+      },
+    });
+    socket.emit("search-result", JSON.stringify(res));
+    console.log(searchParam);
   });
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", async () => {
     console.log(`disconnect: ${socket.id}`);
   });
 });

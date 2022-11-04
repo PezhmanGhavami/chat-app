@@ -1,4 +1,9 @@
-import { ChangeEvent, useState } from "react";
+import {
+  ChangeEvent,
+  useState,
+  useContext,
+  useEffect,
+} from "react";
 import {
   VscSearch,
   VscClose,
@@ -7,6 +12,7 @@ import {
 } from "react-icons/vsc";
 
 import useUser from "../../hooks/useUser";
+import { SocketContext } from "../layout/layout.component";
 
 import UserCardsContainer from "../user-cards-container/user-cards-container.component";
 import Overlay from "../overlay/overlay.component";
@@ -22,6 +28,17 @@ const Navigation = ({
   const [searchInput, setSearchInput] = useState("");
 
   const { user } = useUser();
+  const { socket } = useContext(SocketContext);
+
+  useEffect(() => {
+    socket.on("search-result", (res) => {
+      console.log(JSON.parse(res));
+    });
+
+    return () => {
+      socket.off("search-result");
+    };
+  }, []);
 
   const toggleSearch = () => {
     setOpenSearch((prev) => !prev);
@@ -36,6 +53,10 @@ const Navigation = ({
     event: ChangeEvent<HTMLInputElement>
   ) => {
     setSearchInput(event.target.value);
+
+    if (event.target.value.length >= 3) {
+      socket.emit("search-user", event.target.value);
+    }
   };
 
   if (!user) {
