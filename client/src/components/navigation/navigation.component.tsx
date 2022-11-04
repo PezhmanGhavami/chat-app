@@ -1,9 +1,4 @@
-import {
-  ChangeEvent,
-  useState,
-  useContext,
-  useEffect,
-} from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 import {
   VscSearch,
   VscClose,
@@ -12,7 +7,6 @@ import {
 } from "react-icons/vsc";
 
 import useUser from "../../hooks/useUser";
-import { SocketContext } from "../../context/socket.context";
 
 import UserCardsContainer from "../user-cards-container/user-cards-container.component";
 import Overlay from "../overlay/overlay.component";
@@ -24,17 +18,6 @@ const Navigation = () => {
   const [searchInput, setSearchInput] = useState("");
 
   const { user } = useUser();
-  const { socket, isConnected } = useContext(SocketContext);
-
-  useEffect(() => {
-    socket.on("search-result", (res) => {
-      console.log(JSON.parse(res));
-    });
-
-    return () => {
-      socket.off("search-result");
-    };
-  }, []);
 
   const toggleSearch = () => {
     setOpenSearch((prev) => !prev);
@@ -51,7 +34,7 @@ const Navigation = () => {
     setSearchInput(event.target.value);
 
     if (event.target.value.length >= 3) {
-      socket.emit("search-user", event.target.value);
+      // socket.emit("search-user", event.target.value);
     }
   };
 
@@ -67,7 +50,7 @@ const Navigation = () => {
     <>
       {/* Header (seach bar, menu, connection status) */}
       <div className="p-3 pb-0">
-        <header className="relative flex justify-between pb-3 h-[5%] border-b border-neutral-100 dark:border-neutral-500">
+        <header className="relative flex justify-between pb-3 border-b border-neutral-100 dark:border-neutral-500">
           {/* The menu */}
           <button
             onClick={toggleMenu}
@@ -120,7 +103,8 @@ const Navigation = () => {
           {/* Connection status and search bar toggle*/}
           <div className="flex-1 w-full flex justify-between">
             <p className="text-2xl">
-              {isConnected ? (
+              {/* FIXME - This should be a var */}
+              {true ? (
                 <span className="tracking-tight font-semibold">
                   Chat app
                 </span>

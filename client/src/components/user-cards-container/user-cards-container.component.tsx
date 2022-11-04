@@ -2,7 +2,7 @@ import UserCard from "../user-card/user-card.component";
 
 const UserCardsContainer = () => {
   return (
-    <div className="h-[92%] overflow-scroll">
+    <div className="overflow-y-scroll overflow-x-hidden">
       <UserCard />
       <UserCard />
       <UserCard />
