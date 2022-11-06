@@ -26,12 +26,6 @@ const WebSocketProvider = ({
 
   useEffect(() => {
     if (!isConnected) {
-      console.log("Connecting...");
-      // const webSocket = new WebSocket(
-      //   "ws://localhost:5000/"
-      // );
-      // setWs(webSocket);
-      // console.log("Reconnecting in 5 seconds");
       setTimeout(() => {
         if (!isConnected) {
           console.log("Connecting...");
@@ -40,7 +34,7 @@ const WebSocketProvider = ({
           );
           setWs(webSocket);
         }
-      }, 5000);
+      }, 1000);
     }
   }, [isConnected]);
 
