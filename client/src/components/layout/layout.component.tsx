@@ -1,16 +1,22 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 
 import Navigation from "../navigation/navigation.component";
 import WebSocketProvider from "../../context/websocket.context";
 
 const Layout = () => {
+  const params = useParams();
+
   return (
     <WebSocketProvider>
       <div className="w-screen h-screen flex">
         <div className="flex flex-col bg-neutral-800 w-full h-full sm:w-64 md:w-72 lg:w-80 xl:w-96 z-10">
           <Navigation />
         </div>
-        <main className="fixed inset-0 translate-x-full sm:static sm:translate-x-0 sm:flex-1 sm-w-full">
+        <main
+          className={`fixed inset-0 translate-x-full sm:static sm:translate-x-0 sm:flex-1 sm-w-full${
+            params.chatID ? " translate-x-0 z-50" : ""
+          }`}
+        >
           <Outlet />
         </main>
       </div>

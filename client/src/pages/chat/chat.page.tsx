@@ -49,9 +49,9 @@ function Chat() {
   }, [messagesList]);
 
   return (
-    <div className="flex flex-col justify-between h-full">
+    <div className="flex flex-col justify-between h-full bg-neutral-900">
       {/* Header */}
-      <div className="p-3 bg-neutral-800 border-b border-l border-neutral-100 dark:border-neutral-500">
+      <div className="p-3 bg-neutral-800 border-b sm:border-l border-neutral-100 dark:border-neutral-500">
         <header className="flex justify-between ">
           {/* The menu */}
           <Link to={"/"} className="text-lg p-2 pl-0">
@@ -80,12 +80,14 @@ function Chat() {
       {/* Text input */}
       <div>
         <form onSubmit={handleSubmit} className="flex">
-          <label className="sr-only">
-            Message (string or json)
+          <label htmlFor="message" className="sr-only">
+            Message
           </label>
           <input
             className="bg-neutral-800 w-full h-12 px-4"
             name="message"
+            id="message"
+            autoComplete="off"
             value={message}
             onKeyDown={(event) => {
               if (
