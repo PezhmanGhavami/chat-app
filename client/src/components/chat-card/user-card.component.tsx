@@ -36,7 +36,7 @@ const ChatCard = () => {
         <div className="pl-3 w-full">
           {/* Title and last message time */}
           <div className="flex justify-between">
-            <h3>Chat title</h3>
+            <h3>{user.displayName}</h3>
             <span className="text-xs text-neutral-400">
               00:30
             </span>
