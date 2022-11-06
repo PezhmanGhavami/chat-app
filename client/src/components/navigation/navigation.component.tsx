@@ -53,8 +53,8 @@ const Navigation = () => {
   return (
     <>
       {/* Header (seach bar, menu, connection status) */}
-      <div className="p-3 pb-0">
-        <header className="relative flex justify-between pb-3 border-b border-neutral-100 dark:border-neutral-500">
+      <div className="p-3 pb-0 border-b border-neutral-100 dark:border-neutral-500">
+        <header className="relative flex justify-between pb-3">
           {/* The menu */}
           <button
             onClick={toggleMenu}
