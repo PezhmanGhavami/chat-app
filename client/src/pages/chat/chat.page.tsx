@@ -52,18 +52,18 @@ function Chat() {
     <div className="flex flex-col justify-between h-full bg-neutral-900">
       {/* Header */}
       <div className="p-3 bg-neutral-800 border-b sm:border-l border-neutral-100 dark:border-neutral-500">
-        <header className="flex justify-between ">
+        <header className="flex justify-between items-center text-lg">
           {/* The menu */}
-          <Link to={"/"} className="text-lg p-2 pl-0">
+          <Link to={"/"} className="p-2 pl-0">
             <VscArrowLeft />
           </Link>
           {/* Connection status and search bar toggle*/}
-          <div className="flex-1 text-lg w-full flex justify-between">
+          <div className="flex-1">
             <UserCard />
-            <button type="button">
-              <VscKebabVertical />
-            </button>
           </div>
+          <button className="p-2 pr-0" type="button">
+            <VscKebabVertical />
+          </button>
         </header>
       </div>
 
