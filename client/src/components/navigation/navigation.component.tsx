@@ -64,9 +64,11 @@ const Navigation = () => {
           </button>
           {openMenu && <Overlay handleClick={toggleMenu} />}
           <nav
-            className={`fixed left-0 inset-y-0 z-40 -translate-x-full transition-transform duration-200 w-2/3 sm:w-64 md:w-72 lg:w-80 xl:w-96 bg-neutral-800${
-              openMenu ? " translate-x-0" : ""
-            }`}
+            className={`fixed left-0 inset-y-0 z-40 inset-0 transition-transform duration-200 w-2/3 sm:w-64 md:w-72 lg:w-80 xl:w-96 bg-neutral-800 ${
+              openMenu
+                ? "translate-x-0"
+                : "-translate-x-full"
+            } `}
           >
             <div className="h-1/6 border-b p-4 sm:p-6 pb-2">
               {/* TODO - make the bg color dynamic based on the name letter or just randomize it */}

@@ -13,8 +13,10 @@ const Layout = () => {
           <Navigation />
         </div>
         <main
-          className={`fixed inset-0 translate-x-full sm:static sm:translate-x-0 sm:flex-1 sm-w-full${
-            params.chatID ? " translate-x-0 z-50" : ""
+          className={`fixed inset-0 sm:static sm:translate-x-0 sm:flex-1 sm-w-full ${
+            params.chatID
+              ? "translate-x-0 z-50 sm:z-0"
+              : "translate-x-full"
           }`}
         >
           <Outlet />
