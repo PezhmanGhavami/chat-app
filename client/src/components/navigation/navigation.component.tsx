@@ -1,4 +1,4 @@
-import { ChangeEvent, useState, useEffect } from "react";
+import { ChangeEvent, useState, useContext } from "react";
 import {
   VscSearch,
   VscClose,
@@ -7,6 +7,8 @@ import {
 } from "react-icons/vsc";
 
 import useUser from "../../hooks/useUser";
+
+import { WebSocketContext } from "../../context/websocket.context";
 
 import UserCardsContainer from "../user-cards-container/user-cards-container.component";
 import Overlay from "../overlay/overlay.component";
@@ -18,6 +20,7 @@ const Navigation = () => {
   const [searchInput, setSearchInput] = useState("");
 
   const { user } = useUser();
+  const { ws, isConnected } = useContext(WebSocketContext);
 
   const toggleSearch = () => {
     setOpenSearch((prev) => !prev);
@@ -34,7 +37,8 @@ const Navigation = () => {
     setSearchInput(event.target.value);
 
     if (event.target.value.length >= 3) {
-      // socket.emit("search-user", event.target.value);
+      const payload = { "search-user": event.target.value };
+      ws?.send(JSON.stringify(payload));
     }
   };
 
@@ -103,8 +107,7 @@ const Navigation = () => {
           {/* Connection status and search bar toggle*/}
           <div className="flex-1 w-full flex justify-between">
             <p className="text-2xl">
-              {/* FIXME - This should be a var */}
-              {true ? (
+              {isConnected ? (
                 <span className="tracking-tight font-semibold">
                   Chat app
                 </span>
