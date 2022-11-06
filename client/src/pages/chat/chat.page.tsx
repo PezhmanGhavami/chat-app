@@ -84,10 +84,11 @@ function Chat() {
             Message
           </label>
           <input
-            className="bg-neutral-800 w-full h-12 px-4"
+            className="bg-neutral-800 w-full h-12 px-4 focus:outline-none"
             name="message"
             id="message"
             autoComplete="off"
+            autoFocus
             value={message}
             onKeyDown={(event) => {
               if (
