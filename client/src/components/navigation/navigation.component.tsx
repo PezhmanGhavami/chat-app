@@ -10,7 +10,7 @@ import useUser from "../../hooks/useUser";
 
 import { WebSocketContext } from "../../context/websocket.context";
 
-import UserCardsContainer from "../user-cards-container/user-cards-container.component";
+import ChatCardsContainer from "../chat-cards-container/chat-cards-container.component";
 import Overlay from "../overlay/overlay.component";
 import LoadingSpinner from "../loading-spinner/loading-spinner.component";
 
@@ -160,8 +160,8 @@ const Navigation = () => {
           )}
         </header>
       </div>
-      {/* User cards container - can be filled with users's chats or search results for new chats */}
-      <UserCardsContainer />
+      {/* Chat cards container - can be filled with users's chats or search results for new chats */}
+      <ChatCardsContainer />
     </>
   );
 };

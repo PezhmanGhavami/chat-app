@@ -12,7 +12,7 @@ const lastMessage =
   "Last message summary jkfasd jsdafa ajasdf dfsjjsdf jsfkl jlfj  jfsd jflsjfl jj fl jlf jaf j f a jfjs f;djf;ld asj";
 const unreadCount = 25;
 
-const UserCard = () => {
+const ChatCard = () => {
   return (
     <Link
       className="block border-b border-b-neutral-700 last-of-type:border-0"
@@ -58,4 +58,4 @@ const UserCard = () => {
   );
 };
 
-export default UserCard;
+export default ChatCard;
