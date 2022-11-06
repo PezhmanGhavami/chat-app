@@ -1,10 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
-import { Server as socketServer } from "socket.io";
-import { createServer } from "http";
-
-import { prisma } from "./utils/prisma-client";
 
 import authRouter from "./routes/auth-routes";
 
@@ -12,12 +8,7 @@ import { session } from "./middlewares/session-middleware";
 import errorHandler from "./middlewares/error-middleware";
 
 const app = express();
-const server = createServer(app);
-const io = new socketServer(server, {
-  cors: {
-    origin: "*",
-  },
-});
+
 const HOST = "127.0.0.1";
 const envPort = process.env.PORT;
 const PORT = envPort ? parseInt(envPort) : 5000;
@@ -43,33 +34,10 @@ app.use("*", (req, res) => {
 
 app.use(errorHandler);
 
-server
+app
   .listen(PORT, HOST, () => {
     console.log(`Server started at http://${HOST}:${PORT}`);
   })
   .on("error", (err) => {
     return console.error(err + "\n\n" + err.message);
   });
-
-io.on("connection", (socket) => {
-  socket.on("search-user", async (searchParam) => {
-    socket.emit("connect");
-    const res = await prisma.user.findFirst({
-      where: {
-        OR: [
-          {
-            email: { contains: searchParam },
-          },
-          { username: { contains: searchParam } },
-          { displayName: { contains: searchParam } },
-        ],
-      },
-    });
-    socket.emit("search-result", JSON.stringify(res));
-    console.log(searchParam);
-  });
-
-  socket.on("disconnect", async () => {
-    console.log(`disconnect: ${socket.id}`);
-  });
-});
