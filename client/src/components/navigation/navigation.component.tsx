@@ -10,19 +10,29 @@ import {
   VscMenu,
   VscSignOut,
 } from "react-icons/vsc";
+import { toast } from "react-toastify";
 
 import useUser from "../../hooks/useUser";
 
 import { WebSocketContext } from "../../context/websocket.context";
 
+import fetcher from "../../utils/fetcher";
+
 import ChatCardsContainer from "../chat-cards-container/chat-cards-container.component";
+import UserCardsContainer from "../user-card-container/user-cards-container.component";
 import Overlay from "../overlay/overlay.component";
 import LoadingSpinner from "../loading-spinner/loading-spinner.component";
+import { IChat } from "../chat-card/user-card.component";
+import { IUser } from "../user-card/user-card.component";
 
 const Navigation = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
+  const [chats, setChats] = useState<null | IChat[]>(null);
   const [searchInput, setSearchInput] = useState("");
+  const [searchResult, setSearchResult] = useState<
+    null | IUser[]
+  >(null);
 
   const { user } = useUser();
   const socket = useContext(WebSocketContext);
@@ -31,12 +41,26 @@ const Navigation = () => {
     if (!socket) return;
 
     socket.on("search-result", (res) => {
-      console.log(res);
+      setSearchResult(res);
     });
 
     return () => {
       socket.off("search-result");
     };
+  }, []);
+
+  useEffect(() => {
+    fetcher("/api/chats", { method: "GET" })
+      .then((chats) => {
+        setChats(chats);
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Something went wrong.");
+        }
+      });
   }, []);
 
   const toggleSearch = () => {
@@ -162,6 +186,11 @@ const Navigation = () => {
                     placeholder="Search"
                     value={searchInput}
                     onChange={handleSearchChange}
+                    onKeyUp={(event) => {
+                      if (event.code === "Escape") {
+                        toggleSearch();
+                      }
+                    }}
                     autoFocus
                   />
 
@@ -179,7 +208,43 @@ const Navigation = () => {
         </header>
       </div>
       {/* Chat cards container - can be filled with users's chats or search results for new chats */}
-      {/* <ChatCardsContainer /> */}
+      {openSearch ? (
+        searchInput.length > 3 ? (
+          <UserCardsContainer users={searchResult} />
+        ) : (
+          <div className="flex justify-center items-center text-center text-xl p-12 sm:p-2 h-full select-none">
+            <p>
+              Search by name, username, id or email address
+            </p>
+          </div>
+        )
+      ) : chats ? (
+        chats.length > 0 ? (
+          <ChatCardsContainer chats={chats} />
+        ) : (
+          <div className="flex flex-col justify-center items-center h-full select-none space-y-4 p-12 sm:px-4 text-center">
+            <p className="text-2xl">
+              You haven't started a converstion yet.
+            </p>
+            <p className="text-sm">
+              You can start chatting by searching for people
+              you know and begin a conversation with them;
+              after that, your chats will be listed here.
+            </p>
+            <button
+              type="button"
+              onClick={toggleSearch}
+              className="border rounded-md px-2 py-1 hover:bg-neutral-900"
+            >
+              Search now
+            </button>
+          </div>
+        )
+      ) : (
+        <div className="py-72 text-3xl">
+          <LoadingSpinner />
+        </div>
+      )}
     </>
   );
 };

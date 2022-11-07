@@ -1,12 +1,10 @@
-const user: {
-  profilePicure: string | null;
+export interface IUser {
+  id: string;
   displayName: string;
-} = {
-  profilePicure: null,
-  displayName: "Toasty test",
-};
+  profilePicure: string | null;
+}
 
-const UserCard = () => {
+const UserCard = ({ user }: { user: IUser }) => {
   return (
     <div className="flex items-center px-3 select-none">
       {/* Profile picture */}
