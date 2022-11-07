@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 
+import ProfilePicture from "../profile-picture/profile-picture.component";
+
 export interface IChat {
   id: string;
   profilePicure: string | null;
@@ -17,7 +19,16 @@ const ChatCard = ({ chat }: { chat: IChat }) => {
     >
       <div className="flex py-2 px-3 select-none hover:bg-neutral-700">
         {/* Profile picture */}
-        <div className="flex-none bg-red-500 w-12 h-12 rounded-full overflow-hidden text-3xl flex justify-center items-center">
+        <div className="flex-none w-12 h-12">
+          <ProfilePicture
+            user={{
+              displayName: chat.displayName,
+              profilePicure: chat.profilePicure,
+            }}
+          />
+        </div>
+        {/* TODO - remove after test */}
+        {/* <div className="flex-none bg-red-500 w-12 h-12 rounded-full overflow-hidden text-3xl flex justify-center items-center">
           {chat.profilePicure ? (
             <img
               src={chat.profilePicure}
@@ -28,7 +39,7 @@ const ChatCard = ({ chat }: { chat: IChat }) => {
               {chat.displayName[0].toLocaleUpperCase()}
             </div>
           )}
-        </div>
+        </div> */}
         {/* Chat details */}
         <div className="pl-3 w-full">
           {/* Title and last message time */}

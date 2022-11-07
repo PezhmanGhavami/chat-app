@@ -1,24 +1,21 @@
+import ProfilePicture from "../profile-picture/profile-picture.component";
+
 export interface IUser {
   id: string;
   displayName: string;
   profilePicure: string | null;
 }
 
-const UserCard = ({ user }: { user: IUser }) => {
+interface IUserCard {
+  user: IUser;
+}
+
+const UserCard = ({ user }: IUserCard) => {
   return (
     <div className="flex items-center px-3 select-none">
       {/* Profile picture */}
-      <div className="flex-none bg-red-500 w-8 h-8 rounded-full overflow-hidden text-2xl flex justify-center items-center">
-        {user.profilePicure ? (
-          <img
-            src={user.profilePicure}
-            alt={`${user.displayName}'s profile picture`}
-          />
-        ) : (
-          <div>
-            {user.displayName[0].toLocaleUpperCase()}
-          </div>
-        )}
+      <div className="flex-none w-8 h-8">
+        <ProfilePicture user={user} />
       </div>
       {/* Display name */}
       <div className="pl-2">

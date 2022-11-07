@@ -20,6 +20,7 @@ import fetcher from "../../utils/fetcher";
 
 import ChatCardsContainer from "../chat-cards-container/chat-cards-container.component";
 import UserCardsContainer from "../user-card-container/user-cards-container.component";
+import ProfilePicture from "../profile-picture/profile-picture.component";
 import Overlay from "../overlay/overlay.component";
 import LoadingSpinner from "../loading-spinner/loading-spinner.component";
 import { IChat } from "../chat-card/chat-card.component";
@@ -63,9 +64,32 @@ const Navigation = () => {
       });
   }, []);
 
+  useEffect(() => {
+    if (!openSearch) return;
+
+    const escapeEventFunction = (event: KeyboardEvent) => {
+      if (event.code === "Escape") {
+        toggleSearch();
+      }
+    };
+
+    globalThis.addEventListener(
+      "keyup",
+      escapeEventFunction
+    );
+
+    return () => {
+      globalThis.removeEventListener(
+        "keyup",
+        escapeEventFunction
+      );
+    };
+  }, [openSearch]);
+
   const toggleSearch = () => {
     setOpenSearch((prev) => !prev);
     setSearchInput("");
+    setSearchResult(null);
   };
 
   const toggleMenu = () => {
@@ -111,20 +135,14 @@ const Navigation = () => {
             } `}
           >
             <div className="h-1/6 border-b p-4 sm:p-6 pb-2">
-              {/* TODO - make the bg color dynamic based on the name letter or just randomize it */}
-              <div className="bg-red-500 w-12 h-12 rounded-full overflow-hidden text-3xl flex justify-center items-center">
-                {user?.profilePicure ? (
-                  <img
-                    src={user.profilePicure}
-                    alt={`${user.displayName}'s profile picture`}
-                  />
-                ) : (
-                  <div>
-                    {user.displayName[0].toLocaleUpperCase()}
-                  </div>
-                )}
+              <div className="w-16 h-16">
+                <ProfilePicture
+                  user={{
+                    displayName: user.displayName,
+                    profilePicure: user.profilePicure,
+                  }}
+                />
               </div>
-
               <p className="pt-4 capitalize">
                 {user.displayName}
               </p>
@@ -186,11 +204,6 @@ const Navigation = () => {
                     placeholder="Search"
                     value={searchInput}
                     onChange={handleSearchChange}
-                    onKeyUp={(event) => {
-                      if (event.code === "Escape") {
-                        toggleSearch();
-                      }
-                    }}
                     autoFocus
                   />
 
@@ -209,7 +222,7 @@ const Navigation = () => {
       </div>
       {/* Chat cards container - can be filled with users's chats or search results for new chats */}
       {openSearch ? (
-        searchInput.length > 3 ? (
+        searchInput.length >= 3 ? (
           <UserCardsContainer users={searchResult} />
         ) : (
           <div className="flex justify-center items-center text-center text-xl p-12 sm:p-2 h-full select-none">

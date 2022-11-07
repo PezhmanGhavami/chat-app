@@ -1,7 +1,9 @@
+import { MouseEvent } from "react";
+
 function Overlay({
   handleClick,
 }: {
-  handleClick: () => void;
+  handleClick: (event: MouseEvent) => void;
 }) {
   return (
     <div
