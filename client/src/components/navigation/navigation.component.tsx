@@ -22,7 +22,7 @@ import ChatCardsContainer from "../chat-cards-container/chat-cards-container.com
 import UserCardsContainer from "../user-card-container/user-cards-container.component";
 import Overlay from "../overlay/overlay.component";
 import LoadingSpinner from "../loading-spinner/loading-spinner.component";
-import { IChat } from "../chat-card/user-card.component";
+import { IChat } from "../chat-card/chat-card.component";
 import { IUser } from "../user-card/user-card.component";
 
 const Navigation = () => {

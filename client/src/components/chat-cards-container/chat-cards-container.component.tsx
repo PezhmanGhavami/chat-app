@@ -1,6 +1,6 @@
 import ChatCard, {
   IChat,
-} from "../chat-card/user-card.component";
+} from "../chat-card/chat-card.component";
 
 interface IChatCardsContainer {
   chats: IChat[];

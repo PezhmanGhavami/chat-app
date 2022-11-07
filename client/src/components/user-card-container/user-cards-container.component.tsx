@@ -17,6 +17,8 @@ const UserCardsContainer = ({
     );
   }
 
+  //TODO - make a modal to start the chat
+
   return (
     <div className="overflow-y-scroll overflow-x-hidden">
       {users.map((user) => (
