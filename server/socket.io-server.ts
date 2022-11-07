@@ -18,7 +18,6 @@ io.on("connection", (socket) => {
   console.log(`${id} joined`);
 
   socket.on("search", async ({ query }) => {
-    console.log(query);
     const res = await prisma.user.findMany({
       where: {
         OR: [
