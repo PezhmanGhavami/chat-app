@@ -4,74 +4,36 @@ import {
   createContext,
   ReactNode,
 } from "react";
+import io, { Socket } from "socket.io-client";
 
-interface IWebSocketContext {
-  ws: WebSocket | null;
-  isConnected: boolean;
-}
+import useUser from "../hooks/useUser";
 
 export const WebSocketContext =
-  createContext<IWebSocketContext>({
-    ws: null,
-    isConnected: false,
-  });
+  createContext<null | Socket>(null);
 
 const WebSocketProvider = ({
   children,
 }: {
   children: ReactNode;
 }) => {
-  const [ws, setWs] = useState<WebSocket | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const { user } = useUser();
 
   useEffect(() => {
-    if (!isConnected) {
-      setTimeout(() => {
-        if (!isConnected) {
-          console.log("Connecting...");
-          const webSocket = new WebSocket(
-            "ws://localhost:5000/"
-          );
-          setWs(webSocket);
-        }
-      }, 1000);
-    }
-  }, [isConnected]);
+    const newSocekt = io("http://localhost:5001", {
+      query: {
+        id: user?.userID,
+      },
+    });
+    setSocket(newSocekt);
 
-  useEffect(() => {
-    if (ws) {
-      ws.onopen = () => {
-        console.log("Connected to socket");
-        setIsConnected(true);
-
-        ws.onmessage = (event) => {
-          console.log(event);
-        };
-      };
-
-      ws.onclose = (event) => {
-        console.log("disconnected");
-        setIsConnected(false);
-      };
-
-      ws.onerror = (event) => {
-        console.error("error");
-        setIsConnected(false);
-      };
-
-      return () => {
-        ws.close();
-      };
-    }
-  }, [ws]);
-
-  const value = {
-    ws,
-    isConnected,
-  };
+    return () => {
+      newSocekt.close();
+    };
+  }, [user]);
 
   return (
-    <WebSocketContext.Provider value={value}>
+    <WebSocketContext.Provider value={socket}>
       {children}
     </WebSocketContext.Provider>
   );

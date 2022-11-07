@@ -5,7 +5,7 @@
   "scripts": {
     "server": "ts-node server.ts",
     "client": "npm run dev --prefix ../client",
-    "dev": "concurrently \"npx nodemon server.ts\" \"npm run client\" \"npx prisma studio\"",
+    "dev": "concurrently \"npx nodemon server.ts --ignore socket.io-server.ts\" \"npm run client\" \"npx prisma studio\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "update": "ncu -u && npm i"
   },
