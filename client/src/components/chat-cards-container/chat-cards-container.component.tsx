@@ -1,31 +1,19 @@
-import ChatCard from "../chat-card/user-card.component";
+import ChatCard, {
+  IChat,
+} from "../chat-card/user-card.component";
 
-const ChatCardsContainer = () => {
+interface IChatCardsContainer {
+  chats: IChat[];
+}
+
+const ChatCardsContainer = ({
+  chats,
+}: IChatCardsContainer) => {
   return (
     <div className="overflow-y-scroll overflow-x-hidden">
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
-      <ChatCard />
+      {chats.map((chat) => (
+        <ChatCard chat={chat} />
+      ))}
     </div>
   );
 };

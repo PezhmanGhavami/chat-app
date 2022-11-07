@@ -179,7 +179,7 @@ const Navigation = () => {
         </header>
       </div>
       {/* Chat cards container - can be filled with users's chats or search results for new chats */}
-      <ChatCardsContainer />
+      {/* <ChatCardsContainer /> */}
     </>
   );
 };
