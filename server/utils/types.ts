@@ -16,3 +16,9 @@ export interface IUser {
   profilePicure: string | null;
   username: string | null;
 }
+
+export interface IUserCard {
+  id: string;
+  displayName: string;
+  profilePicure: string | null;
+}

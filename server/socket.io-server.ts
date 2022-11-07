@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 
 import { prisma } from "./utils/prisma-client";
+import { IUserCard } from "./utils/types";
 
 const io = new Server(5001, {
   cors: {
@@ -37,9 +38,19 @@ io.on("connection", (socket) => {
             },
           },
         ],
+        NOT: {
+          id: id as string,
+        },
+      },
+      select: {
+        id: true,
+        displayName: true,
+        profilePicure: true,
       },
     });
 
-    socket.emit("search-result", res);
+    socket.emit("search-result", res as IUserCard[]);
   });
+
+  // socket.on("disconnect")
 });
