@@ -3,6 +3,7 @@ dotenv.config();
 import express from "express";
 
 import authRouter from "./routes/auth-routes";
+import chatsRouter from "./routes/chats-routes";
 
 import { session } from "./middlewares/session-middleware";
 import errorHandler from "./middlewares/error-middleware";
@@ -22,6 +23,7 @@ app.use(session);
 // });
 
 app.use("/api/auth", authRouter);
+app.use("/api/chats", chatsRouter);
 
 app.use("/api/*", (req, res) => {
   res
