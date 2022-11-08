@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   VscSearch,
   VscClose,
@@ -38,6 +39,9 @@ const Navigation = () => {
   const { user } = useUser();
   const socket = useContext(WebSocketContext);
 
+  const navigate = useNavigate();
+
+  // search input listener
   useEffect(() => {
     if (!socket) return;
 
@@ -50,6 +54,25 @@ const Navigation = () => {
     };
   }, []);
 
+  // New chat
+  useEffect(() => {
+    if (!chats || !socket) return;
+    socket.on("new-chat-created", (chat) => {
+      setChats((prev) => [chat, ...(prev as IChat[])]);
+      toggleSearch();
+      navigate("/chats/" + chat.id);
+    });
+    socket.on("new-chat", (chat) => {
+      setChats((prev) => [chat, ...(prev as IChat[])]);
+    });
+
+    return () => {
+      socket.off("new-chat-created");
+      socket.off("new-chat");
+    };
+  }, [chats]);
+
+  // Initial chats fetch
   useEffect(() => {
     fetcher("/api/chats", { method: "GET" })
       .then((chats) => {
@@ -64,6 +87,7 @@ const Navigation = () => {
       });
   }, []);
 
+  // Search close key listener
   useEffect(() => {
     if (!openSearch) return;
 
