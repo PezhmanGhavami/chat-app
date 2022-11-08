@@ -30,6 +30,7 @@ import { IUser } from "../user-card/user-card.component";
 const Navigation = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const [chats, setChats] = useState<null | IChat[]>(null);
   const [searchInput, setSearchInput] = useState("");
   const [searchResult, setSearchResult] = useState<
@@ -52,7 +53,15 @@ const Navigation = () => {
     return () => {
       socket.off("search-result");
     };
-  }, []);
+  }, [socket]);
+
+  // Connection status listener
+  useEffect(() => {
+    if (!socket) {
+      return setIsConnected(false);
+    }
+    setIsConnected(true);
+  }, [socket]);
 
   // New chat
   useEffect(() => {
@@ -75,7 +84,7 @@ const Navigation = () => {
       socket.off("new-chat");
       socket.off("chat-exists");
     };
-  }, [chats]);
+  }, [chats, socket]);
 
   // Initial chats fetch
   useEffect(() => {
@@ -196,7 +205,7 @@ const Navigation = () => {
           {/* Connection status and search bar toggle*/}
           <div className="flex-1 w-full flex justify-between">
             <p className="text-2xl">
-              {socket?.connected ? (
+              {isConnected ? (
                 <span className="tracking-tight font-semibold">
                   Chat app
                 </span>
