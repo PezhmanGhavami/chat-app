@@ -1,8 +1,11 @@
-import { useState, MouseEvent } from "react";
+import { useState, useContext, MouseEvent } from "react";
 import { VscClose } from "react-icons/vsc";
+import { toast } from "react-toastify";
 
 import Overlay from "../overlay/overlay.component";
 import ProfilePicture from "../profile-picture/profile-picture.component";
+
+import { WebSocketContext } from "../../context/websocket.context";
 
 import UserCard, {
   IUser,
@@ -19,12 +22,23 @@ const UserModal = ({
   user: IUser;
   closeModal: (event: MouseEvent) => void;
 }) => {
+  const socket = useContext(WebSocketContext);
+
+  const handleClick = () => {
+    if (!socket) {
+      return toast.error(
+        "Connection lost\nReconnecting..."
+      );
+    }
+    socket.emit("create-chat", { recipientId: user.id });
+  };
+
   return (
     <div className="fixed z-40 inset-x-0 bottom-1/2 w-11/12 md:w-3/5 xl:w-2/5 mx-auto bg-neutral-800 rounded-lg p-4 hover:cursor-default">
       <div className="flex flex-col">
         <button
           type="button"
-          className="p-2 self-end"
+          className="p-2 pt-0 self-end"
           onClick={closeModal}
         >
           <VscClose className="h-6 w-6" />
@@ -37,7 +51,10 @@ const UserModal = ({
           <p>{user.displayName}</p>
         </div>
 
-        <button className="bg-green-700 w-full rounded-lg p-1">
+        <button
+          onClick={handleClick}
+          className="bg-green-700 hover:bg-green-800 w-full rounded-lg p-1"
+        >
           Click to start chatting
         </button>
       </div>
