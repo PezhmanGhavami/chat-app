@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
 
 import { prisma } from "./utils/prisma-client";
-import { IUserCard } from "./utils/types";
+import { IUserCard, IChatCard } from "./utils/types";
 
 const io = new Server(5001, {
   cors: {
@@ -51,5 +51,51 @@ io.on("connection", (socket) => {
     socket.emit("search-result", res as IUserCard[]);
   });
 
-  // socket.on("disconnect")
+  socket.on("create-chat", async ({ recipientId }) => {
+    console.log(recipientId);
+    const newChat = await prisma.chat.create({
+      data: {
+        users: {
+          connect: [{ id: recipientId }, { id }],
+        },
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    let currentUser;
+    let recipientUser;
+
+    if (newChat.users[0].id === id) {
+      currentUser = newChat.users[0];
+      recipientUser = newChat.users[1];
+    } else {
+      recipientUser = newChat.users[0];
+      currentUser = newChat.users[1];
+    }
+
+    const currentUserPayload: IChatCard = {
+      id: newChat.id,
+      displayName: recipientUser.displayName,
+      profilePicure: recipientUser.profilePicure,
+      lastMessage: "No messages yet",
+      lastMessageDate: newChat.updatedAt,
+      unreadCount: 0,
+    };
+    const recipientPayload: IChatCard = {
+      ...currentUserPayload,
+      displayName: currentUser.displayName,
+      profilePicure: currentUser.profilePicure,
+    };
+
+    socket.emit("new-chat-created", currentUserPayload);
+    socket
+      .to(recipientId)
+      .emit("new-chat", recipientPayload);
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log(id + " disconnected\n" + reason);
+  });
 });

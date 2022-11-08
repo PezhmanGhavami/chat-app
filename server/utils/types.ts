@@ -22,3 +22,12 @@ export interface IUserCard {
   displayName: string;
   profilePicure: string | null;
 }
+
+export interface IChatCard {
+  id: string;
+  profilePicure: string | null;
+  displayName: string;
+  lastMessage: string;
+  unreadCount: number;
+  lastMessageDate: Date;
+}

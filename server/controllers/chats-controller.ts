@@ -1,7 +1,8 @@
 import { prisma } from "../utils/prisma-client";
-import { IExpressEndpointHandler } from "../utils/types";
-
-// TODO - make a response type and apply it in res
+import {
+  IExpressEndpointHandler,
+  IChatCard,
+} from "../utils/types";
 
 /**
  * @desc   Gets all of the chats of a user
@@ -21,11 +22,57 @@ const getChats: IExpressEndpointHandler = async (
           id: user.userID,
         },
         select: {
-          chats: true,
+          chats: {
+            include: {
+              users: {
+                where: {
+                  NOT: { id: user.userID },
+                },
+              },
+              messages: {
+                include: {
+                  recipients: {
+                    where: {
+                      recipientId: user.userID,
+                    },
+                  },
+                },
+                orderBy: {
+                  createdAt: "desc",
+                },
+              },
+            },
+          },
         },
       });
       if (userChats) {
-        return res.json(userChats.chats);
+        const formattedChats: IChatCard[] =
+          userChats.chats.map((chat) => {
+            let lastMessage: {
+              body: string;
+              createdAt: Date;
+            };
+            const unreadCount = chat.messages.filter(
+              (message) => !message.recipients[0].isRead
+            ).length;
+            if (chat.messages.length === 0) {
+              lastMessage = {
+                body: "No messages yet",
+                createdAt: chat.updatedAt,
+              };
+            } else {
+              lastMessage = chat.messages[0];
+            }
+            return {
+              id: chat.id,
+              displayName: chat.users[0].displayName,
+              profilePicure: chat.users[0].profilePicure,
+              lastMessage: lastMessage.body,
+              lastMessageDate: lastMessage.createdAt,
+              unreadCount,
+            };
+          });
+        return res.json(formattedChats);
       }
     }
     res.status(401);
