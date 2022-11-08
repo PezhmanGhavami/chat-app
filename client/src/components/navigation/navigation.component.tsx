@@ -65,10 +65,15 @@ const Navigation = () => {
     socket.on("new-chat", (chat) => {
       setChats((prev) => [chat, ...(prev as IChat[])]);
     });
+    socket.on("chat-exists", ({ chatId }) => {
+      toggleSearch();
+      navigate("/chat/" + chatId);
+    });
 
     return () => {
       socket.off("new-chat-created");
       socket.off("new-chat");
+      socket.off("chat-exists");
     };
   }, [chats]);
 

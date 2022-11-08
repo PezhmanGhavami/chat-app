@@ -13,7 +13,7 @@ const ProfilePicture = ({
       {user.profilePicure ? (
         <img
           src={user.profilePicure}
-          alt={`${user.displayName}'s profile picture`}
+          alt={user.displayName[0]}
         />
       ) : (
         <div>{user.displayName[0].toLocaleUpperCase()}</div>

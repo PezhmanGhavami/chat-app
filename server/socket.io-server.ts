@@ -52,7 +52,20 @@ io.on("connection", (socket) => {
   });
 
   socket.on("create-chat", async ({ recipientId }) => {
-    console.log(recipientId);
+    const chat = await prisma.chat.findFirst({
+      where: {
+        users: {
+          every: {
+            OR: [{ id: id as string }, { id: recipientId }],
+          },
+        },
+      },
+    });
+    if (chat) {
+      return socket.emit("chat-exists", {
+        chatId: chat.id,
+      });
+    }
     const newChat = await prisma.chat.create({
       data: {
         users: {
