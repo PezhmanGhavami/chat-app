@@ -11,6 +11,8 @@ const io = new Server(5001, {
 
 console.log("Socket.IO server started at localhost:5001");
 
+const emitTimout = 1000 * 30;
+
 io.on("connection", (socket) => {
   const id = socket.handshake.query.id;
   socket.join(id as string);
@@ -48,7 +50,10 @@ io.on("connection", (socket) => {
       },
     });
 
-    socket.emit("search-result", res as IUserCard[]);
+    socket.volatile.emit(
+      "search-result",
+      res as IUserCard[]
+    );
   });
 
   socket.on("create-chat", async ({ recipientId }) => {
@@ -62,9 +67,11 @@ io.on("connection", (socket) => {
       },
     });
     if (chat) {
-      return socket.emit("chat-exists", {
-        chatId: chat.id,
-      });
+      return socket
+        .timeout(emitTimout)
+        .emit("chat-exists", {
+          chatId: chat.id,
+        });
     }
     const newChat = await prisma.chat.create({
       data: {
@@ -102,8 +109,11 @@ io.on("connection", (socket) => {
       profilePicure: currentUser.profilePicure,
     };
 
-    socket.emit("new-chat-created", currentUserPayload);
     socket
+      .timeout(emitTimout)
+      .emit("new-chat-created", currentUserPayload);
+    socket
+      .timeout(emitTimout)
       .to(recipientId)
       .emit("new-chat", recipientPayload);
   });
