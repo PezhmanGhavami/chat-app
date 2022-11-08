@@ -60,7 +60,7 @@ const Navigation = () => {
     socket.on("new-chat-created", (chat) => {
       setChats((prev) => [chat, ...(prev as IChat[])]);
       toggleSearch();
-      navigate("/chats/" + chat.id);
+      navigate("/chat/" + chat.id);
     });
     socket.on("new-chat", (chat) => {
       setChats((prev) => [chat, ...(prev as IChat[])]);
