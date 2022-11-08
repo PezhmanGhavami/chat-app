@@ -1,5 +1,3 @@
-import { IUser } from "../user-card/user-card.component";
-
 const ProfilePicture = ({
   user,
 }: {
