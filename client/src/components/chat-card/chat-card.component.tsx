@@ -11,7 +11,26 @@ export interface IChat {
   lastMessageDate: Date;
 }
 
+const dateFormatter = (date: Date) => {
+  const today = new Date(Date.now());
+
+  if (
+    today.getDay() === date.getDay() &&
+    today.getMonth() === date.getMonth() &&
+    today.getFullYear() === date.getFullYear()
+  ) {
+    return date.toLocaleTimeString("default", {
+      hour: "numeric",
+      minute: "numeric",
+    });
+  } else {
+    return date.toLocaleDateString();
+  }
+};
+
 const ChatCard = ({ chat }: { chat: IChat }) => {
+  const lastMessageDate = new Date(chat.lastMessageDate);
+
   return (
     <Link
       className="block border-b border-b-neutral-700 last-of-type:border-0"
@@ -27,38 +46,27 @@ const ChatCard = ({ chat }: { chat: IChat }) => {
             }}
           />
         </div>
-        {/* TODO - remove after test */}
-        {/* <div className="flex-none bg-red-500 w-12 h-12 rounded-full overflow-hidden text-3xl flex justify-center items-center">
-          {chat.profilePicure ? (
-            <img
-              src={chat.profilePicure}
-              alt={`${chat.displayName}'s profile picture`}
-            />
-          ) : (
-            <div>
-              {chat.displayName[0].toLocaleUpperCase()}
-            </div>
-          )}
-        </div> */}
         {/* Chat details */}
         <div className="pl-3 w-full">
           {/* Title and last message time */}
           <div className="flex justify-between">
             <h3>{chat.displayName}</h3>
             <span className="text-xs text-neutral-400">
-              {chat.lastMessageDate.toLocaleTimeString()}
+              {dateFormatter(lastMessageDate)}
             </span>
           </div>
           {/* Last message summary and unread messages */}
           <div className="flex justify-between">
             <div className="relative w-full mr-2">
-              <p className="absolute inset-0 truncate text-neutral-400">
+              <p className="absolute inset-0 truncate text-neutral-400 min-h-fit">
                 {chat.lastMessage}
               </p>
             </div>
-            <span className="flex-none bg-neutral-600 rounded-full text-sm text-white tracking-tighter w-5 h-5 flex justify-center items-center">
-              {chat.unreadCount}
-            </span>
+            {chat.unreadCount > 0 && (
+              <span className="flex-none bg-neutral-600 rounded-full text-sm text-white tracking-tighter w-5 h-5 flex justify-center items-center">
+                {chat.unreadCount}
+              </span>
+            )}
           </div>
         </div>
       </div>

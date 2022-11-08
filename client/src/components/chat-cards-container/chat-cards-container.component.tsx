@@ -10,9 +10,9 @@ const ChatCardsContainer = ({
   chats,
 }: IChatCardsContainer) => {
   return (
-    <div className="overflow-y-scroll overflow-x-hidden">
+    <div className="overflow-y-auto overflow-x-hidden">
       {chats.map((chat) => (
-        <ChatCard chat={chat} />
+        <ChatCard key={chat.id} chat={chat} />
       ))}
     </div>
   );
