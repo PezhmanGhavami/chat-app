@@ -78,6 +78,12 @@ io.on("connection", (socket) => {
         users: {
           connect: [{ id: recipientId }, { id }],
         },
+        unreadCount: {
+          create: [
+            { user: { connect: { id: id as string } } },
+            { user: { connect: { id: recipientId } } },
+          ],
+        },
       },
       include: {
         users: true,
@@ -99,7 +105,7 @@ io.on("connection", (socket) => {
       id: newChat.id,
       displayName: recipientUser.displayName,
       profilePicure: recipientUser.profilePicure,
-      lastMessage: "No messages yet",
+      lastMessage: newChat.lastMessage,
       lastMessageDate: newChat.updatedAt,
       unreadCount: 0,
     };
@@ -119,8 +125,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("joined-chat", async ({ chatId }) => {
+    socket.join(chatId);
     console.log(id + " joined chat " + chatId);
-    // TODO - make some sort of room based on the chatId and make users join and diconnect from them
 
     const chatDetails = await prisma.chat.findUnique({
       where: {
@@ -129,13 +135,9 @@ io.on("connection", (socket) => {
       select: {
         id: true,
         users: true,
-        messages: {
+        unreadCount: {
           where: {
-            recipients: {
-              every: {
-                isRead: true,
-              },
-            },
+            userId: id as string,
           },
         },
       },
@@ -166,9 +168,10 @@ io.on("connection", (socket) => {
         select: {
           messages: {
             take:
-              chatDetails.messages.length > 50
-                ? chatDetails.messages.length
+              chatDetails.unreadCount[0].unreadCount > 50
+                ? chatDetails.unreadCount[0].unreadCount
                 : 50,
+
             orderBy: {
               createdAt: "desc",
             },
@@ -191,6 +194,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("left-chat", ({ chatId }) => {
+    socket.leave(chatId);
     console.log(id + " left chat " + chatId);
   });
 

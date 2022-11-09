@@ -24,17 +24,28 @@ model Recipient {
   recipientId String
   message     Message  @relation(fields: [messageId], references: [id])
   messageId   String
-  isRead      Boolean
+  isRead      Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
+model Status {
+  id          String  @id @default(cuid())
+  unreadCount Int     @default(0)
+  user        User    @relation(fields: [userId], references: [id])
+  userId      String
+  Chat        Chat?   @relation(fields: [chatId], references: [id])
+  chatId      String?
+}
+
 model Chat {
-  id        String    @id @default(cuid())
-  users     User[]
-  messages  Message[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  users       User[]
+  messages    Message[]
+  lastMessage String    @default("No messages yet")
+  unreadCount Status[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model User {
@@ -50,6 +61,7 @@ model User {
   authTokenExp        Int?
   chats               Chat[]
   messages            Message[]
+  chatStatuses        Status[]
   isOnline            Boolean   @default(false)
   lastOnline          DateTime?
   createdAt           DateTime  @default(now())

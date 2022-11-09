@@ -29,16 +29,9 @@ const getChats: IExpressEndpointHandler = async (
                   NOT: { id: user.userID },
                 },
               },
-              messages: {
-                include: {
-                  recipients: {
-                    where: {
-                      recipientId: user.userID,
-                    },
-                  },
-                },
-                orderBy: {
-                  createdAt: "desc",
+              unreadCount: {
+                where: {
+                  userId: user.userID,
                 },
               },
             },
@@ -47,31 +40,14 @@ const getChats: IExpressEndpointHandler = async (
       });
       if (userChats) {
         const formattedChats: IChatCard[] =
-          userChats.chats.map((chat) => {
-            let lastMessage: {
-              body: string;
-              createdAt: Date;
-            };
-            const unreadCount = chat.messages.filter(
-              (message) => !message.recipients[0].isRead
-            ).length;
-            if (chat.messages.length === 0) {
-              lastMessage = {
-                body: "No messages yet",
-                createdAt: chat.updatedAt,
-              };
-            } else {
-              lastMessage = chat.messages[0];
-            }
-            return {
-              id: chat.id,
-              displayName: chat.users[0].displayName,
-              profilePicure: chat.users[0].profilePicure,
-              lastMessage: lastMessage.body,
-              lastMessageDate: lastMessage.createdAt,
-              unreadCount,
-            };
-          });
+          userChats.chats.map((chat) => ({
+            id: chat.id,
+            displayName: chat.users[0].displayName,
+            profilePicure: chat.users[0].profilePicure,
+            lastMessage: chat.lastMessage,
+            lastMessageDate: chat.updatedAt,
+            unreadCount: chat.unreadCount[0].unreadCount,
+          }));
         return res.json(formattedChats);
       }
     }
