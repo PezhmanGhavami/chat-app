@@ -192,7 +192,7 @@ io.on("connection", (socket) => {
 
     socket.emit(`chat-${chatId}-init`, {
       recipientUser,
-      messages: chatLatestMessages.messages,
+      messages: chatLatestMessages.messages.reverse(),
     });
   });
 
@@ -212,7 +212,6 @@ io.on("connection", (socket) => {
             create: [
               {
                 body: message,
-                chat: { connect: { id: chatId } },
                 sender: { connect: { id: id as string } },
                 recipients: {
                   create: { isRead: false, recipientId },
@@ -248,6 +247,10 @@ io.on("connection", (socket) => {
           errorMessasge: "Internal server error.",
         });
       }
+
+      socket.emit(`chat-${chatId}-new-message`, {
+        message: createNewMessage.messages[0],
+      });
       socket.to(chatId).emit(`chat-${chatId}-new-message`, {
         message: createNewMessage.messages[0],
       });
