@@ -4,7 +4,7 @@ import {
   useContext,
   useEffect,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   VscSearch,
   VscClose,
@@ -204,7 +204,7 @@ const Navigation = () => {
           </nav>
           {/* Connection status and search bar toggle*/}
           <div className="flex-1 w-full flex justify-between">
-            <p className="text-2xl">
+            <Link to="/" className="text-2xl">
               {isConnected ? (
                 <span className="tracking-tight font-semibold">
                   Chat app
@@ -214,7 +214,7 @@ const Navigation = () => {
                   Connecting...
                 </span>
               )}
-            </p>
+            </Link>
             <button
               className="-rotate-90 text-lg"
               type="button"

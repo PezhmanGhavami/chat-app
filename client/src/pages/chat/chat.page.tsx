@@ -6,7 +6,7 @@ import {
   useRef,
   useContext,
 } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   VscArrowLeft,
   VscKebabVertical,
@@ -14,18 +14,58 @@ import {
 
 import { WebSocketContext } from "../../context/websocket.context";
 
-import UserCard from "../../components/user-card/user-card.component";
+import UserCard, {
+  IUser,
+} from "../../components/user-card/user-card.component";
+import LoadingSpinner from "../../components/loading-spinner/loading-spinner.component";
 
 function Chat() {
+  const [currentRecipientUser, setCurrentRecipientUser] =
+    useState<IUser | null>(null);
   const [messagesList, setMessagesList] = useState<
-    JSX.Element[]
-  >([]);
+    JSX.Element[] | null
+  >(null);
   const [message, setMessage] = useState("");
   const messagesListEnd = useRef<null | HTMLDivElement>(
     null
   );
 
-  const { isConnected } = useContext(WebSocketContext);
+  const socket = useContext(WebSocketContext);
+
+  const params = useParams();
+
+  // Join emit
+  useEffect(() => {
+    if (params.chatID && socket) {
+      socket.emit("joined-chat", { chatId: params.chatID });
+    }
+  }, [params.chatID, socket]);
+
+  useEffect(() => {
+    if (!socket || !params.chatID) return;
+
+    socket.on(
+      `chat-${params.chatID}-init`,
+      ({ recipientUser, messages }) => {
+        setCurrentRecipientUser(recipientUser);
+        setMessagesList(messages);
+      }
+    );
+
+    socket.on(
+      `chat-${params.chatID}-error`,
+      ({ status, errorMessasge }) => {
+        console.log(status);
+        console.log(errorMessasge);
+      }
+    );
+
+    return () => {
+      socket.off(`chat-${params.chatID}-init`);
+      socket.off(`chat-${params.chatID}-error`);
+      socket.emit("left-chat", { chatId: params.chatID });
+    };
+  }, [socket, params.chatID]);
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement>
@@ -48,6 +88,14 @@ function Chat() {
     scrollToBottom();
   }, [messagesList]);
 
+  if (!messagesList || !currentRecipientUser) {
+    return (
+      <div className="py-80 text-3xl">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col justify-between h-full bg-neutral-900">
       {/* Header */}
@@ -59,7 +107,7 @@ function Chat() {
           </Link>
           {/* Connection status and search bar toggle*/}
           <div className="flex-1">
-            <UserCard />
+            <UserCard user={currentRecipientUser} />
           </div>
           <button className="p-2 pr-0" type="button">
             <VscKebabVertical />

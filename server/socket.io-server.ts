@@ -118,6 +118,82 @@ io.on("connection", (socket) => {
       .emit("new-chat", recipientPayload);
   });
 
+  socket.on("joined-chat", async ({ chatId }) => {
+    console.log(id + " joined chat " + chatId);
+    // TODO - make some sort of room based on the chatId and make users join and diconnect from them
+
+    const chatDetails = await prisma.chat.findUnique({
+      where: {
+        id: chatId,
+      },
+      select: {
+        id: true,
+        users: true,
+        messages: {
+          where: {
+            recipients: {
+              every: {
+                isRead: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!chatDetails) {
+      return socket.emit(`chat-${chatId}-error`, {
+        status: 404,
+        errorMessasge: "Chat not found",
+      });
+    }
+
+    const recipient =
+      chatDetails.users[0].id !== id
+        ? chatDetails.users[0]
+        : chatDetails.users[1];
+
+    const recipientUser: IUserCard = {
+      id: chatDetails.id,
+      displayName: recipient.displayName,
+      profilePicure: recipient.profilePicure,
+    };
+
+    const chatLatestMessages = await prisma.chat.findUnique(
+      {
+        where: {
+          id: chatId,
+        },
+        select: {
+          messages: {
+            take:
+              chatDetails.messages.length > 50
+                ? chatDetails.messages.length
+                : 50,
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
+      }
+    );
+
+    if (!chatLatestMessages) {
+      return socket.emit(`chat-${chatId}-error`, {
+        status: 500,
+        errorMessasge: "Internal error",
+      });
+    }
+
+    socket.emit(`chat-${chatId}-init`, {
+      recipientUser,
+      messages: chatLatestMessages.messages,
+    });
+  });
+
+  socket.on("left-chat", ({ chatId }) => {
+    console.log(id + " left chat " + chatId);
+  });
+
   socket.on("disconnect", (reason) => {
     console.log(id + " disconnected\n" + reason);
   });
