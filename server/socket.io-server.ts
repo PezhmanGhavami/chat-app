@@ -154,8 +154,11 @@ io.on("connection", (socket) => {
         ? chatDetails.users[0]
         : chatDetails.users[1];
 
-    const recipientUser: IUserCard = {
+    const recipientUser: IUserCard & {
+      recipientId: string;
+    } = {
       id: chatDetails.id,
+      recipientId: recipient.id,
       displayName: recipient.displayName,
       profilePicure: recipient.profilePicure,
     };
@@ -245,11 +248,9 @@ io.on("connection", (socket) => {
           errorMessasge: "Internal server error.",
         });
       }
-      socket
-        .to(chatId)
-        .emit("new-message", {
-          message: createNewMessage.messages[0],
-        });
+      socket.to(chatId).emit(`chat-${chatId}-new-message`, {
+        message: createNewMessage.messages[0],
+      });
     }
   );
 

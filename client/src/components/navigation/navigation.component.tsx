@@ -57,10 +57,19 @@ const Navigation = () => {
 
   // Connection status listener
   useEffect(() => {
-    if (!socket) {
-      return setIsConnected(false);
-    }
-    setIsConnected(true);
+    if (!socket) return setIsConnected(false);
+
+    socket.on("connect", () => {
+      setIsConnected(true);
+    });
+    socket.on("disconnect", () => {
+      setIsConnected(false);
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+    };
   }, [socket]);
 
   // New chat
@@ -204,7 +213,7 @@ const Navigation = () => {
           </nav>
           {/* Connection status and search bar toggle*/}
           <div className="flex-1 w-full flex justify-between">
-            <Link to="/" className="text-2xl">
+            <Link to="/" className="text-2xl select-none">
               {isConnected ? (
                 <span className="tracking-tight font-semibold">
                   Chat app
