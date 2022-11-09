@@ -198,6 +198,61 @@ io.on("connection", (socket) => {
     console.log(id + " left chat " + chatId);
   });
 
+  socket.on(
+    "send-message",
+    async ({ chatId, recipientId, message }) => {
+      const createNewMessage = await prisma.chat.update({
+        where: { id: chatId },
+        data: {
+          lastMessage: message,
+          messages: {
+            create: [
+              {
+                body: message,
+                chat: { connect: { id: chatId } },
+                sender: { connect: { id: id as string } },
+                recipients: {
+                  create: { isRead: false, recipientId },
+                },
+              },
+            ],
+          },
+        },
+        select: {
+          unreadCount: {
+            where: { userId: recipientId },
+            select: { id: true },
+          },
+          messages: {
+            take: 1,
+            orderBy: { createdAt: "desc" },
+          },
+        },
+      });
+      if (!createNewMessage) {
+        return socket.emit(`chat-${chatId}-error`, {
+          status: 404,
+          errorMessasge: "Chat doesn't exist.",
+        });
+      }
+      const updatedStatus = await prisma.status.update({
+        where: { id: createNewMessage.unreadCount[0].id },
+        data: { unreadCount: { increment: 1 } },
+      });
+      if (!updatedStatus) {
+        return socket.emit(`chat-${chatId}-error`, {
+          status: 500,
+          errorMessasge: "Internal server error.",
+        });
+      }
+      socket
+        .to(chatId)
+        .emit("new-message", {
+          message: createNewMessage.messages[0],
+        });
+    }
+  );
+
   socket.on("disconnect", (reason) => {
     console.log(id + " disconnected\n" + reason);
   });
