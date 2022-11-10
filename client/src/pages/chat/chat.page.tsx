@@ -76,7 +76,7 @@ const Message = ({
       }`}
     >
       <div
-        className={`py-2 px-4 rounded-lg break-words ${
+        className={`py-2 px-4 rounded-2xl break-words ${
           isOwn
             ? `bg-blue-600 ${
                 isLast || showTime ? "rounded-br-none" : ""
