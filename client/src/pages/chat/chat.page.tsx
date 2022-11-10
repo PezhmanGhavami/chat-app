@@ -33,37 +33,20 @@ interface IMessage {
   updatedAt: string;
 }
 
-const sharedMessageStyles =
-  "w-fit max-w-sm my-1 py-2 px-7 rounded-lg";
-
-const OwnsMessage = ({
+const Message = ({
   message,
+  isOwn,
 }: {
   message: IMessage;
+  isOwn: boolean;
 }) => {
   return (
     <div
-      className={
-        sharedMessageStyles +
-        " bg-slate-600 rounded-br-none self-end"
-      }
-      key={message.id}
-    >
-      {message.body}
-    </div>
-  );
-};
-const OthersMessage = ({
-  message,
-}: {
-  message: IMessage;
-}) => {
-  return (
-    <div
-      className={
-        sharedMessageStyles +
-        " bg-neutral-600 rounded-bl-none self-start"
-      }
+      className={`w-fit max-w-xs my-1 py-2 px-4 rounded-lg break-words ${
+        isOwn
+          ? "bg-slate-600 rounded-br-none self-end"
+          : "bg-neutral-600 rounded-bl-none self-start"
+      }`}
       key={message.id}
     >
       {message.body}
@@ -191,17 +174,17 @@ function Chat() {
       </div>
 
       {/* Message list */}
-      <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden">
-        {messagesList.map((message) => {
-          if (
-            message.senderId ===
-            currentRecipientUser.recipientId
-          ) {
-            return <OthersMessage message={message} />;
-          } else {
-            return <OwnsMessage message={message} />;
-          }
-        })}
+      <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden px-2">
+        {messagesList.map((message) => (
+          <Message
+            key={message.id}
+            message={message}
+            isOwn={
+              message.senderId !==
+              currentRecipientUser.recipientId
+            }
+          />
+        ))}
         <div className="h-1" ref={messagesListEnd} />
       </div>
 
