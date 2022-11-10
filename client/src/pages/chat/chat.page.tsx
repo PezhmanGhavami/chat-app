@@ -54,12 +54,12 @@ const Message = ({
   message,
   isOwn,
   isLast,
-  showDate,
+  showTime,
 }: {
   message: IMessage;
   isOwn: boolean;
   isLast: boolean;
-  showDate: boolean;
+  showTime: boolean;
 }) => {
   const messageTime = new Date(
     message.createdAt
@@ -71,25 +71,25 @@ const Message = ({
     <div
       className={`w-fit max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl mt-1 ${
         isOwn
-          ? `ml-auto  ${isLast ? "mb-2" : ""}`
-          : `mr-auto ${isLast ? "mb-2" : ""}`
+          ? `ml-auto  ${isLast || showTime ? "mb-2" : ""}`
+          : `mr-auto ${isLast || showTime ? "mb-2" : ""}`
       }`}
     >
       <div
         className={`py-2 px-4 rounded-lg break-words ${
           isOwn
             ? `bg-blue-600 ${
-                isLast ? "rounded-br-none" : ""
+                isLast || showTime ? "rounded-br-none" : ""
               }`
             : `bg-neutral-600  ${
-                isLast ? "rounded-bl-none" : ""
+                isLast || showTime ? "rounded-bl-none" : ""
               }`
         }`}
         key={message.id}
       >
         <p className="leading-tight">{message.body}</p>
       </div>
-      {(isLast || showDate) && (
+      {(isLast || showTime) && (
         <time
           className={`block text-xs text-white/90 ${
             isOwn ? "text-right" : "text-left"
@@ -264,7 +264,7 @@ function Chat() {
               key={message.id}
               message={message}
               isLast={isLast(messages, index)}
-              showDate={showMessageDate(messages, index)}
+              showTime={showMessageDate(messages, index)}
               isOwn={
                 message.senderId !==
                 currentRecipientUser.recipientId
@@ -285,7 +285,7 @@ function Chat() {
               <Message
                 message={message}
                 isLast={isLast(messages, index)}
-                showDate={showMessageDate(messages, index)}
+                showTime={showMessageDate(messages, index)}
                 isOwn={
                   message.senderId !==
                   currentRecipientUser.recipientId
