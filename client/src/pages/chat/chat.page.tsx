@@ -65,6 +65,19 @@ const Message = ({
   );
 };
 
+const isTheSameDay = (
+  currentDateUnformatted: string,
+  nextDateUnformatted: string
+) => {
+  const currentDate = new Date(currentDateUnformatted);
+  const nextDate = new Date(nextDateUnformatted);
+
+  if (currentDate.getDay() !== nextDate.getDay()) {
+    return false;
+  }
+  return true;
+};
+
 function Chat() {
   const [currentRecipientUser, setCurrentRecipientUser] =
     useState<(IUser & { recipientId: string }) | null>(
@@ -186,17 +199,44 @@ function Chat() {
 
       {/* Message list */}
       <div className="flex-1 flex flex-col-reverse overflow-y-auto overflow-x-hidden px-2 pb-2">
-        {messagesList.map((message) => (
-          <Message
-            key={message.id}
-            message={message}
-            isOwn={
-              message.senderId !==
-              currentRecipientUser.recipientId
-            }
-          />
-        ))}
         <div className="h-1" ref={messagesListEnd} />
+        {messagesList.map((message, index) =>
+          messagesList[index + 1] &&
+          isTheSameDay(
+            message.createdAt,
+            messagesList[index + 1].createdAt
+          ) ? (
+            <Message
+              key={message.id}
+              message={message}
+              isOwn={
+                message.senderId !==
+                currentRecipientUser.recipientId
+              }
+            />
+          ) : (
+            <>
+              <Message
+                key={message.id}
+                message={message}
+                isOwn={
+                  message.senderId !==
+                  currentRecipientUser.recipientId
+                }
+              />
+              <div className="self-center bg-neutral-800 px-4 py-1 my-2 rounded-full">
+                {new Date(
+                  message.createdAt
+                ).toLocaleDateString("default", {
+                  weekday: "short",
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </div>
+            </>
+          )
+        )}
       </div>
 
       {/* Text input */}
