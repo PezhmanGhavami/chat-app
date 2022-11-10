@@ -192,7 +192,7 @@ io.on("connection", (socket) => {
 
     socket.emit(`chat-${chatId}-init`, {
       recipientUser,
-      messages: chatLatestMessages.messages.reverse(),
+      messages: chatLatestMessages.messages,
     });
   });
 

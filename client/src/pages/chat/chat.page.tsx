@@ -40,16 +40,27 @@ const Message = ({
   message: IMessage;
   isOwn: boolean;
 }) => {
+  const messageTime = new Date(
+    message.createdAt
+  ).toLocaleTimeString("default", {
+    hour: "numeric",
+    minute: "numeric",
+  });
   return (
     <div
-      className={`w-fit max-w-xs my-1 py-2 px-4 rounded-lg break-words ${
+      className={`w-fit max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl my-1 py-2 px-4 rounded-lg break-words ${
         isOwn
-          ? "bg-slate-600 rounded-br-none self-end"
+          ? "bg-blue-600 rounded-br-none self-end"
           : "bg-neutral-600 rounded-bl-none self-start"
       }`}
       key={message.id}
     >
-      {message.body}
+      <p className="leading-tight">
+        {message.body}{" "}
+        <span className="pl-4 pt-2 text-xs text-white/90 float-right">
+          {messageTime}
+        </span>
+      </p>
     </div>
   );
 };
@@ -92,8 +103,8 @@ function Chat() {
       `chat-${params.chatID}-new-message`,
       ({ message }) => {
         setMessagesList((prev) => [
-          ...(prev as IMessage[]),
           message,
+          ...(prev as IMessage[]),
         ]);
       }
     );
@@ -174,7 +185,7 @@ function Chat() {
       </div>
 
       {/* Message list */}
-      <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden px-2">
+      <div className="flex-1 flex flex-col-reverse overflow-y-auto overflow-x-hidden px-2 pb-2">
         {messagesList.map((message) => (
           <Message
             key={message.id}
