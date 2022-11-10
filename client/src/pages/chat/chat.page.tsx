@@ -33,12 +33,33 @@ interface IMessage {
   updatedAt: string;
 }
 
+const showMessageDate = (
+  messages: IMessage[],
+  index: number
+) => {
+  if (index === 0) return false;
+  const currentDate = new Date(messages[index].createdAt);
+  const previousDate = new Date(
+    messages[index - 1].createdAt
+  );
+  if (
+    currentDate.getTime() - previousDate.getTime() >
+    60 * 1000 * 2
+  )
+    return true;
+  return false;
+};
+
 const Message = ({
   message,
   isOwn,
+  isLast,
+  showDate,
 }: {
   message: IMessage;
   isOwn: boolean;
+  isLast: boolean;
+  showDate: boolean;
 }) => {
   const messageTime = new Date(
     message.createdAt
@@ -48,34 +69,68 @@ const Message = ({
   });
   return (
     <div
-      className={`w-fit max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl my-1 py-2 px-4 rounded-lg break-words ${
+      className={`w-fit max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl mt-1 ${
         isOwn
-          ? "bg-blue-600 rounded-br-none self-end"
-          : "bg-neutral-600 rounded-bl-none self-start"
+          ? `ml-auto  ${isLast ? "mb-2" : ""}`
+          : `mr-auto ${isLast ? "mb-2" : ""}`
       }`}
-      key={message.id}
     >
-      <p className="leading-tight">
-        {message.body}{" "}
-        <span className="pl-4 pt-2 text-xs text-white/90 float-right">
+      <div
+        className={`py-2 px-4 rounded-lg break-words ${
+          isOwn
+            ? `bg-blue-600 ${
+                isLast ? "rounded-br-none" : ""
+              }`
+            : `bg-neutral-600  ${
+                isLast ? "rounded-bl-none" : ""
+              }`
+        }`}
+        key={message.id}
+      >
+        <p className="leading-tight">{message.body}</p>
+      </div>
+      {(isLast || showDate) && (
+        <time
+          className={`block text-xs text-white/90 ${
+            isOwn ? "text-right" : "text-left"
+          }`}
+        >
           {messageTime}
-        </span>
-      </p>
+        </time>
+      )}
     </div>
   );
 };
 
 const isTheSameDay = (
   currentDateUnformatted: string,
-  nextDateUnformatted: string
+  previousDateUnformatted: string
 ) => {
   const currentDate = new Date(currentDateUnformatted);
-  const nextDate = new Date(nextDateUnformatted);
+  const previousDate = new Date(previousDateUnformatted);
 
-  if (currentDate.getDay() !== nextDate.getDay()) {
+  if (currentDate.getDay() !== previousDate.getDay()) {
     return false;
   }
   return true;
+};
+
+const isLast = (messages: IMessage[], index: number) => {
+  if (messages.length - 1 === index) return true;
+  if (
+    !isTheSameDay(
+      messages[index].createdAt,
+      messages[index + 1].createdAt
+    )
+  ) {
+    return true;
+  }
+  const currentMessage = messages[index];
+  const nextMessage = messages[index + 1];
+  if (currentMessage.senderId !== nextMessage.senderId) {
+    return true;
+  }
+  return false;
 };
 
 function Chat() {
@@ -108,7 +163,7 @@ function Chat() {
       `chat-${params.chatID}-init`,
       ({ recipientUser, messages }) => {
         setCurrentRecipientUser(recipientUser);
-        setMessagesList(messages);
+        setMessagesList(messages.reverse());
       }
     );
 
@@ -116,8 +171,8 @@ function Chat() {
       `chat-${params.chatID}-new-message`,
       ({ message }) => {
         setMessagesList((prev) => [
+          ...(prev?.reverse() as IMessage[]),
           message,
-          ...(prev as IMessage[]),
         ]);
       }
     );
@@ -198,33 +253,26 @@ function Chat() {
       </div>
 
       {/* Message list */}
-      <div className="flex-1 flex flex-col-reverse overflow-y-auto overflow-x-hidden px-2 pb-2">
-        <div className="h-1" ref={messagesListEnd} />
-        {messagesList.map((message, index) =>
-          messagesList[index + 1] &&
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-2">
+        {messagesList.map((message, index, messages) =>
+          index !== 0 &&
           isTheSameDay(
             message.createdAt,
-            messagesList[index + 1].createdAt
+            messagesList[index - 1].createdAt
           ) ? (
             <Message
               key={message.id}
               message={message}
+              isLast={isLast(messages, index)}
+              showDate={showMessageDate(messages, index)}
               isOwn={
                 message.senderId !==
                 currentRecipientUser.recipientId
               }
             />
           ) : (
-            <>
-              <Message
-                key={message.id}
-                message={message}
-                isOwn={
-                  message.senderId !==
-                  currentRecipientUser.recipientId
-                }
-              />
-              <div className="self-center bg-neutral-800 px-4 py-1 my-2 rounded-full">
+            <div key={message.id}>
+              <p className="bg-neutral-800 px-4 py-1 mx-auto my-2 w-fit rounded-full">
                 {new Date(
                   message.createdAt
                 ).toLocaleDateString("default", {
@@ -233,10 +281,20 @@ function Chat() {
                   month: "long",
                   year: "numeric",
                 })}
-              </div>
-            </>
+              </p>
+              <Message
+                message={message}
+                isLast={isLast(messages, index)}
+                showDate={showMessageDate(messages, index)}
+                isOwn={
+                  message.senderId !==
+                  currentRecipientUser.recipientId
+                }
+              />
+            </div>
           )
         )}
+        <div className="h-1" ref={messagesListEnd} />
       </div>
 
       {/* Text input */}
