@@ -153,7 +153,9 @@ function Chat() {
     null
   );
 
-  const socket = useContext(WebSocketContext);
+  const { socket, isConnected } = useContext(
+    WebSocketContext
+  );
 
   const params = useParams();
   const navigate = useNavigate();
@@ -162,7 +164,7 @@ function Chat() {
   // join emit - leave emit
   // init data listener - internal error listener
   useEffect(() => {
-    if (!socket || !params.chatID) return;
+    if (!socket || !params.chatID || !isConnected) return;
 
     socket.emit("joined-chat", { chatId: params.chatID });
 
@@ -198,7 +200,7 @@ function Chat() {
       socket.off(`chat-${params.chatID}-new-message`);
       socket.emit("left-chat", { chatId: params.chatID });
     };
-  }, [socket, params.chatID]);
+  }, [socket, params.chatID, isConnected]);
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement>
@@ -234,7 +236,7 @@ function Chat() {
 
   if (!messagesList || !currentRecipientUser) {
     return (
-      <div className="py-80 text-3xl">
+      <div className="text-3xl bg-neutral-900 h-full">
         <LoadingSpinner />
       </div>
     );

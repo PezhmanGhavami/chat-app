@@ -24,10 +24,12 @@ const UserModal = ({
   user: IUser;
   closeModal: (event: MouseEvent) => void;
 }) => {
-  const socket = useContext(WebSocketContext);
+  const { socket, isConnected } = useContext(
+    WebSocketContext
+  );
 
   const handleClick = () => {
-    if (!socket) {
+    if (!socket || !isConnected) {
       return toast.error(
         "Connection lost\nReconnecting..."
       );

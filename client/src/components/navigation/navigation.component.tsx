@@ -30,7 +30,7 @@ import { IUser } from "../user-card/user-card.component";
 const Navigation = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
+  // const [isConnected, setIsConnected] = useState(false);
   const [chats, setChats] = useState<null | IChat[]>(null);
   const [searchInput, setSearchInput] = useState("");
   const [searchResult, setSearchResult] = useState<
@@ -38,7 +38,8 @@ const Navigation = () => {
   >(null);
 
   const { user } = useUser();
-  const socket = useContext(WebSocketContext);
+  const { socket, isConnected, updateIsConnected } =
+    useContext(WebSocketContext);
 
   const navigate = useNavigate();
 
@@ -57,13 +58,13 @@ const Navigation = () => {
 
   // Connection status listener
   useEffect(() => {
-    if (!socket) return setIsConnected(false);
+    if (!socket) return updateIsConnected(false);
 
     socket.on("connect", () => {
-      setIsConnected(true);
+      updateIsConnected(true);
     });
     socket.on("disconnect", () => {
-      setIsConnected(false);
+      updateIsConnected(false);
     });
 
     return () => {
