@@ -155,12 +155,15 @@ function Chat() {
     null | number
   >(null);
   const [scrollbarAtEnd, setScrollbarAtEnd] =
-    useState(true);
+    useState(false);
   const [scrollbarAtTop, setScrollbarAtTop] =
     useState(false);
   // TODO - use this to load more messages
 
   const messagesListEnd = useRef<null | HTMLDivElement>(
+    null
+  );
+  const unreadMessages = useRef<null | HTMLDivElement>(
     null
   );
 
@@ -244,10 +247,23 @@ function Chat() {
       behavior: "smooth",
     });
   };
+  const scrollToUnread = () => {
+    unreadMessages.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
 
-  // Scroll useEffect
+  const emitReadAll = () => {
+    if (!socket || !currentRecipientUser)
+      return toast.error("Connection lost...");
+
+    socket.emit("read-messages", {
+      chatId: currentRecipientUser.id,
+    });
+  };
+
+  // Unread tracker
   useEffect(() => {
-    if (scrollbarAtEnd) scrollToBottom();
     if (messagesList) {
       const index = messagesList.findIndex(
         (message) =>
@@ -255,10 +271,31 @@ function Chat() {
             currentRecipientUser?.recipientId &&
           !message.recipients[0].isRead
       );
-      console.log(index);
-      setStartOfUnread(index);
+      if (index === -1) {
+        setScrollbarAtEnd(true);
+      }
+      setStartOfUnread(index !== -1 ? index : null);
     }
-  }, [messagesList, scrollbarAtEnd]);
+  }, [messagesList]);
+
+  // TODO - make the unread banner doesn't flash when the newest message makes the scrollbar be at end, make it so it stays there until new message or chat close
+  // TODO - update the Message component read recipt after emitting a read all
+
+  // Scroll useEffect
+  useEffect(() => {
+    if (messagesList) {
+      if (startOfUnread !== null && !scrollbarAtEnd) {
+        return scrollToUnread();
+      }
+      if (scrollbarAtEnd) {
+        if (startOfUnread !== null) {
+          emitReadAll();
+          setStartOfUnread(null);
+        }
+        scrollToBottom();
+      }
+    }
+  }, [scrollbarAtEnd, messagesList, startOfUnread]);
 
   const handleScroll: UIEventHandler<HTMLDivElement> = (
     event
@@ -321,6 +358,7 @@ function Chat() {
             {/* Unread banner */}
             {startOfUnread === index && (
               <div
+                ref={unreadMessages}
                 id="unread-messages"
                 className="w-full text-center mb-2 bg-neutral-800 select-none"
               >

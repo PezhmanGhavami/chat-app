@@ -175,7 +175,8 @@ io.on("connection", (socket) => {
           messages: {
             take:
               chatDetails.unreadCount[0].unreadCount > 50
-                ? chatDetails.unreadCount[0].unreadCount
+                ? chatDetails.unreadCount[0].unreadCount +
+                  10
                 : 50,
 
             orderBy: {
@@ -211,6 +212,65 @@ io.on("connection", (socket) => {
   socket.on("left-chat", ({ chatId }) => {
     socket.leave(chatId);
     console.log(id + " left chat " + chatId);
+  });
+
+  // Read messages
+  socket.on("read-messages", async ({ chatId }) => {
+    const chatStatus = await prisma.status.findFirst({
+      where: {
+        userId: id as string,
+      },
+    });
+
+    if (!chatStatus) {
+      return socket.emit(`chat-${chatId}-error`, {
+        status: 404,
+        errorMessasge: "Chat status not found",
+      });
+    }
+
+    const updateChat = prisma.chat.update({
+      where: {
+        id: chatId,
+      },
+      data: {
+        unreadCount: {
+          update: {
+            where: {
+              id: chatStatus.id,
+            },
+            data: {
+              unreadCount: 0,
+            },
+          },
+        },
+      },
+    });
+    const updateMessages = prisma.recipient.updateMany({
+      where: {
+        isRead: false,
+        recipientId: id as string,
+        message: {
+          chatId,
+        },
+      },
+      data: {
+        isRead: true,
+      },
+    });
+
+    const [updateChatRes, updateMessagesRes] =
+      await prisma.$transaction([
+        updateChat,
+        updateMessages,
+      ]);
+
+    if (!updateChatRes || !updateMessagesRes) {
+      return socket.emit(`chat-${chatId}-error`, {
+        status: 500,
+        errorMessasge: "Read status update failed.",
+      });
+    }
   });
 
   // Send message
