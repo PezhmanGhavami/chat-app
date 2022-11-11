@@ -272,7 +272,7 @@ function Chat() {
             />
           ) : (
             <div key={message.id}>
-              <p className="bg-neutral-800 px-4 py-1 mx-auto my-2 w-fit rounded-full">
+              <p className="bg-neutral-800 px-4 py-1 mx-auto my-2 w-fit rounded-full select-none">
                 {new Date(
                   message.createdAt
                 ).toLocaleDateString("default", {
