@@ -15,6 +15,7 @@ import {
 import { toast } from "react-toastify";
 import {
   VscArrowLeft,
+  VscArrowDown,
   VscKebabVertical,
 } from "react-icons/vsc";
 
@@ -91,16 +92,16 @@ const Message = ({
       </div>
       {(isLast || showTime) && (
         <p
-          className={`block text-xs pt-1 select-none text-white/90 mb-2 ${
+          className={`block text-xs pt-1 select-none text-white/70 mb-2 ${
             isOwn ? "text-right" : "text-left"
           }`}
         >
-          {messageTime}{" "}
+          {messageTime}
           {isOwn && (
-            <span className="border-l pl-1">
+            <span className="font-semibold">
               {message.recipients[0].isRead
-                ? "Read"
-                : "Delivered"}
+                ? " . Read"
+                : " . Delivered"}
             </span>
           )}
         </p>
@@ -149,7 +150,11 @@ function Chat() {
     IMessage[] | null
   >(null);
   const [message, setMessage] = useState("");
-  const [autoScroll, setAutoScroll] = useState(true);
+  const [scrollbarAtEnd, setScrollbarAtEnd] =
+    useState(true);
+  const [scrollbarAtTop, setScrollbarAtTop] =
+    useState(false);
+  // TODO - use this to load more messages
 
   const messagesListEnd = useRef<null | HTMLDivElement>(
     null
@@ -233,8 +238,8 @@ function Chat() {
   };
 
   useEffect(() => {
-    if (autoScroll) scrollToBottom();
-  }, [messagesList, autoScroll]);
+    if (scrollbarAtEnd) scrollToBottom();
+  }, [messagesList, scrollbarAtEnd]);
 
   const handleScroll: UIEventHandler<HTMLDivElement> = (
     event
@@ -243,7 +248,7 @@ function Chat() {
     const scrollLeftToTop = event.currentTarget.scrollTop;
     const totalScrollHeight =
       event.currentTarget.scrollHeight;
-    setAutoScroll(
+    setScrollbarAtEnd(
       clientHeight + scrollLeftToTop === totalScrollHeight
     );
   };
@@ -257,7 +262,16 @@ function Chat() {
   }
 
   return (
-    <div className="flex flex-col justify-between h-full bg-neutral-900">
+    <div className="relative flex flex-col justify-between h-full bg-neutral-900">
+      {!scrollbarAtEnd && (
+        <button
+          type="button"
+          onClick={scrollToBottom}
+          className="absolute right-8 bottom-24 bg-neutral-600 rounded-full p-3 shadow-lg text-2xl"
+        >
+          <VscArrowDown />
+        </button>
+      )}
       {/* Header */}
       <div className="p-3 bg-neutral-800 border-b sm:border-l border-neutral-100 dark:border-neutral-500">
         <header className="flex justify-between items-center text-lg">
