@@ -209,6 +209,7 @@ io.on("connection", (socket) => {
     console.log(id + " left chat " + chatId);
   });
 
+  // Send message
   socket.on(
     "send-message",
     async ({ chatId, recipientId, message }) => {
@@ -235,6 +236,14 @@ io.on("connection", (socket) => {
           },
           messages: {
             take: 1,
+            include: {
+              recipients: {
+                select: {
+                  isRead: true,
+                  recipientId: true,
+                },
+              },
+            },
             orderBy: { createdAt: "desc" },
           },
         },

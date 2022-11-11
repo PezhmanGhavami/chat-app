@@ -5,6 +5,7 @@ import {
   FormEvent,
   useRef,
   useContext,
+  UIEventHandler,
 } from "react";
 import {
   Link,
@@ -148,6 +149,7 @@ function Chat() {
     IMessage[] | null
   >(null);
   const [message, setMessage] = useState("");
+  const [autoScroll, setAutoScroll] = useState(true);
 
   const messagesListEnd = useRef<null | HTMLDivElement>(
     null
@@ -231,8 +233,20 @@ function Chat() {
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messagesList]);
+    if (autoScroll) scrollToBottom();
+  }, [messagesList, autoScroll]);
+
+  const handleScroll: UIEventHandler<HTMLDivElement> = (
+    event
+  ) => {
+    const clientHeight = event.currentTarget.clientHeight;
+    const scrollLeftToTop = event.currentTarget.scrollTop;
+    const totalScrollHeight =
+      event.currentTarget.scrollHeight;
+    setAutoScroll(
+      clientHeight + scrollLeftToTop === totalScrollHeight
+    );
+  };
 
   if (!messagesList || !currentRecipientUser) {
     return (
@@ -262,7 +276,10 @@ function Chat() {
       </div>
 
       {/* Message list */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-2">
+      <div
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-2"
+      >
         {messagesList.map((message, index, messages) =>
           index !== 0 &&
           isTheSameDay(
