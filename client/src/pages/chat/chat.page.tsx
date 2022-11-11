@@ -110,17 +110,6 @@ const Message = ({
   );
 };
 
-const UnreadMessages = () => {
-  return (
-    <div
-      id="unread-messages"
-      className="w-full text-center mb-2 bg-neutral-800"
-    >
-      Unread Messages
-    </div>
-  );
-};
-
 const isTheSameDay = (
   currentDateUnformatted: string,
   previousDateUnformatted: string
@@ -286,27 +275,30 @@ function Chat() {
   }
 
   return (
-    <div className="relative flex flex-col justify-between h-full bg-neutral-900">
+    <div className="relative flex flex-col justify-between h-full bg-neutral-900 sm:border-l border-neutral-100 dark:border-neutral-500">
+      {/* Go to bottom button */}
       {!scrollbarAtEnd && (
         <button
           type="button"
           onClick={scrollToBottom}
-          className="absolute right-8 bottom-24 bg-neutral-600 rounded-full p-3 shadow-lg text-2xl"
+          className="absolute right-8 bottom-24 bg-neutral-600 hover:bg-neutral-700 rounded-full p-3 shadow-lg text-2xl"
         >
           <VscArrowDown />
         </button>
       )}
       {/* Header */}
-      <div className="p-3 bg-neutral-800 border-b sm:border-l border-neutral-100 dark:border-neutral-500">
+      <div className="p-3 bg-neutral-800 border-b border-neutral-100 dark:border-neutral-500">
         <header className="flex justify-between items-center text-lg">
-          {/* The menu */}
+          {/* Back */}
           <Link to={"/"} className="p-2 pl-0">
             <VscArrowLeft />
           </Link>
-          {/* Connection status and search bar toggle*/}
+          {/* User info */}
           <div className="flex-1">
+            {/* TODO - add a chat mode to disable the modal inside and show online status */}
             <UserCard user={currentRecipientUser} />
           </div>
+          {/* Chat settings */}
           <button className="p-2 pr-0" type="button">
             <VscKebabVertical />
           </button>
@@ -316,33 +308,25 @@ function Chat() {
       {/* Message list */}
       <div
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-2"
+        className="flex-1 overflow-y-auto overflow-x-hidden pb-2"
       >
-        {messagesList.map((message, index, messages) =>
-          index !== 0 &&
-          isTheSameDay(
-            message.createdAt,
-            messagesList[index - 1].createdAt
-          ) ? (
-            <div key={message.id}>
-              {startOfUnread === index && (
-                <UnreadMessages />
-              )}
-              <Message
-                message={message}
-                isLast={isLast(messages, index)}
-                showTime={showMessageDate(messages, index)}
-                isOwn={
-                  message.senderId !==
-                  currentRecipientUser.recipientId
-                }
-              />
-            </div>
-          ) : (
-            <div key={message.id}>
-              {startOfUnread === index && (
-                <UnreadMessages />
-              )}
+        {messagesList.map((message, index, messages) => (
+          <div key={message.id}>
+            {/* Unread banner */}
+            {startOfUnread === index && (
+              <div
+                id="unread-messages"
+                className="w-full text-center mb-2 bg-neutral-800 select-none"
+              >
+                <p>Unread Messages &#8595;</p>
+              </div>
+            )}
+            {/* Date banner */}
+            {(index === 0 ||
+              !isTheSameDay(
+                message.createdAt,
+                messagesList[index - 1].createdAt
+              )) && (
               <p className="bg-neutral-800 px-4 py-1 mx-auto my-2 w-fit rounded-full select-none">
                 {new Date(
                   message.createdAt
@@ -353,6 +337,9 @@ function Chat() {
                   year: "numeric",
                 })}
               </p>
+            )}
+            {/* Message */}
+            <div className="px-2">
               <Message
                 message={message}
                 isLast={isLast(messages, index)}
@@ -363,8 +350,8 @@ function Chat() {
                 }
               />
             </div>
-          )
-        )}
+          </div>
+        ))}
         {/* End tracker */}
         <div className="h-1" ref={messagesListEnd} />
       </div>
