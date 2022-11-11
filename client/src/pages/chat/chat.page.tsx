@@ -110,6 +110,17 @@ const Message = ({
   );
 };
 
+const UnreadMessages = () => {
+  return (
+    <div
+      id="unread-messages"
+      className="w-full text-center mb-2 bg-neutral-800"
+    >
+      Unread Messages
+    </div>
+  );
+};
+
 const isTheSameDay = (
   currentDateUnformatted: string,
   previousDateUnformatted: string
@@ -150,6 +161,9 @@ function Chat() {
     IMessage[] | null
   >(null);
   const [message, setMessage] = useState("");
+  const [startOfUnread, setStartOfUnread] = useState<
+    null | number
+  >(null);
   const [scrollbarAtEnd, setScrollbarAtEnd] =
     useState(true);
   const [scrollbarAtTop, setScrollbarAtTop] =
@@ -239,6 +253,16 @@ function Chat() {
 
   useEffect(() => {
     if (scrollbarAtEnd) scrollToBottom();
+    if (messagesList) {
+      const index = messagesList.findIndex(
+        (message) =>
+          message.senderId ===
+            currentRecipientUser?.recipientId &&
+          !message.recipients[0].isRead
+      );
+      console.log(index);
+      setStartOfUnread(index);
+    }
   }, [messagesList, scrollbarAtEnd]);
 
   const handleScroll: UIEventHandler<HTMLDivElement> = (
@@ -300,18 +324,25 @@ function Chat() {
             message.createdAt,
             messagesList[index - 1].createdAt
           ) ? (
-            <Message
-              key={message.id}
-              message={message}
-              isLast={isLast(messages, index)}
-              showTime={showMessageDate(messages, index)}
-              isOwn={
-                message.senderId !==
-                currentRecipientUser.recipientId
-              }
-            />
+            <div key={message.id}>
+              {startOfUnread === index && (
+                <UnreadMessages />
+              )}
+              <Message
+                message={message}
+                isLast={isLast(messages, index)}
+                showTime={showMessageDate(messages, index)}
+                isOwn={
+                  message.senderId !==
+                  currentRecipientUser.recipientId
+                }
+              />
+            </div>
           ) : (
             <div key={message.id}>
+              {startOfUnread === index && (
+                <UnreadMessages />
+              )}
               <p className="bg-neutral-800 px-4 py-1 mx-auto my-2 w-fit rounded-full select-none">
                 {new Date(
                   message.createdAt
@@ -334,6 +365,7 @@ function Chat() {
             </div>
           )
         )}
+        {/* End tracker */}
         <div className="h-1" ref={messagesListEnd} />
       </div>
 
