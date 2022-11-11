@@ -19,6 +19,7 @@ io.on("connection", (socket) => {
 
   console.log(`${id} joined`);
 
+  // Search
   socket.on("search", async ({ query }) => {
     const res = await prisma.user.findMany({
       where: {
@@ -56,6 +57,7 @@ io.on("connection", (socket) => {
     );
   });
 
+  // Create chat
   socket.on("create-chat", async ({ recipientId }) => {
     const chat = await prisma.chat.findFirst({
       where: {
@@ -124,6 +126,7 @@ io.on("connection", (socket) => {
       .emit("new-chat", recipientPayload);
   });
 
+  // Joined chat
   socket.on("joined-chat", async ({ chatId }) => {
     socket.join(chatId);
     console.log(id + " joined chat " + chatId);
@@ -204,6 +207,7 @@ io.on("connection", (socket) => {
     });
   });
 
+  // Left chat
   socket.on("left-chat", ({ chatId }) => {
     socket.leave(chatId);
     console.log(id + " left chat " + chatId);
