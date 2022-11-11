@@ -42,16 +42,16 @@ const showMessageDate = (
   messages: IMessage[],
   index: number
 ) => {
-  if (index === 0) return false;
+  if (messages.length - 1 === index) return true;
   const currentDate = new Date(messages[index].createdAt);
-  const previousDate = new Date(
-    messages[index - 1].createdAt
-  );
+  const nextDate = new Date(messages[index + 1].createdAt);
   if (
-    currentDate.getTime() - previousDate.getTime() >
-    60 * 1000 * 2
-  )
+    Math.floor(
+      (nextDate.getTime() - currentDate.getTime()) / 1000
+    ) > 90
+  ) {
     return true;
+  }
   return false;
 };
 
