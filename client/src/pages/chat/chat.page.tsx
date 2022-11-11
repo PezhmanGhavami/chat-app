@@ -31,6 +31,10 @@ interface IMessage {
   senderId: string;
   createdAt: string;
   updatedAt: string;
+  recipients: {
+    isRead: boolean;
+    recipientId: string;
+  }[];
 }
 
 const showMessageDate = (
@@ -67,21 +71,16 @@ const Message = ({
     hour: "numeric",
     minute: "numeric",
   });
+
   return (
-    <div
-      className={`w-fit max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl mt-1 ${
-        isOwn
-          ? `ml-auto  ${isLast || showTime ? "mb-2" : ""}`
-          : `mr-auto ${isLast || showTime ? "mb-2" : ""}`
-      }`}
-    >
+    <div>
       <div
-        className={`py-2 px-4 rounded-2xl break-words ${
+        className={`w-fit max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl mt-1 py-2 px-4 rounded-2xl break-words ${
           isOwn
-            ? `bg-blue-600 ${
+            ? `bg-blue-600 ml-auto ${
                 isLast || showTime ? "rounded-br-none" : ""
               }`
-            : `bg-neutral-600  ${
+            : `bg-neutral-600 mr-auto ${
                 isLast || showTime ? "rounded-bl-none" : ""
               }`
         }`}
@@ -90,13 +89,20 @@ const Message = ({
         <p className="leading-tight">{message.body}</p>
       </div>
       {(isLast || showTime) && (
-        <time
-          className={`block text-xs text-white/90 ${
+        <p
+          className={`block text-xs pt-1 select-none text-white/90 mb-2 ${
             isOwn ? "text-right" : "text-left"
           }`}
         >
-          {messageTime}
-        </time>
+          {messageTime}{" "}
+          {isOwn && (
+            <span className="border-l pl-1">
+              {message.recipients[0].isRead
+                ? "Read"
+                : "Delivered"}
+            </span>
+          )}
+        </p>
       )}
     </div>
   );
@@ -142,6 +148,7 @@ function Chat() {
     IMessage[] | null
   >(null);
   const [message, setMessage] = useState("");
+
   const messagesListEnd = useRef<null | HTMLDivElement>(
     null
   );

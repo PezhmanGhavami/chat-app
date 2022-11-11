@@ -178,6 +178,14 @@ io.on("connection", (socket) => {
             orderBy: {
               createdAt: "desc",
             },
+            include: {
+              recipients: {
+                select: {
+                  isRead: true,
+                  recipientId: true,
+                },
+              },
+            },
           },
         },
       }
