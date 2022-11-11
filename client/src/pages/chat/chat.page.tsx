@@ -18,6 +18,7 @@ import {
   VscArrowDown,
   VscKebabVertical,
 } from "react-icons/vsc";
+import { IoSend } from "react-icons/io5";
 
 import { WebSocketContext } from "../../context/websocket.context";
 
@@ -190,7 +191,7 @@ function Chat() {
       `chat-${params.chatID}-new-message`,
       ({ message }) => {
         setMessagesList((prev) => [
-          ...(prev?.reverse() as IMessage[]),
+          ...(prev as IMessage[]),
           message,
         ]);
       }
@@ -213,7 +214,7 @@ function Chat() {
   }, [socket, params.chatID, isConnected]);
 
   const handleChange = (
-    event: ChangeEvent<HTMLInputElement>
+    event: ChangeEvent<HTMLTextAreaElement>
   ) => {
     setMessage(event.target.value);
   };
@@ -221,10 +222,14 @@ function Chat() {
     event: FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
+    sendMessage();
   };
   const sendMessage = () => {
     if (!socket || !currentRecipientUser)
       return toast.error("Connection lost...");
+
+    if (message.length === 0)
+      return toast.error("Can't send empty message");
 
     socket.emit("send-message", {
       chatId: currentRecipientUser.id,
@@ -240,6 +245,7 @@ function Chat() {
     });
   };
 
+  // Scroll useEffect
   useEffect(() => {
     if (scrollbarAtEnd) scrollToBottom();
     if (messagesList) {
@@ -357,34 +363,38 @@ function Chat() {
       </div>
 
       {/* Text input */}
-      <div>
-        <form onSubmit={handleSubmit} className="flex">
+      <div className="p-2 ">
+        <form
+          onSubmit={handleSubmit}
+          className="flex bg-neutral-800 rounded-full overflow-hidden"
+        >
           <label htmlFor="message" className="sr-only">
             Message
           </label>
-          <input
-            className="bg-neutral-800 w-full h-12 px-4 focus:outline-none"
+          <textarea
+            className="bg-transparent w-full h-12 px-4 py-3 focus:outline-none resize-none"
             name="message"
             id="message"
+            placeholder="Start a message"
             autoComplete="off"
             autoFocus
             value={message}
             onKeyDown={(event) => {
               if (
                 event.nativeEvent.code === "Enter" &&
-                event.shiftKey
+                !event.shiftKey
               ) {
+                event.preventDefault();
                 sendMessage();
               }
             }}
             onChange={handleChange}
-          />
+          ></textarea>
           <button
-            type="button"
-            className="bg-green-700 h-12 w-1/6 hover:cursor-pointer"
-            onClick={sendMessage}
+            type="submit"
+            className="bg-transparent hover:bg-neutral-700 flex justify-center items-center text-2xl text-white/75 w-20 hover:cursor-pointer"
           >
-            Send
+            <IoSend />
           </button>
         </form>
       </div>
