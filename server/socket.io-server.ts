@@ -277,6 +277,13 @@ io.on("connection", (socket) => {
   socket.on(
     "send-message",
     async ({ chatId, recipientId, message }) => {
+      let recipientIsInChat = false;
+      io.sockets.adapter.sids.forEach((item) => {
+        if (item.has(recipientId) && item.has(chatId)) {
+          recipientIsInChat = true;
+        }
+      });
+
       const createNewMessage = await prisma.chat.update({
         where: { id: chatId },
         data: {
@@ -287,7 +294,10 @@ io.on("connection", (socket) => {
                 body: message,
                 sender: { connect: { id: id as string } },
                 recipients: {
-                  create: { isRead: false, recipientId },
+                  create: {
+                    isRead: recipientIsInChat,
+                    recipientId,
+                  },
                 },
               },
             ],
@@ -318,15 +328,17 @@ io.on("connection", (socket) => {
           errorMessasge: "Chat doesn't exist.",
         });
       }
-      const updatedStatus = await prisma.status.update({
-        where: { id: createNewMessage.unreadCount[0].id },
-        data: { unreadCount: { increment: 1 } },
-      });
-      if (!updatedStatus) {
-        return socket.emit(`chat-${chatId}-error`, {
-          status: 500,
-          errorMessasge: "Internal server error.",
+      if (!recipientIsInChat) {
+        const updatedStatus = await prisma.status.update({
+          where: { id: createNewMessage.unreadCount[0].id },
+          data: { unreadCount: { increment: 1 } },
         });
+        if (!updatedStatus) {
+          return socket.emit(`chat-${chatId}-error`, {
+            status: 500,
+            errorMessasge: "Internal server error.",
+          });
+        }
       }
 
       socket.emit(`chat-${chatId}-new-message`, {
