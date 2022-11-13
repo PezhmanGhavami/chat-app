@@ -71,7 +71,8 @@ model User {
   username       String?   @unique
   password       String
   activeSessions Session[]
-  lastOnline     Int?
+  isOnline       Boolean   @default(false)
+  lastOnline     BigInt?
   authToken      String?
   authTokenExp   Int?
   chats          Chat[]

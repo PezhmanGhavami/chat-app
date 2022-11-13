@@ -47,6 +47,11 @@ io.on("connection", async (socket) => {
       data: {
         isOnline: true,
         socketId: socket.id,
+        user: {
+          update: {
+            isOnline: true,
+          },
+        },
       },
       include: {
         user: true,
@@ -198,9 +203,13 @@ io.on("connection", async (socket) => {
 
       const recipientUser: IUserCard & {
         recipientId: string;
+        isOnline: boolean;
+        lastOnline: number | null;
       } = {
         id: chatDetails.id,
         recipientId: recipient.id,
+        isOnline: recipient.isOnline,
+        lastOnline: recipient.lastOnline,
         displayName: recipient.displayName,
         profilePicure: recipient.profilePicure,
       };
@@ -405,6 +414,7 @@ io.on("connection", async (socket) => {
             user: {
               update: {
                 lastOnline: Date.now(),
+                isOnline: false,
               },
             },
           },

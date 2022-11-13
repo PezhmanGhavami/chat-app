@@ -11,7 +11,7 @@ export interface IChat {
   lastMessageDate: Date;
 }
 
-const dateFormatter = (date: Date) => {
+export const dateFormatter = (date: Date) => {
   const today = new Date(Date.now());
 
   if (

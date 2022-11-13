@@ -27,6 +27,11 @@ import UserCard, {
 } from "../../components/user-card/user-card.component";
 import LoadingSpinner from "../../components/loading-spinner/loading-spinner.component";
 
+export interface IChatUser extends IUser {
+  recipientId: string;
+  isOnline: boolean;
+  lastOnline: number | null;
+}
 interface IMessage {
   id: string;
   body: string;
@@ -81,10 +86,10 @@ const Message = ({
         className={`w-fit max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl mt-1 py-2 px-4 rounded-2xl break-words ${
           isOwn
             ? `bg-blue-600 ml-auto ${
-                isLast || showTime ? "rounded-br-none" : ""
+                isLast || showTime ? "rounded-br-sm" : ""
               }`
             : `bg-neutral-600 mr-auto ${
-                isLast || showTime ? "rounded-bl-none" : ""
+                isLast || showTime ? "rounded-bl-sm" : ""
               }`
         }`}
         key={message.id}
@@ -144,9 +149,7 @@ const isLast = (messages: IMessage[], index: number) => {
 
 function Chat() {
   const [currentRecipientUser, setCurrentRecipientUser] =
-    useState<(IUser & { recipientId: string }) | null>(
-      null
-    );
+    useState<IChatUser | null>(null);
   const [messagesList, setMessagesList] = useState<
     IMessage[] | null
   >(null);
@@ -339,7 +342,10 @@ function Chat() {
           {/* User info */}
           <div className="flex-1">
             {/* TODO - add a chat mode to disable the modal inside and show online status */}
-            <UserCard user={currentRecipientUser} />
+            <UserCard
+              isInChat={true}
+              user={currentRecipientUser}
+            />
           </div>
           {/* Chat settings */}
           <button className="p-2 pr-0" type="button">

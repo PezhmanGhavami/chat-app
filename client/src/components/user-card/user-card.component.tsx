@@ -7,6 +7,9 @@ import ProfilePicture from "../profile-picture/profile-picture.component";
 
 import { WebSocketContext } from "../../context/websocket.context";
 
+import { dateFormatter } from "../chat-card/chat-card.component";
+import { IChatUser } from "../../pages/chat/chat.page";
+
 export interface IUser {
   id: string;
   displayName: string;
@@ -14,7 +17,8 @@ export interface IUser {
 }
 
 interface IUserCard {
-  user: IUser;
+  user: IUser | IChatUser;
+  isInChat: boolean;
 }
 
 const UserModal = ({
@@ -66,14 +70,16 @@ const UserModal = ({
   );
 };
 
-const UserCard = ({ user }: IUserCard) => {
+const UserCard = ({ user, isInChat }: IUserCard) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const closeModal = (event: MouseEvent) => {
     event.stopPropagation();
+    if (isInChat) return;
     setModalIsOpen(false);
   };
   const openModal = () => {
+    if (isInChat) return;
     setModalIsOpen(true);
   };
 
@@ -88,7 +94,24 @@ const UserCard = ({ user }: IUserCard) => {
       </div>
       {/* Display name */}
       <div className="pl-2">
-        <h3>{user.displayName}</h3>
+        <h3
+          className={`${
+            isInChat ? "text-base leading-3" : ""
+          }`}
+        >
+          {user.displayName}
+        </h3>
+        {isInChat && (
+          <p className="text-xs text-white/80">
+            {(user as IChatUser).isOnline
+              ? "online"
+              : (user as IChatUser).lastOnline
+              ? `last seen ${dateFormatter(
+                  new Date((user as IChatUser).lastOnline!)
+                )}`
+              : "last seen a long time ago"}
+          </p>
+        )}
       </div>
 
       {modalIsOpen && (
@@ -99,6 +122,10 @@ const UserCard = ({ user }: IUserCard) => {
       )}
     </div>
   );
+};
+
+UserCard.defaultProps = {
+  isInChat: false,
 };
 
 export default UserCard;
