@@ -402,6 +402,11 @@ io.on("connection", async (socket) => {
           data: {
             isOnline: false,
             socketId: "",
+            user: {
+              update: {
+                lastOnline: Date.now(),
+              },
+            },
           },
         });
       }
