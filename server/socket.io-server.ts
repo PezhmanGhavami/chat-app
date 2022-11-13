@@ -13,11 +13,42 @@ console.log("Socket.IO server started at localhost:5001");
 
 const emitTimout = 1000 * 30;
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
+  //TODO - Add error boundry
   const id = socket.handshake.query.id;
+  const sessionId = socket.handshake.query.sessionId;
   socket.join(id as string);
 
-  console.log(`${id} joined`);
+  if (!sessionId || !id || sessionId === "" || id === "") {
+    if (sessionId === "" || id === "") {
+      socket.emit(`auth-error`, {
+        status: 401,
+        errorMessage:
+          "Unauthorized connection.\nPlease try to login again.",
+      });
+    } else {
+      socket.emit(`auth-error`, {
+        status: 400,
+        errorMessage: "Socket initialization failed.",
+      });
+    }
+    return socket.disconnect(true);
+  }
+
+  const updatedSession = await prisma.session.update({
+    where: {
+      id: sessionId as string,
+    },
+    data: {
+      isOnline: true,
+      socketId: socket.id,
+    },
+    include: {
+      user: true,
+    },
+  });
+
+  console.log(`${id} connected`);
 
   // Search
   socket.on("search", async ({ query }) => {
@@ -148,7 +179,7 @@ io.on("connection", (socket) => {
     if (!chatDetails) {
       return socket.emit(`chat-${chatId}-error`, {
         status: 404,
-        errorMessasge: "Chat not found",
+        errorMessage: "Chat not found",
       });
     }
 
@@ -198,7 +229,7 @@ io.on("connection", (socket) => {
     if (!chatLatestMessages) {
       return socket.emit(`chat-${chatId}-error`, {
         status: 500,
-        errorMessasge: "Internal error",
+        errorMessage: "Internal error",
       });
     }
 
@@ -225,7 +256,7 @@ io.on("connection", (socket) => {
     if (!chatStatus) {
       return socket.emit(`chat-${chatId}-error`, {
         status: 404,
-        errorMessasge: "Chat status not found",
+        errorMessage: "Chat status not found",
       });
     }
 
@@ -268,7 +299,7 @@ io.on("connection", (socket) => {
     if (!updateChatRes || !updateMessagesRes) {
       return socket.emit(`chat-${chatId}-error`, {
         status: 500,
-        errorMessasge: "Read status update failed.",
+        errorMessage: "Read status update failed.",
       });
     }
   });
@@ -278,6 +309,7 @@ io.on("connection", (socket) => {
     "send-message",
     async ({ chatId, recipientId, message }) => {
       let recipientIsInChat = false;
+      // HACK - this will NOT scale
       io.sockets.adapter.sids.forEach((item) => {
         if (item.has(recipientId) && item.has(chatId)) {
           recipientIsInChat = true;
@@ -325,7 +357,7 @@ io.on("connection", (socket) => {
       if (!createNewMessage) {
         return socket.emit(`chat-${chatId}-error`, {
           status: 404,
-          errorMessasge: "Chat doesn't exist.",
+          errorMessage: "Chat doesn't exist.",
         });
       }
       if (!recipientIsInChat) {
@@ -336,7 +368,7 @@ io.on("connection", (socket) => {
         if (!updatedStatus) {
           return socket.emit(`chat-${chatId}-error`, {
             status: 500,
-            errorMessasge: "Internal server error.",
+            errorMessage: "Internal server error.",
           });
         }
       }
@@ -350,7 +382,19 @@ io.on("connection", (socket) => {
     }
   );
 
-  socket.on("disconnect", (reason) => {
+  socket.on("disconnect", async (reason) => {
+    if (updatedSession) {
+      await prisma.session.update({
+        where: {
+          id: updatedSession.id,
+        },
+        data: {
+          isOnline: false,
+          socketId: "",
+        },
+      });
+    }
+
     console.log(id + " disconnected\n" + reason);
   });
 });

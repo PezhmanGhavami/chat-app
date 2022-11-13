@@ -36,6 +36,7 @@ const Navigation = () => {
   const [searchResult, setSearchResult] = useState<
     null | IUser[]
   >(null);
+  const [authError, setAuthError] = useState(false);
 
   const { user } = useUser();
   const { socket, isConnected, updateIsConnected } =
@@ -63,12 +64,17 @@ const Navigation = () => {
     socket.on("connect", () => {
       updateIsConnected(true);
     });
+    socket.on("auth-error", ({ status, errorMessage }) => {
+      toast.error(status + " - " + errorMessage);
+      setAuthError(true);
+    });
     socket.on("disconnect", () => {
       updateIsConnected(false);
     });
 
     return () => {
       socket.off("connect");
+      socket.off("auth-error");
       socket.off("disconnect");
     };
   }, [socket]);
@@ -214,9 +220,16 @@ const Navigation = () => {
           </nav>
           {/* Connection status and search bar toggle*/}
           <div className="flex-1 w-full flex justify-between">
-            <Link to="/" className="text-2xl select-none">
-              {isConnected ? (
-                <span className="tracking-tight font-semibold">
+            <Link
+              to="/"
+              className="text-2xl select-none tracking-tight"
+            >
+              {authError ? (
+                <span className="font-semibold">
+                  Connection error
+                </span>
+              ) : isConnected ? (
+                <span className="font-semibold">
                   Chat app
                 </span>
               ) : (

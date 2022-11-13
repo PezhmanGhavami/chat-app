@@ -9,6 +9,7 @@ interface IUser {
   userID: string;
   email: string;
   displayName: string;
+  sessionId: string;
   profilePicure: string | null;
   username: string | null;
 }

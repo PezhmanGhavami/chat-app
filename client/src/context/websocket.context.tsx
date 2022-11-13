@@ -36,6 +36,7 @@ const WebSocketProvider = ({
     const newSocekt = io("http://localhost:5001", {
       query: {
         id: user?.userID,
+        sessionId: user?.sessionId,
       },
     });
     setSocket(newSocekt);

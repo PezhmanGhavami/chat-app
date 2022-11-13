@@ -14,6 +14,7 @@ declare module "iron-session" {
       userID: string;
       displayName: string;
       email: string;
+      sessionId: string;
       profilePicure: string | null;
       username: string | null;
       dateCreated: number;

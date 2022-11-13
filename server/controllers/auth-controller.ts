@@ -60,6 +60,14 @@ const handleRegister: IExpressEndpointHandler = async (
         email,
         password: hashedPassword,
         displayName,
+        activeSessions: {
+          create: {
+            isOnline: false,
+          },
+        },
+      },
+      include: {
+        activeSessions: true,
       },
     });
 
@@ -68,6 +76,7 @@ const handleRegister: IExpressEndpointHandler = async (
       email: newUser.email,
       dateCreated: Date.now(),
       displayName: newUser.displayName,
+      sessionId: newUser.activeSessions[0].id,
       profilePicure: null,
       username: null,
     };
@@ -131,6 +140,35 @@ const handleSignin: IExpressEndpointHandler = async (
       res.status(401);
       throw new Error("Wrong email/username or password");
     }
+
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: userExists.id,
+      },
+      data: {
+        activeSessions: {
+          create: {
+            isOnline: false,
+          },
+        },
+      },
+      select: {
+        activeSessions: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 1,
+        },
+      },
+    });
+
+    if (!updatedUser) {
+      res.status(500);
+      throw new Error(
+        "Something went wrong with session creation."
+      );
+    }
+
     const user = {
       userID: userExists.id,
       email: userExists.email,
@@ -138,6 +176,7 @@ const handleSignin: IExpressEndpointHandler = async (
       displayName: userExists.displayName,
       profilePicure: userExists.profilePicure,
       username: userExists.username,
+      sessionId: updatedUser.activeSessions[0].id,
     };
     req.session.user = user;
     await req.session.save();
@@ -160,10 +199,26 @@ const handleSignin: IExpressEndpointHandler = async (
  * @route  GET /api/auth/signout
  * @access Public
  * */
-const handleSignout: IExpressEndpointHandler = (
+const handleSignout: IExpressEndpointHandler = async (
   req,
   res
 ) => {
+  const user = req.session.user;
+  if (user) {
+    await prisma.user.update({
+      where: {
+        id: user.userID,
+      },
+      data: {
+        activeSessions: {
+          delete: {
+            id: user.sessionId,
+          },
+        },
+      },
+    });
+  }
+
   req.session.destroy();
   return res.redirect("/");
 };
@@ -177,12 +232,32 @@ const getUser: IExpressEndpointHandler = async (
   req,
   res
 ) => {
+  const loggedOutUser: IUser = {
+    isLoggedIn: false,
+    userID: "",
+    email: "",
+    displayName: "",
+    sessionId: "",
+    profilePicure: null,
+    username: null,
+  };
   const user = req.session.user;
   if (user) {
     if (
       Date.now() - user.dateCreated >
       1000 * 60 * 60 * 24
     ) {
+      const userSessionExists =
+        await prisma.session.findFirst({
+          where: {
+            id: user.sessionId,
+            userId: user.userID,
+          },
+        });
+      if (!userSessionExists) {
+        req.session.destroy();
+        return res.json(loggedOutUser);
+      }
       const newUser = {
         ...user,
         dateCreated: Date.now(),
@@ -196,17 +271,11 @@ const getUser: IExpressEndpointHandler = async (
       email: user.email,
       displayName: user.displayName,
       profilePicure: user.profilePicure,
+      sessionId: user.sessionId,
       username: user.username,
     } as IUser);
   }
-  return res.json({
-    isLoggedIn: false,
-    userID: "",
-    email: "",
-    displayName: "",
-    profilePicure: null,
-    username: null,
-  } as IUser);
+  return res.json(loggedOutUser);
 };
 
 export {
