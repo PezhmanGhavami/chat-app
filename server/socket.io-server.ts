@@ -204,7 +204,7 @@ io.on("connection", async (socket) => {
       const recipientUser: IUserCard & {
         recipientId: string;
         isOnline: boolean;
-        lastOnline: number | null;
+        lastOnline: Date | null;
       } = {
         id: chatDetails.id,
         recipientId: recipient.id,
@@ -413,7 +413,7 @@ io.on("connection", async (socket) => {
             socketId: "",
             user: {
               update: {
-                lastOnline: Date.now(),
+                lastOnline: new Date(Date.now()),
                 isOnline: false,
               },
             },

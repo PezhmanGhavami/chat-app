@@ -30,15 +30,15 @@ import LoadingSpinner from "../../components/loading-spinner/loading-spinner.com
 export interface IChatUser extends IUser {
   recipientId: string;
   isOnline: boolean;
-  lastOnline: number | null;
+  lastOnline: Date | null;
 }
 interface IMessage {
   id: string;
   body: string;
   chatId: string;
   senderId: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   recipients: {
     isRead: boolean;
     recipientId: string;
@@ -117,8 +117,8 @@ const Message = ({
 };
 
 const isTheSameDay = (
-  currentDateUnformatted: string,
-  previousDateUnformatted: string
+  currentDateUnformatted: Date,
+  previousDateUnformatted: Date
 ) => {
   const currentDate = new Date(currentDateUnformatted);
   const previousDate = new Date(previousDateUnformatted);

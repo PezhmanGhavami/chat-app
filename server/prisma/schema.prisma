@@ -72,7 +72,7 @@ model User {
   password       String
   activeSessions Session[]
   isOnline       Boolean   @default(false)
-  lastOnline     BigInt?
+  lastOnline     DateTime?
   authToken      String?
   authTokenExp   Int?
   chats          Chat[]
