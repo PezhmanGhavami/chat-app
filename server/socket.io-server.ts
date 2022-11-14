@@ -202,12 +202,12 @@ io.on("connection", async (socket) => {
           : chatDetails.users[1];
 
       const recipientUser: IUserCard & {
-        recipientId: string;
+        chatId: string;
         isOnline: boolean;
         lastOnline: Date | null;
       } = {
-        id: chatDetails.id,
-        recipientId: recipient.id,
+        id: recipient.id,
+        chatId: chatDetails.id,
         isOnline: recipient.isOnline,
         lastOnline: recipient.lastOnline,
         displayName: recipient.displayName,
@@ -318,19 +318,35 @@ io.on("connection", async (socket) => {
           errorMessage: "Read status update failed.",
         });
       }
+
+      socket.to(chatId).emit(`chat-${chatId}-read-all`);
     });
 
     // Send message
     socket.on(
       "send-message",
-      async ({ chatId, recipientId, message }) => {
+      async ({ chatId, recipientId, message, tempId }) => {
         let recipientIsInChat = false;
-        // HACK - this will NOT scale
-        io.sockets.adapter.sids.forEach((item) => {
-          if (item.has(recipientId) && item.has(chatId)) {
+        const recipientSessions =
+          await prisma.session.findMany({
+            where: {
+              userId: recipientId,
+              socketId: {
+                not: undefined,
+              },
+            },
+          });
+
+        for (const recipientSession of recipientSessions) {
+          if (
+            io.sockets.adapter.rooms
+              .get(chatId)!
+              .has(recipientSession.socketId)
+          ) {
             recipientIsInChat = true;
+            break;
           }
-        });
+        }
 
         const createNewMessage = await prisma.chat.update({
           where: { id: chatId },
@@ -343,7 +359,7 @@ io.on("connection", async (socket) => {
                   sender: { connect: { id: id as string } },
                   recipients: {
                     create: {
-                      isRead: recipientIsInChat,
+                      isRead: false,
                       recipientId,
                     },
                   },
@@ -391,8 +407,9 @@ io.on("connection", async (socket) => {
           }
         }
 
-        socket.emit(`chat-${chatId}-new-message`, {
-          message: createNewMessage.messages[0],
+        socket.emit(`chat-${chatId}-delivered`, {
+          tempId: tempId,
+          actualId: createNewMessage.messages[0].id,
         });
         socket
           .to(chatId)

@@ -22,7 +22,7 @@ function App() {
         }
       >
         <Route index element={<Index />} />
-        <Route path="chat/:chatID" element={<Chat />} />
+        <Route path="chat/:chatId" element={<Chat />} />
       </Route>
 
       <Route path="/auth" element={<AuthLayout />}>

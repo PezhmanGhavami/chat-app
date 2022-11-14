@@ -22,13 +22,15 @@ import { IoSend } from "react-icons/io5";
 
 import { WebSocketContext } from "../../context/websocket.context";
 
+import useUser from "../../hooks/useUser";
+
 import UserCard, {
   IUser,
 } from "../../components/user-card/user-card.component";
 import LoadingSpinner from "../../components/loading-spinner/loading-spinner.component";
 
 export interface IChatUser extends IUser {
-  recipientId: string;
+  chatId: string;
   isOnline: boolean;
   lastOnline: Date | null;
 }
@@ -39,6 +41,7 @@ interface IMessage {
   senderId: string;
   createdAt: Date;
   updatedAt: Date;
+  isLocal?: boolean;
   recipients: {
     isRead: boolean;
     recipientId: string;
@@ -105,7 +108,9 @@ const Message = ({
           {messageTime}
           {isOwn && (
             <span className="font-semibold">
-              {message.recipients[0].isRead
+              {message.isLocal
+                ? " . Sending"
+                : message.recipients[0].isRead
                 ? " . Read"
                 : " . Delivered"}
             </span>
@@ -170,6 +175,8 @@ function Chat() {
     null
   );
 
+  const { user: currentUser } = useUser();
+
   const { socket, isConnected } = useContext(
     WebSocketContext
   );
@@ -181,12 +188,12 @@ function Chat() {
   // join emit - leave emit
   // init data listener - internal error listener
   useEffect(() => {
-    if (!socket || !params.chatID || !isConnected) return;
+    if (!socket || !params.chatId || !isConnected) return;
 
-    socket.emit("joined-chat", { chatId: params.chatID });
+    socket.emit("joined-chat", { chatId: params.chatId });
 
     socket.on(
-      `chat-${params.chatID}-init`,
+      `chat-${params.chatId}-init`,
       ({ recipientUser, messages }) => {
         setCurrentRecipientUser(recipientUser);
         setMessagesList(messages.reverse());
@@ -194,7 +201,7 @@ function Chat() {
     );
 
     socket.on(
-      `chat-${params.chatID}-new-message`,
+      `chat-${params.chatId}-new-message`,
       ({ message }) => {
         setMessagesList((prev) => [
           ...(prev as IMessage[]),
@@ -203,8 +210,23 @@ function Chat() {
       }
     );
 
+    socket.on(`chat-${params.chatId}-read-all`, () => {
+      setMessagesList((prev) =>
+        (prev as IMessage[]).map((message) => ({
+          ...message,
+          recipients: [
+            {
+              isRead: true,
+              recipientId:
+                message.recipients[0].recipientId,
+            },
+          ],
+        }))
+      );
+    });
+
     socket.on(
-      `chat-${params.chatID}-error`,
+      `chat-${params.chatId}-error`,
       ({ status, errorMessasge }) => {
         toast.error(status + " - " + errorMessasge);
         navigate("/");
@@ -212,12 +234,38 @@ function Chat() {
     );
 
     return () => {
-      socket.off(`chat-${params.chatID}-init`);
-      socket.off(`chat-${params.chatID}-error`);
-      socket.off(`chat-${params.chatID}-new-message`);
-      socket.emit("left-chat", { chatId: params.chatID });
+      socket.off(`chat-${params.chatId}-init`);
+      socket.off(`chat-${params.chatId}-error`);
+      socket.off(`chat-${params.chatId}-new-message`);
+      socket.off(`chat-${params.chatId}-read-all`);
+      socket.emit("left-chat", { chatId: params.chatId });
     };
-  }, [socket, params.chatID, isConnected]);
+  }, [socket, params.chatId, isConnected]);
+
+  // Delivered useEffect
+  useEffect(() => {
+    if (!messagesList || !socket) return;
+    socket.on(
+      `chat-${params.chatId}-delivered`,
+      ({ tempId, actualId }) => {
+        const messageIndex = messagesList?.findIndex(
+          (message) => message.id === tempId
+        );
+        if (
+          messageIndex !== undefined &&
+          messageIndex !== -1
+        ) {
+          const newArr = [...(messagesList as IMessage[])];
+          newArr[messageIndex].id = actualId;
+          delete newArr[messageIndex].isLocal;
+          setMessagesList(newArr);
+        }
+      }
+    );
+    return () => {
+      socket.off(`chat-${params.chatId}-delivered`);
+    };
+  }, [socket, messagesList]);
 
   const handleChange = (
     event: ChangeEvent<HTMLTextAreaElement>
@@ -237,11 +285,36 @@ function Chat() {
     if (message.length === 0)
       return toast.error("Can't send empty message");
 
+    const tempId = Date.now().toString();
+
     socket.emit("send-message", {
-      chatId: currentRecipientUser.id,
-      recipientId: currentRecipientUser.recipientId,
+      chatId: currentRecipientUser.chatId,
+      recipientId: currentRecipientUser.id,
       message,
+      tempId,
     });
+
+    const newMessage: IMessage = {
+      body: message,
+      id: tempId,
+      senderId: currentUser!.userID,
+      recipients: [
+        {
+          isRead: false,
+          recipientId: currentRecipientUser.id,
+        },
+      ],
+      chatId: currentRecipientUser.chatId,
+      isLocal: true,
+      createdAt: new Date(Date.now()),
+      updatedAt: new Date(Date.now()),
+    };
+
+    setMessagesList((prev) => [
+      ...(prev as IMessage[]),
+      newMessage,
+    ]);
+
     setMessage("");
   };
 
@@ -261,7 +334,7 @@ function Chat() {
       return toast.error("Connection lost...");
 
     socket.emit("read-messages", {
-      chatId: currentRecipientUser.id,
+      chatId: currentRecipientUser.chatId,
     });
   };
 
@@ -270,8 +343,7 @@ function Chat() {
     if (messagesList) {
       const index = messagesList.findIndex(
         (message) =>
-          message.senderId ===
-            currentRecipientUser?.recipientId &&
+          message.senderId === currentRecipientUser?.id &&
           !message.recipients[0].isRead
       );
       if (index === -1) {
@@ -312,7 +384,11 @@ function Chat() {
     );
   };
 
-  if (!messagesList || !currentRecipientUser) {
+  if (
+    !messagesList ||
+    !currentRecipientUser ||
+    !currentUser
+  ) {
     return (
       <div className="text-3xl bg-neutral-900 h-full">
         <LoadingSpinner />
@@ -396,7 +472,7 @@ function Chat() {
                 showTime={showMessageDate(messages, index)}
                 isOwn={
                   message.senderId !==
-                  currentRecipientUser.recipientId
+                  currentRecipientUser.id
                 }
               />
             </div>
