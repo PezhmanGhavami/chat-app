@@ -79,7 +79,7 @@ const Navigation = () => {
     };
   }, [socket]);
 
-  // New chat
+  // New chat and chats list update
   useEffect(() => {
     if (!chats || !socket) return;
     socket.on("new-chat-created", (chat) => {
@@ -95,8 +95,56 @@ const Navigation = () => {
       navigate("/chat/" + chatId);
     });
 
+    socket.on(
+      "chats-list-update",
+      ({
+        chatId,
+        lastMessage,
+        lastMessageDate,
+        unreadCount,
+      }) => {
+        const targetChatIndex = chats.findIndex(
+          (chat) => chat.id === chatId
+        );
+        if (chatId !== -1) {
+          const newArr = [...chats];
+          if (
+            unreadCount !== undefined &&
+            !lastMessage &&
+            !lastMessageDate
+          ) {
+            newArr[targetChatIndex] = {
+              ...newArr[targetChatIndex],
+              unreadCount,
+            };
+          } else {
+            const basePayload = {
+              ...newArr[targetChatIndex],
+              lastMessage,
+              lastMessageDate,
+            };
+            newArr[targetChatIndex] = unreadCount
+              ? {
+                  ...basePayload,
+                  unreadCount,
+                }
+              : basePayload;
+          }
+
+          newArr.sort(
+            (a, b) =>
+              new Date(b.lastMessageDate).getTime() -
+              new Date(a.lastMessageDate).getTime()
+          );
+
+          setChats(newArr);
+        }
+      }
+    );
+
     return () => {
       socket.off("new-chat-created");
+      socket.off("chats-list-update");
       socket.off("new-chat");
       socket.off("chat-exists");
     };

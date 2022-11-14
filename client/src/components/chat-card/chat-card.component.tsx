@@ -58,7 +58,7 @@ const ChatCard = ({ chat }: { chat: IChat }) => {
           {/* Last message summary and unread messages */}
           <div className="flex justify-between">
             <div className="relative w-full mr-2">
-              <p className="absolute inset-0 truncate text-neutral-400 min-h-fit">
+              <p className="absolute inset-0 truncate text-neutral-400 h-fit">
                 {chat.lastMessage}
               </p>
             </div>

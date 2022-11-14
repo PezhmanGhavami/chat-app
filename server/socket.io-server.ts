@@ -266,6 +266,7 @@ io.on("connection", async (socket) => {
       const chatStatus = await prisma.status.findFirst({
         where: {
           userId: id as string,
+          chatId: chatId,
         },
       });
 
@@ -320,6 +321,10 @@ io.on("connection", async (socket) => {
       }
 
       socket.to(chatId).emit(`chat-${chatId}-read-all`);
+      socket.emit("chats-list-update", {
+        chatId,
+        unreadCount: 0,
+      });
     });
 
     // Send message
@@ -338,11 +343,8 @@ io.on("connection", async (socket) => {
           });
 
         for (const recipientSession of recipientSessions) {
-          if (
-            io.sockets.adapter.rooms
-              .get(chatId)!
-              .has(recipientSession.socketId)
-          ) {
+          const room = io.sockets.adapter.rooms.get(chatId);
+          if (room && room.has(recipientSession.socketId)) {
             recipientIsInChat = true;
             break;
           }
@@ -408,7 +410,7 @@ io.on("connection", async (socket) => {
         }
 
         socket.emit(`chat-${chatId}-delivered`, {
-          tempId: tempId,
+          tempId,
           actualId: createNewMessage.messages[0].id,
         });
         socket
@@ -416,6 +418,37 @@ io.on("connection", async (socket) => {
           .emit(`chat-${chatId}-new-message`, {
             message: createNewMessage.messages[0],
           });
+
+        // TODO - improve this
+        const currentChatStatus =
+          await prisma.chat.findUnique({
+            where: {
+              id: chatId,
+            },
+            include: {
+              unreadCount: {
+                where: {
+                  userId: recipientId,
+                },
+              },
+            },
+          });
+        if (currentChatStatus) {
+          const currentUserPayload = {
+            chatId,
+            lastMessage: currentChatStatus.lastMessage,
+            lastMessageDate: currentChatStatus.updatedAt,
+          };
+          socket.emit(
+            "chats-list-update",
+            currentUserPayload
+          );
+          socket.to(recipientId).emit("chats-list-update", {
+            ...currentUserPayload,
+            unreadCount:
+              currentChatStatus.unreadCount[0].unreadCount,
+          });
+        }
       }
     );
 

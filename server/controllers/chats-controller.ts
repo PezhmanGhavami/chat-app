@@ -35,6 +35,9 @@ const getChats: IExpressEndpointHandler = async (
                 },
               },
             },
+            orderBy: {
+              updatedAt: "desc",
+            },
           },
         },
       });

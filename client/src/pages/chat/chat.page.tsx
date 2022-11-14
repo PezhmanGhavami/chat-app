@@ -354,7 +354,6 @@ function Chat() {
   }, [messagesList]);
 
   // TODO - make the unread banner doesn't flash when the newest message makes the scrollbar be at end, make it so it stays there until new message or chat close
-  // TODO - update the Message component read recipt after emitting a read all
 
   // Scroll useEffect
   useEffect(() => {
@@ -417,7 +416,6 @@ function Chat() {
           </Link>
           {/* User info */}
           <div className="flex-1">
-            {/* TODO - add a chat mode to disable the modal inside and show online status */}
             <UserCard
               isInChat={true}
               user={currentRecipientUser}
