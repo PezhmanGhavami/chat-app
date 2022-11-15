@@ -19,7 +19,9 @@ const Layout = () => {
               : "translate-x-full"
           }`}
         >
-          <Outlet />
+          <Outlet
+            key={params.chatId ? params.chatId : "no-chat"}
+          />
         </main>
       </div>
     </WebSocketProvider>
