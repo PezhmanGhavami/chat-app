@@ -207,6 +207,7 @@ function Chat() {
           ...(prev as IMessage[]),
           message,
         ]);
+        setAllToRead();
       }
     );
 
@@ -315,6 +316,7 @@ function Chat() {
       newMessage,
     ]);
 
+    setAllToRead();
     setMessage("");
   };
 
@@ -338,6 +340,22 @@ function Chat() {
     });
   };
 
+  const setAllToRead = () => {
+    if (messagesList) {
+      setMessagesList((prev) => {
+        return prev!.map((message) => ({
+          ...message,
+          recipients: [
+            {
+              isRead: true,
+              recipientId:
+                message.recipients[0].recipientId,
+            },
+          ],
+        }));
+      });
+    }
+  };
   // Unread tracker
   useEffect(() => {
     if (messagesList) {
@@ -353,8 +371,6 @@ function Chat() {
     }
   }, [messagesList]);
 
-  // TODO - make the unread banner doesn't flash when the newest message makes the scrollbar be at end, make it so it stays there until new message or chat close
-
   // Scroll useEffect
   useEffect(() => {
     if (messagesList) {
@@ -364,7 +380,6 @@ function Chat() {
       if (scrollbarAtEnd) {
         if (startOfUnread !== null) {
           emitReadAll();
-          setStartOfUnread(null);
         }
         scrollToBottom();
       }
@@ -440,7 +455,7 @@ function Chat() {
               <div
                 ref={unreadMessages}
                 id="unread-messages"
-                className="w-full text-center mb-2 bg-neutral-800 select-none"
+                className="w-full text-center my-2 bg-neutral-800 select-none"
               >
                 <p>Unread Messages &#8595;</p>
               </div>
