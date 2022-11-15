@@ -210,7 +210,7 @@ function Chat() {
             !message.recipients[0].isRead
         );
         if (index === -1) {
-          messagesListEnd.current?.scrollIntoView();
+          setScrollbarAtEnd(true);
         }
       }
     );
@@ -393,7 +393,6 @@ function Chat() {
   // Auto scroll useEffect
   useEffect(() => {
     if (messagesList) {
-      console.log(startOfUnread);
       if (thereIsNoScrollbar) {
         if (startOfUnread !== null) {
           emitReadAll();
@@ -408,7 +407,7 @@ function Chat() {
         if (startOfUnread !== null) {
           emitReadAll();
         }
-        scrollToBottom();
+        messagesListEnd.current?.scrollIntoView();
       }
     }
   }, [
