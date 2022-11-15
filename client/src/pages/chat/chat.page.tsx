@@ -164,11 +164,13 @@ function Chat() {
   >(null);
   const [scrollbarAtEnd, setScrollbarAtEnd] =
     useState(false);
+  // TODO - use this to load more messages
   const [scrollbarAtTop, setScrollbarAtTop] =
     useState(false);
   const [showGoToBottom, setShowGoToBottom] =
     useState(false);
-  // TODO - use this to load more messages
+  const [thereIsNoScrollbar, setThereIsNoScrollbar] =
+    useState(false);
 
   const messagesListEnd = useRef<null | HTMLDivElement>(
     null
@@ -176,6 +178,8 @@ function Chat() {
   const unreadMessages = useRef<null | HTMLDivElement>(
     null
   );
+  const messagesListContainer =
+    useRef<null | HTMLDivElement>(null);
 
   const { user: currentUser } = useUser();
 
@@ -199,12 +203,24 @@ function Chat() {
       ({ recipientUser, messages }) => {
         setCurrentRecipientUser(recipientUser);
         setMessagesList(messages.reverse());
+
+        const index = (messages as IMessage[]).findIndex(
+          (message) =>
+            message.senderId === currentRecipientUser?.id &&
+            !message.recipients[0].isRead
+        );
+        if (index === -1) {
+          messagesListEnd.current?.scrollIntoView();
+        }
       }
     );
 
     socket.on(
       `chat-${params.chatId}-new-message`,
       ({ message }) => {
+        socket.emit("read-messages", {
+          chatId: params.chatId,
+        });
         setMessagesList((prev) => [
           ...(prev as IMessage[]),
           message,
@@ -327,11 +343,6 @@ function Chat() {
       behavior: "smooth",
     });
   };
-  const scrollToUnread = () => {
-    unreadMessages.current?.scrollIntoView({
-      behavior: "smooth",
-    });
-  };
 
   const emitReadAll = () => {
     if (!socket || !currentRecipientUser)
@@ -343,23 +354,31 @@ function Chat() {
   };
 
   const setAllToRead = () => {
-    if (messagesList) {
-      setMessagesList((prev) => {
-        return prev!.map((message) => ({
-          ...message,
-          recipients: [
-            {
-              isRead: true,
-              recipientId:
-                message.recipients[0].recipientId,
-            },
-          ],
-        }));
+    setMessagesList((prev) => {
+      if (!prev) {
+        return null;
+      }
+      return prev.map((message) => {
+        if (
+          message.senderId !== currentUser!.userID &&
+          !message.recipients[0].isRead
+        ) {
+          return {
+            ...message,
+            recipients: [
+              {
+                isRead: true,
+                recipientId:
+                  message.recipients[0].recipientId,
+              },
+            ],
+          };
+        }
+        return { ...message };
       });
-    }
+    });
   };
 
-  // Unread tracker
   useEffect(() => {
     if (messagesList) {
       const index = messagesList.findIndex(
@@ -367,18 +386,23 @@ function Chat() {
           message.senderId === currentRecipientUser?.id &&
           !message.recipients[0].isRead
       );
-      if (index === -1) {
-        setScrollbarAtEnd(true);
-      }
       setStartOfUnread(index !== -1 ? index : null);
     }
   }, [messagesList]);
 
-  // Scroll useEffect
+  // Auto scroll useEffect
   useEffect(() => {
     if (messagesList) {
+      console.log(startOfUnread);
+      if (thereIsNoScrollbar) {
+        if (startOfUnread !== null) {
+          emitReadAll();
+        }
+        return;
+      }
       if (startOfUnread !== null && !scrollbarAtEnd) {
-        return scrollToUnread();
+        unreadMessages.current?.scrollIntoView();
+        return;
       }
       if (scrollbarAtEnd) {
         if (startOfUnread !== null) {
@@ -387,7 +411,12 @@ function Chat() {
         scrollToBottom();
       }
     }
-  }, [scrollbarAtEnd, messagesList, startOfUnread]);
+  }, [
+    scrollbarAtEnd,
+    thereIsNoScrollbar,
+    messagesList,
+    startOfUnread,
+  ]);
 
   const handleScroll: UIEventHandler<HTMLDivElement> = (
     event
@@ -401,7 +430,25 @@ function Chat() {
     setShowGoToBottom(
       totalScrollHeight - sum > clientHeight / 2
     );
+    setScrollbarAtTop(scrollLeftToTop === 0);
   };
+
+  // no scrollbar useEffect
+  useEffect(() => {
+    if (messagesListContainer.current) {
+      const clientHeight =
+        messagesListContainer.current.clientHeight;
+      const totalScrollHeight =
+        messagesListContainer.current.scrollHeight;
+
+      setThereIsNoScrollbar(
+        clientHeight === totalScrollHeight
+      );
+    }
+  }, [
+    messagesListContainer.current,
+    messagesListContainer.current?.scrollHeight,
+  ]);
 
   if (
     !messagesList ||
@@ -450,6 +497,7 @@ function Chat() {
 
       {/* Message list */}
       <div
+        ref={messagesListContainer}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto overflow-x-hidden pb-2"
       >
