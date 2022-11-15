@@ -166,6 +166,8 @@ function Chat() {
     useState(false);
   const [scrollbarAtTop, setScrollbarAtTop] =
     useState(false);
+  const [showGoToBottom, setShowGoToBottom] =
+    useState(false);
   // TODO - use this to load more messages
 
   const messagesListEnd = useRef<null | HTMLDivElement>(
@@ -356,6 +358,7 @@ function Chat() {
       });
     }
   };
+
   // Unread tracker
   useEffect(() => {
     if (messagesList) {
@@ -393,8 +396,10 @@ function Chat() {
     const scrollLeftToTop = event.currentTarget.scrollTop;
     const totalScrollHeight =
       event.currentTarget.scrollHeight;
-    setScrollbarAtEnd(
-      clientHeight + scrollLeftToTop === totalScrollHeight
+    const sum = clientHeight + scrollLeftToTop;
+    setScrollbarAtEnd(sum === totalScrollHeight);
+    setShowGoToBottom(
+      totalScrollHeight - sum > clientHeight / 2
     );
   };
 
@@ -413,7 +418,7 @@ function Chat() {
   return (
     <div className="relative flex flex-col justify-between h-full bg-neutral-900 sm:border-l border-neutral-100 dark:border-neutral-500">
       {/* Go to bottom button */}
-      {!scrollbarAtEnd && (
+      {showGoToBottom && (
         <button
           type="button"
           onClick={scrollToBottom}
