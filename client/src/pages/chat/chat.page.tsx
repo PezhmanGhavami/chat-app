@@ -153,6 +153,14 @@ const isLast = (messages: IMessage[], index: number) => {
   return false;
 };
 
+const Pill = ({ text }: { text: string }) => {
+  return (
+    <p className="bg-neutral-800 px-4 py-1 mx-auto my-2 w-fit rounded-full select-none">
+      {text}
+    </p>
+  );
+};
+
 function Chat() {
   const [currentRecipientUser, setCurrentRecipientUser] =
     useState<IChatUser | null>(null);
@@ -558,21 +566,6 @@ function Chat() {
             <LoadingSpinner />
           </div>
         )}
-        {/* End of messages */}
-        {endOfMessages && (
-          <div className="w-full text-center mt-2 mb-10 select-none">
-            <p className="text-xl">Chat started</p>
-            <p>
-              {new Date(
-                currentRecipientUser.chatCreated
-              ).toLocaleDateString("default", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              })}
-            </p>
-          </div>
-        )}
 
         {/* Message list */}
         {messagesList.map((message, index, messages) => (
@@ -593,16 +586,22 @@ function Chat() {
                 message.createdAt,
                 messagesList[index - 1].createdAt
               )) && (
-              <p className="bg-neutral-800 px-4 py-1 mx-auto my-2 w-fit rounded-full select-none">
-                {new Date(
-                  message.createdAt
-                ).toLocaleDateString("default", {
-                  weekday: "short",
-                  day: "2-digit",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </p>
+              <>
+                {/* End of messages */}
+                {endOfMessages && (
+                  <Pill text="Chat Started" />
+                )}
+                <Pill
+                  text={new Date(
+                    message.createdAt
+                  ).toLocaleDateString("default", {
+                    weekday: "short",
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                />
+              </>
             )}
             {/* Message */}
             <div className="px-2">
