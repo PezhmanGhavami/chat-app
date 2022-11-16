@@ -570,16 +570,6 @@ function Chat() {
         {/* Message list */}
         {messagesList.map((message, index, messages) => (
           <div id={message.id} key={message.id}>
-            {/* Unread banner */}
-            {startOfUnread === index && (
-              <div
-                ref={unreadMessages}
-                id="unread-messages"
-                className="w-full text-center my-2 bg-neutral-800 select-none"
-              >
-                <p>Unread Messages &#8595;</p>
-              </div>
-            )}
             {/* Date banner */}
             {(index === 0 ||
               !isTheSameDay(
@@ -602,6 +592,16 @@ function Chat() {
                   })}
                 />
               </>
+            )}
+            {/* Unread banner */}
+            {startOfUnread === index && (
+              <div
+                ref={unreadMessages}
+                id="unread-messages"
+                className="w-full text-center my-2 bg-neutral-800 select-none"
+              >
+                <p>Unread Messages &#8595;</p>
+              </div>
             )}
             {/* Message */}
             <div className="px-2">
