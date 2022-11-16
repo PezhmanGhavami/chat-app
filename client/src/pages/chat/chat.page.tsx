@@ -631,10 +631,10 @@ function Chat() {
             Message
           </label>
           <textarea
-            className="bg-transparent w-full h-12 px-4 py-3 focus:outline-none resize-none"
+            className="bg-transparent w-full h-12 px-5 py-3 focus:outline-none resize-none"
             name="message"
             id="message"
-            placeholder="Start a message"
+            placeholder="Write a message"
             autoComplete="off"
             autoFocus
             value={message}
