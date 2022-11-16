@@ -199,24 +199,26 @@ const handleSignin: IExpressEndpointHandler = async (
  * @route  GET /api/auth/signout
  * @access Public
  * */
-const handleSignout: IExpressEndpointHandler = async (
+const handleSignout: IExpressEndpointHandler = (
   req,
   res
 ) => {
   const user = req.session.user;
   if (user) {
-    await prisma.user.update({
-      where: {
-        id: user.userID,
-      },
-      data: {
-        activeSessions: {
-          delete: {
-            id: user.sessionId,
+    prisma.user
+      .update({
+        where: {
+          id: user.userID,
+        },
+        data: {
+          activeSessions: {
+            delete: {
+              id: user.sessionId,
+            },
           },
         },
-      },
-    });
+      })
+      .catch((error) => console.log(error));
   }
 
   req.session.destroy();

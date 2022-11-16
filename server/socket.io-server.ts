@@ -182,6 +182,7 @@ io.on("connection", async (socket) => {
         select: {
           id: true,
           users: true,
+          createdAt: true,
           unreadCount: {
             where: {
               userId: id as string,
@@ -203,11 +204,13 @@ io.on("connection", async (socket) => {
 
       const recipientUser: IUserCard & {
         chatId: string;
+        chatCreated: Date;
         isOnline: boolean;
         lastOnline: Date | null;
       } = {
         id: recipient.id,
         chatId: chatDetails.id,
+        chatCreated: chatDetails.createdAt,
         isOnline: recipient.isOnline,
         lastOnline: recipient.lastOnline,
         displayName: recipient.displayName,
@@ -261,6 +264,57 @@ io.on("connection", async (socket) => {
       console.log(id + " left chat " + chatId);
     });
 
+    // Load more messages from chat
+    socket.on(
+      "load-more",
+      async ({ chatId, lastMessageId }) => {
+        const chatLatestMessages =
+          await prisma.chat.findUnique({
+            where: {
+              id: chatId,
+            },
+            select: {
+              messages: {
+                take: 50,
+                skip: 1,
+                cursor: {
+                  id: lastMessageId,
+                },
+
+                orderBy: {
+                  createdAt: "desc",
+                },
+                include: {
+                  recipients: {
+                    select: {
+                      isRead: true,
+                      recipientId: true,
+                    },
+                  },
+                },
+              },
+            },
+          });
+
+        if (!chatLatestMessages) {
+          return socket.emit(`chat-${chatId}-error`, {
+            status: 404,
+            errorMessage: "Chat not found",
+          });
+        }
+
+        let endOfMessages = false;
+        if (chatLatestMessages.messages.length < 50) {
+          endOfMessages = true;
+        }
+
+        socket.emit(`chat-${chatId}-messages-loader`, {
+          messages: chatLatestMessages.messages,
+          endOfMessages,
+          lastMessageId,
+        });
+      }
+    );
     // Read messages
     socket.on("read-messages", async ({ chatId }) => {
       const chatStatus = await prisma.status.findFirst({

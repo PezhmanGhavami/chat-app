@@ -31,6 +31,7 @@ import LoadingSpinner from "../../components/loading-spinner/loading-spinner.com
 
 export interface IChatUser extends IUser {
   chatId: string;
+  chatCreated: Date;
   isOnline: boolean;
   lastOnline: Date | null;
 }
@@ -86,7 +87,7 @@ const Message = ({
   return (
     <div>
       <div
-        className={`w-fit max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl mt-1 py-2 px-4 rounded-2xl break-words ${
+        className={`w-fit max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl mt-[2px] py-2 px-4 rounded-2xl break-words ${
           isOwn
             ? `bg-blue-600 ml-auto ${
                 isLast || showTime ? "rounded-br-sm" : ""
@@ -164,13 +165,18 @@ function Chat() {
   >(null);
   const [scrollbarAtEnd, setScrollbarAtEnd] =
     useState(false);
-  // TODO - use this to load more messages
-  const [scrollbarAtTop, setScrollbarAtTop] =
-    useState(false);
   const [showGoToBottom, setShowGoToBottom] =
     useState(false);
   const [thereIsNoScrollbar, setThereIsNoScrollbar] =
     useState(false);
+  // TODO - use this to load more messages
+  const [scrollbarAtTop, setScrollbarAtTop] =
+    useState(false);
+  const [isLoadingMoreMessages, setIsLoadingMoreMessages] =
+    useState(false);
+  const [endOfMessages, setEndOfMessages] = useState(false);
+  const [lastUpdateRequest, setLastUpdateRequest] =
+    useState(0);
 
   const messagesListEnd = useRef<null | HTMLDivElement>(
     null
@@ -212,6 +218,9 @@ function Chat() {
         if (index === -1) {
           setScrollbarAtEnd(true);
         }
+        if (messages.length < 50) {
+          setEndOfMessages(true);
+        }
       }
     );
 
@@ -245,6 +254,25 @@ function Chat() {
     });
 
     socket.on(
+      `chat-${params.chatId}-messages-loader`,
+      ({ messages, endOfMessages, lastMessageId }) => {
+        messages.reverse();
+
+        setMessagesList((prev) => {
+          return [...messages, ...prev!];
+        });
+
+        const lastEelementBeforeUpdate =
+          document.getElementById(lastMessageId);
+        lastEelementBeforeUpdate?.scrollIntoView();
+
+        setLastUpdateRequest(Date.now());
+        setIsLoadingMoreMessages(false);
+        setEndOfMessages(endOfMessages);
+      }
+    );
+
+    socket.on(
       `chat-${params.chatId}-error`,
       ({ status, errorMessasge }) => {
         toast.error(status + " - " + errorMessasge);
@@ -256,6 +284,7 @@ function Chat() {
       socket.off(`chat-${params.chatId}-init`);
       socket.off(`chat-${params.chatId}-error`);
       socket.off(`chat-${params.chatId}-new-message`);
+      socket.off(`chat-${params.chatId}-messages-loader`);
       socket.off(`chat-${params.chatId}-read-all`);
       socket.emit("left-chat", { chatId: params.chatId });
     };
@@ -449,6 +478,30 @@ function Chat() {
     messagesListContainer.current?.scrollHeight,
   ]);
 
+  // Load more messages useEffect
+  useEffect(() => {
+    if (!messagesList || !socket || !currentRecipientUser)
+      return;
+    const currentTime = Date.now();
+    if (
+      scrollbarAtTop &&
+      !endOfMessages &&
+      currentTime - lastUpdateRequest > 1000
+    ) {
+      setIsLoadingMoreMessages(true);
+      socket.emit("load-more", {
+        chatId: currentRecipientUser.chatId,
+        lastMessageId: messagesList[0].id,
+      });
+    }
+  }, [
+    scrollbarAtTop,
+    endOfMessages,
+    messagesList,
+    socket,
+    currentRecipientUser,
+  ]);
+
   if (
     !messagesList ||
     !currentRecipientUser ||
@@ -494,14 +547,36 @@ function Chat() {
         </header>
       </div>
 
-      {/* Message list */}
+      {/* Message loading indicator */}
       <div
         ref={messagesListContainer}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto overflow-x-hidden pb-2"
       >
+        {isLoadingMoreMessages && (
+          <div className="py-10 text-3xl">
+            <LoadingSpinner />
+          </div>
+        )}
+        {/* End of messages */}
+        {endOfMessages && (
+          <div className="w-full text-center mt-2 mb-10 select-none">
+            <p className="text-xl">Chat started</p>
+            <p>
+              {new Date(
+                currentRecipientUser.chatCreated
+              ).toLocaleDateString("default", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              })}
+            </p>
+          </div>
+        )}
+
+        {/* Message list */}
         {messagesList.map((message, index, messages) => (
-          <div key={message.id}>
+          <div id={message.id} key={message.id}>
             {/* Unread banner */}
             {startOfUnread === index && (
               <div
