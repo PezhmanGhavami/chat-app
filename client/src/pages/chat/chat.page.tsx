@@ -16,9 +16,12 @@ import { toast } from "react-toastify";
 import {
   VscArrowLeft,
   VscArrowDown,
-  VscKebabVertical,
 } from "react-icons/vsc";
-import { IoSend } from "react-icons/io5";
+import {
+  BiSend,
+  BiTrashAlt,
+  BiBlock,
+} from "react-icons/bi";
 
 import { WebSocketContext } from "../../context/websocket.context";
 
@@ -523,7 +526,7 @@ function Chat() {
   }
 
   return (
-    <div className="relative flex flex-col justify-between h-full bg-neutral-900 sm:border-l border-neutral-100 dark:border-neutral-500">
+    <div className="relative overflow-x-hidden flex flex-col justify-between h-full bg-neutral-900 sm:border-l border-neutral-100 dark:border-neutral-500">
       {/* Go to bottom button */}
       {showGoToBottom && (
         <button
@@ -535,10 +538,14 @@ function Chat() {
         </button>
       )}
       {/* Header */}
-      <div className="p-3 bg-neutral-800 border-b border-neutral-100 dark:border-neutral-500">
+      <div className="p-3 pr-1 bg-neutral-800 border-b border-neutral-100 dark:border-neutral-500">
         <header className="flex justify-between items-center text-lg">
           {/* Back */}
-          <Link to={"/"} className="p-2 pl-0">
+          <Link
+            to={"/"}
+            title="Close chat"
+            className="p-2 pl-0"
+          >
             <VscArrowLeft />
           </Link>
           {/* User info */}
@@ -549,8 +556,34 @@ function Chat() {
             />
           </div>
           {/* Chat settings */}
-          <button className="p-2 pr-0" type="button">
-            <VscKebabVertical />
+          <button
+            type="button"
+            className="relative rounded-full focus:bg-neutral-700 group p-2 "
+          >
+            <div className="w-4 h-4 space-y-[3px] flex flex-col justify-center items-center">
+              <div className="w-[3px] h-[3px] rounded-full bg-white" />
+              <div className="w-[3px] h-[3px] rounded-full bg-white" />
+              <div className="w-[3px] h-[3px] rounded-full bg-white" />
+            </div>
+            {/* Content */}
+            <div className="invisible absolute top-9 right-0 text-lg sm:text-base whitespace-nowrap flex flex-col bg-neutral-50 dark:bg-neutral-800 shadow-md rounded-lg border dark:border-neutral-600 py-2 z-20 group-focus-within:visible group-active:visible">
+              <a
+                title="Click to delete chat"
+                onClick={(e) => e.preventDefault()}
+                className="px-5 py-2 sm:px-2 sm:py-1 hover:bg-neutral-700 space-x-2 flex justify-center items-center"
+              >
+                <BiBlock />
+                <span> Block user</span>
+              </a>
+              <a
+                title="Click to delete chat"
+                onClick={(e) => e.preventDefault()}
+                className="px-5 py-2 sm:px-2 sm:py-1 text-red-500 hover:bg-neutral-700 space-x-2 flex justify-center items-center"
+              >
+                <BiTrashAlt />
+                <span> Delete chat</span>
+              </a>
+            </div>
           </button>
         </header>
       </div>
@@ -651,9 +684,10 @@ function Chat() {
           ></textarea>
           <button
             type="submit"
+            title="Send message"
             className="bg-transparent hover:bg-neutral-700 flex justify-center items-center text-2xl text-white/75 w-20 hover:cursor-pointer"
           >
-            <IoSend />
+            <BiSend />
           </button>
         </form>
       </div>

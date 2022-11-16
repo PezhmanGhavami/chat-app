@@ -224,6 +224,7 @@ const Navigation = () => {
           {/* The menu */}
           <button
             onClick={toggleMenu}
+            title="Open menu"
             className="text-lg p-2 pl-0 mr-8"
           >
             <VscMenu />
@@ -273,25 +274,34 @@ const Navigation = () => {
               className="text-2xl select-none tracking-tight"
             >
               {authError ? (
-                <span className="font-semibold">
+                <span
+                  title="There was a connection error, please refresh the page"
+                  className="font-semibold"
+                >
                   Connection error
                 </span>
               ) : isConnected ? (
-                <span className="font-semibold">
+                <span
+                  title="Go home - Connected"
+                  className="font-semibold"
+                >
                   Chat app
                 </span>
               ) : (
-                <span className="animate-pulse">
+                <span
+                  title="Connecting..."
+                  className="animate-pulse"
+                >
                   Connecting...
                 </span>
               )}
             </Link>
             <button
-              className="-rotate-90 text-lg"
+              title="Search for users"
               type="button"
               onClick={toggleSearch}
             >
-              <VscSearch />
+              <VscSearch className="-rotate-90 text-lg" />
             </button>
           </div>
           {/* Search bar */}
@@ -317,6 +327,7 @@ const Navigation = () => {
                   />
 
                   <button
+                    title="Close search bar"
                     className="text-lg"
                     type="button"
                     onClick={toggleSearch}
@@ -354,6 +365,7 @@ const Navigation = () => {
               after that, your chats will be listed here.
             </p>
             <button
+              title="Start searching for users"
               type="button"
               onClick={toggleSearch}
               className="border rounded-md px-2 py-1 hover:bg-neutral-900"
