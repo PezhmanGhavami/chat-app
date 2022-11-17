@@ -29,7 +29,7 @@ const getChats: IExpressEndpointHandler = async (
                   NOT: { id: user.userID },
                 },
               },
-              unreadCount: {
+              membersStatus: {
                 where: {
                   userId: user.userID,
                 },
@@ -49,7 +49,7 @@ const getChats: IExpressEndpointHandler = async (
             profilePicure: chat.users[0].profilePicure,
             lastMessage: chat.lastMessage,
             lastMessageDate: chat.updatedAt,
-            unreadCount: chat.unreadCount[0].unreadCount,
+            unreadCount: chat.membersStatus[0].unreadCount,
           }));
         return res.json(formattedChats);
       }

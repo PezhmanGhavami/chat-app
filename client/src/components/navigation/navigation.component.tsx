@@ -94,7 +94,7 @@ const Navigation = () => {
       toggleSearch();
       navigate("/chat/" + chatId);
     });
-
+    // chats list update
     socket.on(
       "chats-list-update",
       ({
@@ -141,10 +141,17 @@ const Navigation = () => {
         }
       }
     );
+    // Chat deleted
+    socket.on("chat-deleted", ({ chatId }) => {
+      setChats((prev) =>
+        prev!.filter((chat) => chat.id !== chatId)
+      );
+    });
 
     return () => {
       socket.off("new-chat-created");
       socket.off("chats-list-update");
+      socket.off("chat-deleted");
       socket.off("new-chat");
       socket.off("chat-exists");
     };

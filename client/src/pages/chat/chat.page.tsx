@@ -3,6 +3,7 @@ import {
   useEffect,
   ChangeEvent,
   FormEvent,
+  MouseEvent,
   useRef,
   useContext,
   UIEventHandler,
@@ -16,12 +17,10 @@ import { toast } from "react-toastify";
 import {
   VscArrowLeft,
   VscArrowDown,
+  VscArchive,
+  VscTrash,
 } from "react-icons/vsc";
-import {
-  BiSend,
-  BiTrashAlt,
-  BiBlock,
-} from "react-icons/bi";
+import { BsFillCursorFill } from "react-icons/bs";
 
 import { WebSocketContext } from "../../context/websocket.context";
 
@@ -214,7 +213,7 @@ function Chat() {
     if (!socket || !params.chatId || !isConnected) return;
 
     socket.emit("joined-chat", { chatId: params.chatId });
-
+    // Init
     socket.on(
       `chat-${params.chatId}-init`,
       ({ recipientUser, messages }) => {
@@ -234,7 +233,7 @@ function Chat() {
         }
       }
     );
-
+    // New message
     socket.on(
       `chat-${params.chatId}-new-message`,
       ({ message }) => {
@@ -248,7 +247,7 @@ function Chat() {
         setAllToRead();
       }
     );
-
+    // Read all handler
     socket.on(`chat-${params.chatId}-read-all`, () => {
       setMessagesList((prev) =>
         (prev as IMessage[]).map((message) => ({
@@ -263,7 +262,7 @@ function Chat() {
         }))
       );
     });
-
+    // Message loader (Loading older messages)
     socket.on(
       `chat-${params.chatId}-messages-loader`,
       ({ messages, endOfMessages, lastMessageId }) => {
@@ -282,12 +281,22 @@ function Chat() {
         setEndOfMessages(endOfMessages);
       }
     );
-
+    // Error handler
     socket.on(
       `chat-${params.chatId}-error`,
       ({ status, errorMessasge }) => {
         toast.error(status + " - " + errorMessasge);
         navigate("/");
+      }
+    );
+    // Recipient status change
+    socket.on(
+      `chat-${params.chatId}-recipient-status-change`,
+      ({ isOnline }) => {
+        setCurrentRecipientUser((prev) => ({
+          ...prev!,
+          isOnline,
+        }));
       }
     );
 
@@ -297,6 +306,9 @@ function Chat() {
       socket.off(`chat-${params.chatId}-new-message`);
       socket.off(`chat-${params.chatId}-messages-loader`);
       socket.off(`chat-${params.chatId}-read-all`);
+      socket.off(
+        `chat-${params.chatId}-recipient-status-change`
+      );
       socket.emit("left-chat", { chatId: params.chatId });
     };
   }, [socket, params.chatId, isConnected]);
@@ -513,6 +525,22 @@ function Chat() {
     currentRecipientUser,
   ]);
 
+  const deleteChatEmitter = (
+    event: MouseEvent<HTMLAnchorElement>
+  ) => {
+    event.preventDefault();
+    if (!socket || !currentRecipientUser)
+      return toast.error(
+        "Connection lost.\n please retry after connection is restablished."
+      );
+
+    socket.emit("delete-chat", {
+      chatId: currentRecipientUser.chatId,
+    });
+
+    navigate("/");
+  };
+
   if (
     !messagesList ||
     !currentRecipientUser ||
@@ -570,18 +598,18 @@ function Chat() {
               <a
                 title="Click to delete chat"
                 onClick={(e) => e.preventDefault()}
-                className="px-5 py-2 sm:px-2 sm:py-1 hover:bg-neutral-700 space-x-2 flex justify-center items-center"
+                className="px-5 py-2 sm:px-2 sm:py-1 hover:bg-neutral-700 space-x-1 flex items-center"
               >
-                <BiBlock />
-                <span> Block user</span>
+                <VscArchive />
+                <span>Archive chat</span>
               </a>
               <a
                 title="Click to delete chat"
-                onClick={(e) => e.preventDefault()}
-                className="px-5 py-2 sm:px-2 sm:py-1 text-red-500 hover:bg-neutral-700 space-x-2 flex justify-center items-center"
+                onClick={deleteChatEmitter}
+                className="px-5 py-2 sm:px-2 sm:py-1 text-red-500 hover:bg-neutral-700 space-x-1 flex items-center"
               >
-                <BiTrashAlt />
-                <span> Delete chat</span>
+                <VscTrash />
+                <span>Delete chat</span>
               </a>
             </div>
           </button>
@@ -687,7 +715,7 @@ function Chat() {
             title="Send message"
             className="bg-transparent hover:bg-neutral-700 flex justify-center items-center text-2xl text-white/75 w-20 hover:cursor-pointer"
           >
-            <BiSend />
+            <BsFillCursorFill className="rotate-45" />
           </button>
         </form>
       </div>
