@@ -403,20 +403,22 @@ const Navigation = () => {
                 >
                   Connection error
                 </span>
-              ) : showArchived ? (
-                <span
-                  title="Click to go home - Connected"
-                  className="font-semibold"
-                >
-                  Archived chats
-                </span>
               ) : isConnected ? (
-                <span
-                  title="Click to go home - Connected"
-                  className="font-semibold"
-                >
-                  Chat app
-                </span>
+                showArchived ? (
+                  <span
+                    title="Click to go home - Connected"
+                    className="font-semibold"
+                  >
+                    Archived chats
+                  </span>
+                ) : (
+                  <span
+                    title="Click to go home - Connected"
+                    className="font-semibold"
+                  >
+                    Chat app
+                  </span>
+                )
               ) : (
                 <span
                   title="Connecting..."
