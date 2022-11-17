@@ -174,7 +174,6 @@ const Navigation = () => {
           ...prev!,
         ]);
       } else {
-        // Remove from archive add to normal
         const newUnarchived = archivedChats.find(
           (chat) => chat.id === chatId
         );

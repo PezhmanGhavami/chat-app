@@ -33,6 +33,7 @@ import LoadingSpinner from "../../components/loading-spinner/loading-spinner.com
 
 export interface IChatUser extends IUser {
   chatId: string;
+  isArchived: boolean;
   chatCreated: Date;
   isOnline: boolean;
   lastOnline: Date | null;
@@ -541,6 +542,22 @@ function Chat() {
     navigate("/");
   };
 
+  const archiveChatEmitter = (
+    event: MouseEvent<HTMLAnchorElement>
+  ) => {
+    event.preventDefault();
+    if (!socket || !currentRecipientUser)
+      return toast.error(
+        "Connection lost.\n please retry after connection is restablished."
+      );
+
+    socket.emit("archive-chat", {
+      chatId: currentRecipientUser.chatId,
+    });
+
+    navigate("/");
+  };
+
   if (
     !messagesList ||
     !currentRecipientUser ||
@@ -597,11 +614,15 @@ function Chat() {
             <div className="invisible absolute top-9 right-0 text-lg sm:text-base whitespace-nowrap flex flex-col bg-neutral-50 dark:bg-neutral-800 shadow-md rounded-lg border dark:border-neutral-600 py-2 z-20 group-focus-within:visible group-active:visible">
               <a
                 title="Click to delete chat"
-                onClick={(e) => e.preventDefault()}
+                onClick={archiveChatEmitter}
                 className="px-5 py-2 sm:px-2 sm:py-1 hover:bg-neutral-700 space-x-1 flex items-center"
               >
                 <VscArchive />
-                <span>Archive chat</span>
+                <span>
+                  {currentRecipientUser.isArchived
+                    ? "Unarchive chat"
+                    : "Archive chat"}
+                </span>
               </a>
               <a
                 title="Click to delete chat"

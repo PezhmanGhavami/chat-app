@@ -18,7 +18,7 @@ io.on("connection", async (socket) => {
   const socketWithTimeout = socket.timeout(1000 * 30);
 
   try {
-    if (  
+    if (
       !sessionId ||
       !id ||
       sessionId === "" ||
@@ -166,6 +166,7 @@ io.on("connection", async (socket) => {
         lastMessage: newChat.lastMessage,
         lastMessageDate: newChat.updatedAt,
         unreadCount: 0,
+        isArchived: false,
       };
 
       socketWithTimeout.emit(
@@ -287,12 +288,15 @@ io.on("connection", async (socket) => {
 
       const recipientUser: IUserCard & {
         chatId: string;
+        isArchived: boolean;
         chatCreated: Date;
         isOnline: boolean;
         lastOnline: Date | null;
       } = {
         id: recipient.id,
         chatId: chatDetails.id,
+        isArchived:
+          chatDetails.membersStatus[0].chatIsArchived,
         chatCreated: chatDetails.createdAt,
         isOnline: recipient.isOnline,
         lastOnline: recipient.lastOnline,
@@ -343,6 +347,56 @@ io.on("connection", async (socket) => {
         recipientUser,
         messages: chatLatestMessages.messages,
       });
+    });
+
+    // Handle archiving chat
+    socket.on("archive-chat", async ({ chatId }) => {
+      const chat = await prisma.chat.findUnique({
+        where: {
+          id: chatId,
+        },
+        select: {
+          membersStatus: {
+            where: {
+              userId: id as string,
+            },
+          },
+        },
+      });
+      if (!chat) {
+        return socketWithTimeout.emit(
+          `chat-${chatId}-error`,
+          {
+            status: 404,
+            errorMessage: "Chat not found",
+          }
+        );
+      }
+
+      try {
+        const updatedStatus = await prisma.status.update({
+          where: {
+            id: chat.membersStatus[0].id,
+          },
+          data: {
+            chatIsArchived:
+              !chat.membersStatus[0].chatIsArchived,
+          },
+        });
+
+        socket.emit("archive-change", {
+          chatId,
+          archive: updatedStatus.chatIsArchived,
+        });
+      } catch (error) {
+        console.log("chat archive error");
+        console.log(error);
+        socketWithTimeout.emit(`chat-${chatId}-error`, {
+          status: 500,
+          errorMessage:
+            "Internal server error.\nFailed to change archive status of chat.",
+        });
+      }
     });
 
     // Left chat
