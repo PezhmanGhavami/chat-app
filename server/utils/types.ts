@@ -31,4 +31,5 @@ export interface IChatCard {
   lastMessage: string;
   unreadCount: number;
   lastMessageDate: Date;
+  isArchived: boolean;
 }

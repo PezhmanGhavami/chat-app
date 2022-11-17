@@ -50,6 +50,8 @@ const getChats: IExpressEndpointHandler = async (
             lastMessage: chat.lastMessage,
             lastMessageDate: chat.updatedAt,
             unreadCount: chat.membersStatus[0].unreadCount,
+            isArchived:
+              chat.membersStatus[0].chatIsArchived,
           }));
         return res.json(formattedChats);
       }

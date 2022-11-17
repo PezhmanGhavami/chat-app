@@ -10,12 +10,21 @@ import {
   VscClose,
   VscMenu,
   VscSignOut,
+  VscArchive,
+  VscAccount,
+  VscArrowLeft,
 } from "react-icons/vsc";
+import {
+  BsPeople,
+  BsSunFill,
+  BsMoonFill,
+} from "react-icons/bs";
 import { toast } from "react-toastify";
 
 import useUser from "../../hooks/useUser";
 
 import { WebSocketContext } from "../../context/websocket.context";
+import { ThemeContext } from "../../context/theme.context";
 
 import fetcher from "../../utils/fetcher";
 
@@ -30,8 +39,11 @@ import { IUser } from "../user-card/user-card.component";
 const Navigation = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
-  // const [isConnected, setIsConnected] = useState(false);
   const [chats, setChats] = useState<null | IChat[]>(null);
+  const [archivedChats, setArchivedChats] = useState<
+    null | IChat[]
+  >(null);
+  const [showArchived, setShowArchived] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [searchResult, setSearchResult] = useState<
     null | IUser[]
@@ -41,6 +53,7 @@ const Navigation = () => {
   const { user } = useUser();
   const { socket, isConnected, updateIsConnected } =
     useContext(WebSocketContext);
+  const { theme, changeTheme } = useContext(ThemeContext);
 
   const navigate = useNavigate();
 
@@ -81,7 +94,7 @@ const Navigation = () => {
 
   // New chat and chats list update
   useEffect(() => {
-    if (!chats || !socket) return;
+    if (!chats || !archivedChats || !socket) return;
     socket.on("new-chat-created", (chat) => {
       setChats((prev) => [chat, ...(prev as IChat[])]);
       toggleSearch();
@@ -148,20 +161,52 @@ const Navigation = () => {
       );
     });
 
+    socket.on("archive-change", ({ chatId, archive }) => {
+      if (archive) {
+        const newArchived = chats.find(
+          (chat) => chat.id === chatId
+        );
+        setChats((prev) =>
+          prev!.filter((chat) => chat.id !== chatId)
+        );
+        setArchivedChats((prev) => [
+          newArchived!,
+          ...prev!,
+        ]);
+      } else {
+        // Remove from archive add to normal
+        const newUnarchived = archivedChats.find(
+          (chat) => chat.id === chatId
+        );
+        setChats((prev) => [newUnarchived!, ...prev!]);
+        setArchivedChats((prev) =>
+          prev!.filter((chat) => chat.id !== chatId)
+        );
+      }
+    });
+
     return () => {
       socket.off("new-chat-created");
       socket.off("chats-list-update");
       socket.off("chat-deleted");
+      socket.off("archive-change");
       socket.off("new-chat");
       socket.off("chat-exists");
     };
-  }, [chats, socket]);
+  }, [chats, archivedChats, socket]);
 
   // Initial chats fetch
   useEffect(() => {
     fetcher("/api/chats", { method: "GET" })
       .then((chats) => {
-        setChats(chats);
+        const normalChats = (chats as IChat[]).filter(
+          (chat) => !chat.isArchived
+        );
+        const archivedChats = (chats as IChat[]).filter(
+          (chat) => chat.isArchived
+        );
+        setChats(normalChats);
+        setArchivedChats(archivedChats);
       })
       .catch((error) => {
         if (error instanceof Error) {
@@ -205,6 +250,14 @@ const Navigation = () => {
     setOpenMenu((prev) => !prev);
   };
 
+  const toggleArchivedChats = () => {
+    setShowArchived(true);
+    toggleMenu();
+  };
+  const closeArchviedChats = () => {
+    setShowArchived(false);
+  };
+
   const handleSearchChange = (
     event: ChangeEvent<HTMLInputElement>
   ) => {
@@ -227,41 +280,104 @@ const Navigation = () => {
     <>
       {/* Header (seach bar, menu, connection status) */}
       <div className="p-3 pb-0 border-b border-neutral-100 dark:border-neutral-500">
+        {/* TODO - fix the sizings */}
         <header className="relative flex justify-between pb-3">
           {/* The menu */}
-          <button
-            onClick={toggleMenu}
-            title="Open menu"
-            className="text-lg p-2 pl-0 mr-8"
-          >
-            <VscMenu />
-          </button>
+          {showArchived ? (
+            <button
+              title="Click to go back to chats"
+              type="button"
+              onClick={closeArchviedChats}
+              className="text-lg p-2 pl-0 mr-8"
+            >
+              <VscArrowLeft />
+            </button>
+          ) : (
+            <button
+              onClick={toggleMenu}
+              title="Open menu"
+              type="button"
+              className="text-lg p-2 pl-0 mr-8"
+            >
+              <VscMenu />
+            </button>
+          )}
           {openMenu && <Overlay handleClick={toggleMenu} />}
           <nav
-            className={`fixed left-0 inset-y-0 z-40 inset-0 transition-transform duration-200 w-2/3 sm:w-64 md:w-72 lg:w-80 xl:w-96 bg-neutral-800 ${
+            className={`fixed left-0 inset-y-0 z-40 flex flex-col transition-transform duration-200 w-2/3 sm:w-64 md:w-72 lg:w-80 xl:w-96 bg-neutral-800 ${
               openMenu
                 ? "translate-x-0"
                 : "-translate-x-full"
             } `}
           >
-            <div className="h-1/6 border-b p-4 sm:p-6 pb-2">
-              <div className="w-16 h-16">
-                <ProfilePicture
-                  user={{
-                    displayName: user.displayName,
-                    profilePicure: user.profilePicure,
-                  }}
-                />
+            {/* Top part */}
+            <div className="border-b p-4 sm:p-6 pb-2">
+              <div className=" flex justify-between">
+                <div className="w-12 h-12 sm:w-14 sm:h-14">
+                  <ProfilePicture
+                    user={{
+                      displayName: user.displayName,
+                      profilePicure: user.profilePicure,
+                    }}
+                  />
+                </div>
+                <button
+                  type="button"
+                  title={`Click to switch to ${
+                    theme === "dark" ? "light" : "dark"
+                  } theme`}
+                  className="self-start text-xl p-2 rounded-full hover:bg-neutral-700"
+                  onClick={changeTheme}
+                >
+                  {theme === "dark" ? (
+                    <BsSunFill />
+                  ) : (
+                    <BsMoonFill />
+                  )}
+                </button>
               </div>
               <p className="pt-4 capitalize">
                 {user.displayName}
               </p>
               <p className="opacity-60">{user.email}</p>
             </div>
-            <div className="h-5/6 flex flex-col justify-between">
+            {/* Links and buttons */}
+            <div className="flex-1 flex flex-col justify-between">
+              {/* Menu buttons */}
               <div>
-                {/*TODO - Bunch of updates to fill the sapace things like update username email display name password etc */}
+                <button
+                  type="button"
+                  title="Click to show archived chats"
+                  className="w-full px-4 sm:px-6 hover:bg-neutral-700 h-12 text-lg flex items-center space-x-2"
+                  onClick={toggleArchivedChats}
+                >
+                  <VscArchive />
+                  <span>Show archived</span>
+                </button>
+                <button
+                  type="button"
+                  title="Click to edit your profile"
+                  className="w-full px-4 sm:px-6 hover:bg-neutral-700 h-12 text-lg flex items-center space-x-2"
+                  onClick={() =>
+                    console.log("edit profile button")
+                  }
+                >
+                  <VscAccount />
+                  <span>Edit profile</span>
+                </button>
+                <button
+                  type="button"
+                  title="Click to create a new group chat"
+                  className="w-full px-4 sm:px-6 hover:bg-neutral-700 h-12 text-lg flex items-center space-x-2"
+                  onClick={() =>
+                    console.log("new group button")
+                  }
+                >
+                  <BsPeople />
+                  <span>New group</span>
+                </button>
               </div>
+              {/* Signout button */}
               <div className="w-full px-4 sm:px-6 hover:bg-neutral-700">
                 <a
                   href="/api/auth/signout"
@@ -269,7 +385,7 @@ const Navigation = () => {
                   className="h-12 text-red-500 text-lg flex items-center space-x-2"
                 >
                   <VscSignOut />
-                  <span> Signout</span>
+                  <span>Signout</span>
                 </a>
               </div>
             </div>
@@ -287,9 +403,16 @@ const Navigation = () => {
                 >
                   Connection error
                 </span>
+              ) : showArchived ? (
+                <span
+                  title="Click to go home - Connected"
+                  className="font-semibold"
+                >
+                  Archived chats
+                </span>
               ) : isConnected ? (
                 <span
-                  title="Go home - Connected"
+                  title="Click to go home - Connected"
                   className="font-semibold"
                 >
                   Chat app
@@ -358,7 +481,11 @@ const Navigation = () => {
             </p>
           </div>
         )
-      ) : chats ? (
+      ) : !chats || !archivedChats ? (
+        <div className="py-72 text-3xl">
+          <LoadingSpinner />
+        </div>
+      ) : !showArchived ? (
         chats.length > 0 ? (
           <ChatCardsContainer chats={chats} />
         ) : (
@@ -381,9 +508,19 @@ const Navigation = () => {
             </button>
           </div>
         )
+      ) : archivedChats.length > 0 ? (
+        <ChatCardsContainer chats={archivedChats} />
       ) : (
-        <div className="py-72 text-3xl">
-          <LoadingSpinner />
+        <div className="flex flex-col justify-center items-center h-full select-none space-y-4 p-12 sm:px-4 text-center">
+          <p className="text-2xl">No chats archived yet.</p>
+          <button
+            title="Back to chats"
+            type="button"
+            onClick={closeArchviedChats}
+            className="border rounded-md px-2 py-1 hover:bg-neutral-900"
+          >
+            Go back to chats
+          </button>
         </div>
       )}
     </>

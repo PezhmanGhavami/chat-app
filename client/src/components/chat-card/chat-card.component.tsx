@@ -9,6 +9,7 @@ export interface IChat {
   lastMessage: string;
   unreadCount: number;
   lastMessageDate: Date;
+  isArchived: boolean;
 }
 
 export const dateFormatter = (date: Date) => {
