@@ -10,6 +10,7 @@ export interface IChat {
   unreadCount: number;
   lastMessageDate: Date;
   isArchived: boolean;
+  bgColor: string;
 }
 
 export const dateFormatter = (date: Date) => {
@@ -44,6 +45,7 @@ const ChatCard = ({ chat }: { chat: IChat }) => {
             user={{
               displayName: chat.displayName,
               profilePicure: chat.profilePicure,
+              bgColor: chat.bgColor,
             }}
           />
         </div>

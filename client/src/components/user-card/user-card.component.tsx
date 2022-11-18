@@ -10,8 +10,10 @@ import { WebSocketContext } from "../../context/websocket.context";
 import { dateFormatter } from "../chat-card/chat-card.component";
 import { IChatUser } from "../../pages/chat/chat.page";
 
+// NOTE - Naming conflict with the main IUser interface from useUser hook
 export interface IUser {
   id: string;
+  bgColor: string;
   displayName: string;
   profilePicure: string | null;
 }

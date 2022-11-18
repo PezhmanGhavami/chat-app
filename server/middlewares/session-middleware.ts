@@ -18,6 +18,7 @@ declare module "iron-session" {
       profilePicure: string | null;
       username: string | null;
       dateCreated: number;
+      bgColor: string;
     };
   }
 }

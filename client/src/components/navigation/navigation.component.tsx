@@ -315,6 +315,7 @@ const Navigation = () => {
                 <div className="w-12 h-12 sm:w-14 sm:h-14">
                   <ProfilePicture
                     user={{
+                      bgColor: user.bgColor,
                       displayName: user.displayName,
                       profilePicure: user.profilePicure,
                     }}
@@ -346,12 +347,12 @@ const Navigation = () => {
               <div>
                 <button
                   type="button"
-                  title="Click to show archived chats"
+                  title="Click to show the archived chats"
                   className="w-full px-4 sm:px-6 hover:bg-neutral-700 h-12 text-lg flex items-center space-x-2"
                   onClick={toggleArchivedChats}
                 >
                   <VscArchive />
-                  <span>Show archived</span>
+                  <span>Show archive</span>
                 </button>
                 <button
                   type="button"

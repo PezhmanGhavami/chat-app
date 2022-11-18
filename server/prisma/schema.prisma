@@ -76,6 +76,7 @@ model User {
   lastOnline     DateTime?
   authToken      String?
   authTokenExp   Int?
+  bgColor        String    @default("from-indigo-400 to-indigo-500")
   chats          Chat[]
   messages       Message[]
   chatStatuses   Status[]

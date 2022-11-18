@@ -16,12 +16,14 @@ export interface IUser {
   sessionId: string;
   profilePicure: string | null;
   username: string | null;
+  bgColor: string;
 }
 
 export interface IUserCard {
   id: string;
   displayName: string;
   profilePicure: string | null;
+  bgColor: string;
 }
 
 export interface IChatCard {
@@ -32,4 +34,5 @@ export interface IChatCard {
   unreadCount: number;
   lastMessageDate: Date;
   isArchived: boolean;
+  bgColor: string;
 }

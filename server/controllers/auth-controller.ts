@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 
 import { prisma } from "../utils/prisma-client";
+import getRandomColor from "../utils/getRandomColor";
 import {
   IUser,
   IExpressEndpointHandler,
@@ -60,6 +61,7 @@ const handleRegister: IExpressEndpointHandler = async (
         email,
         password: hashedPassword,
         displayName,
+        bgColor: getRandomColor(),
         activeSessions: {
           create: {
             isOnline: false,
@@ -79,18 +81,23 @@ const handleRegister: IExpressEndpointHandler = async (
       sessionId: newUser.activeSessions[0].id,
       profilePicure: null,
       username: null,
+      bgColor: newUser.bgColor,
     };
     req.session.user = user;
     await req.session.save();
 
-    return res.json({
+    const payload: IUser = {
       isLoggedIn: true,
       userID: newUser.id,
       email: newUser.email,
       displayName: newUser.displayName,
       profilePicure: null,
       username: null,
-    } as IUser);
+      bgColor: newUser.bgColor,
+      sessionId: newUser.activeSessions[0].id,
+    };
+
+    return res.json(payload);
   } catch (error) {
     next(error);
   }
@@ -177,18 +184,23 @@ const handleSignin: IExpressEndpointHandler = async (
       profilePicure: userExists.profilePicure,
       username: userExists.username,
       sessionId: updatedUser.activeSessions[0].id,
+      bgColor: userExists.bgColor,
     };
     req.session.user = user;
     await req.session.save();
 
-    return res.json({
+    const payload: IUser = {
       isLoggedIn: true,
       userID: userExists.id,
       email: userExists.email,
       displayName: userExists.displayName,
       profilePicure: userExists.profilePicure,
       username: userExists.username,
-    } as IUser);
+      bgColor: userExists.bgColor,
+      sessionId: updatedUser.activeSessions[0].id,
+    };
+
+    return res.json(payload);
   } catch (error) {
     next(error);
   }
@@ -240,6 +252,7 @@ const getUser: IExpressEndpointHandler = async (
     email: "",
     displayName: "",
     sessionId: "",
+    bgColor: "",
     profilePicure: null,
     username: null,
   };
@@ -267,7 +280,7 @@ const getUser: IExpressEndpointHandler = async (
       req.session.user = newUser;
       await req.session.save();
     }
-    return res.json({
+    const payload: IUser = {
       isLoggedIn: true,
       userID: user.userID,
       email: user.email,
@@ -275,7 +288,9 @@ const getUser: IExpressEndpointHandler = async (
       profilePicure: user.profilePicure,
       sessionId: user.sessionId,
       username: user.username,
-    } as IUser);
+      bgColor: user.bgColor,
+    };
+    return res.json(payload);
   }
   return res.json(loggedOutUser);
 };

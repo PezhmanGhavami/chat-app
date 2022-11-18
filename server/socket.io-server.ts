@@ -101,6 +101,7 @@ io.on("connection", async (socket) => {
         },
         select: {
           id: true,
+          bgColor: true,
           displayName: true,
           profilePicure: true,
         },
@@ -161,6 +162,7 @@ io.on("connection", async (socket) => {
 
       const currentUserPayload: IChatCard = {
         id: newChat.id,
+        bgColor: recipientUser.bgColor,
         displayName: recipientUser.displayName,
         profilePicure: recipientUser.profilePicure,
         lastMessage: newChat.lastMessage,
@@ -298,6 +300,7 @@ io.on("connection", async (socket) => {
         isArchived:
           chatDetails.membersStatus[0].chatIsArchived,
         chatCreated: chatDetails.createdAt,
+        bgColor: recipient.bgColor,
         isOnline: recipient.isOnline,
         lastOnline: recipient.lastOnline,
         displayName: recipient.displayName,

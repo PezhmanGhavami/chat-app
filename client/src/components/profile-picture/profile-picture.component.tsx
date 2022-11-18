@@ -2,12 +2,15 @@ const ProfilePicture = ({
   user,
 }: {
   user: {
+    bgColor: string;
     displayName: string;
     profilePicure: string | null;
   };
 }) => {
   return (
-    <div className="bg-red-500 w-full h-full rounded-full overflow-hidden text-2xl flex justify-center items-center">
+    <div
+      className={`bg-gradient-to-b ${user.bgColor} w-full h-full rounded-full overflow-hidden text-2xl flex justify-center items-center select-none`}
+    >
       {user.profilePicure ? (
         <img
           src={user.profilePicure}

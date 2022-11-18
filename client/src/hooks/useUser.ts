@@ -12,6 +12,7 @@ interface IUser {
   sessionId: string;
   profilePicure: string | null;
   username: string | null;
+  bgColor: string;
 }
 
 const redirectRoutes = ["/auth/signin", "/auth/signup"];

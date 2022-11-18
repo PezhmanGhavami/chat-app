@@ -600,8 +600,9 @@ function Chat() {
               user={currentRecipientUser}
             />
           </div>
-          {/* Chat settings */}
+          {/* Chat options */}
           <button
+            title="Chat options"
             type="button"
             className="relative rounded-full focus:bg-neutral-700 group p-2 "
           >

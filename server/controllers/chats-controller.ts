@@ -52,6 +52,7 @@ const getChats: IExpressEndpointHandler = async (
             unreadCount: chat.membersStatus[0].unreadCount,
             isArchived:
               chat.membersStatus[0].chatIsArchived,
+            bgColor: chat.users[0].bgColor,
           }));
         return res.json(formattedChats);
       }
