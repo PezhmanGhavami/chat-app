@@ -22,7 +22,7 @@ const UserCardsContainer = ({
       {users.map((user) => (
         <div
           key={user.id}
-          className="hover:bg-neutral-700 hover:cursor-pointer py-3"
+          className="hover:bg-gray-200 dark:hover:bg-neutral-700 hover:cursor-pointer h-14 flex items-center"
         >
           <UserCard user={user} />
         </div>

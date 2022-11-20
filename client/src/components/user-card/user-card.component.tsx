@@ -44,7 +44,7 @@ const UserModal = ({
   };
 
   return (
-    <div className="fixed z-40 inset-x-0 bottom-1/2 w-11/12 md:w-3/5 xl:w-2/5 mx-auto bg-neutral-800 rounded-lg p-4 hover:cursor-default">
+    <div className="fixed z-40 inset-x-0 bottom-1/2 w-11/12 md:w-3/5 xl:w-2/5 mx-auto bg-gray-100 dark:bg-neutral-800 rounded-lg p-4 hover:cursor-default shadow-2xl">
       <div className="flex flex-col">
         <button
           type="button"
@@ -63,9 +63,9 @@ const UserModal = ({
 
         <button
           onClick={handleClick}
-          className="bg-green-700 hover:bg-green-800 w-full rounded-lg p-1"
+          className="text-white bg-blue-600 hover:bg-blue-700 w-full rounded-lg p-1"
         >
-          Click to start chatting
+          Click to start conversation
         </button>
       </div>
     </div>
@@ -88,7 +88,7 @@ const UserCard = ({ user, isInChat }: IUserCard) => {
   return (
     <div
       onClick={openModal}
-      className="flex items-center px-3 select-none"
+      className="flex items-center px-3 select-none w-full h-full"
     >
       {/* Profile picture */}
       <div className="flex-none w-8 h-8">
