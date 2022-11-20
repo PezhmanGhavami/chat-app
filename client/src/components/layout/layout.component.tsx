@@ -9,7 +9,7 @@ const Layout = () => {
   return (
     <WebSocketProvider>
       <div className="w-screen h-screen flex">
-        <div className="flex flex-col bg-neutral-800 w-full h-full sm:w-64 md:w-72 lg:w-80 xl:w-96 z-10">
+        <div className="flex flex-col dark:bg-neutral-800 sm:shadow sm:border-r sm:border-r-neutral-300 sm:dark:border-r-neutral-500 w-full h-full sm:w-64 md:w-72 lg:w-80 xl:w-96 z-10">
           <Navigation />
         </div>
         <main

@@ -1,9 +1,9 @@
+import Pill from "../../components/pill/pill.component";
+
 function Index() {
   return (
-    <div className="flex justify-center items-center h-full select-none">
-      <p className="text-xl text-center bg-neutral-800 rounded-xl px-4 py-1">
-        Select a chat to start messaging
-      </p>
+    <div className="flex justify-center items-center h-full select-none text-xl">
+      <Pill text="Select a chat to start messaging" />
     </div>
   );
 }

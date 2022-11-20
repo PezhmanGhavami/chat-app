@@ -36,6 +36,13 @@ import LoadingSpinner from "../loading-spinner/loading-spinner.component";
 import { IChat } from "../chat-card/chat-card.component";
 import { IUser } from "../user-card/user-card.component";
 
+const navStyles = {
+  button:
+    "w-full px-4 sm:px-6 hover:bg-gray-200 dark:hover:bg-neutral-700 ",
+  buttonDescription:
+    "h-12 text-lg flex items-center space-x-2 ",
+};
+
 const Navigation = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
@@ -278,7 +285,7 @@ const Navigation = () => {
   return (
     <>
       {/* Header (seach bar, menu, connection status) */}
-      <div className="p-3 pb-0 border-b border-neutral-100 dark:border-neutral-500">
+      <div className="p-3 pb-0 border-b border-b-neutral-300 dark:border-b-neutral-500">
         {/* TODO - fix the sizings */}
         <header className="relative flex justify-between pb-3">
           {/* The menu */}
@@ -303,14 +310,14 @@ const Navigation = () => {
           )}
           {openMenu && <Overlay handleClick={toggleMenu} />}
           <nav
-            className={`fixed left-0 inset-y-0 z-40 flex flex-col transition-transform duration-200 w-2/3 sm:w-64 md:w-72 lg:w-80 xl:w-96 bg-neutral-800 ${
+            className={`fixed left-0 inset-y-0 z-40 flex flex-col transition-transform duration-200 w-2/3 sm:w-64 md:w-72 lg:w-80 xl:w-96 bg-white dark:bg-neutral-800 ${
               openMenu
                 ? "translate-x-0"
                 : "-translate-x-full"
             } `}
           >
             {/* Top part */}
-            <div className="border-b p-4 sm:p-6 pb-2">
+            <div className="border-b border-b-neutral-300 dark:border-neutral-b-500 p-4 sm:p-6 pb-2">
               <div className=" flex justify-between">
                 <div className="w-12 h-12 sm:w-14 sm:h-14">
                   <ProfilePicture
@@ -326,7 +333,7 @@ const Navigation = () => {
                   title={`Click to switch to ${
                     theme === "dark" ? "light" : "dark"
                   } theme`}
-                  className="self-start text-xl p-2 rounded-full hover:bg-neutral-700"
+                  className="self-start text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-neutral-700"
                   onClick={changeTheme}
                 >
                   {theme === "dark" ? (
@@ -336,10 +343,10 @@ const Navigation = () => {
                   )}
                 </button>
               </div>
-              <p className="pt-4 capitalize">
+              <p className="pt-4 font-medium">
                 {user.displayName}
               </p>
-              <p className="opacity-60">{user.email}</p>
+              <p className="opacity-70">{user.email}</p>
             </div>
             {/* Links and buttons */}
             <div className="flex-1 flex flex-col justify-between">
@@ -348,7 +355,10 @@ const Navigation = () => {
                 <button
                   type="button"
                   title="Click to show the archived chats"
-                  className="w-full px-4 sm:px-6 hover:bg-neutral-700 h-12 text-lg flex items-center space-x-2"
+                  className={
+                    navStyles.button +
+                    navStyles.buttonDescription
+                  }
                   onClick={toggleArchivedChats}
                 >
                   <VscArchive />
@@ -357,7 +367,10 @@ const Navigation = () => {
                 <button
                   type="button"
                   title="Click to edit your profile"
-                  className="w-full px-4 sm:px-6 hover:bg-neutral-700 h-12 text-lg flex items-center space-x-2"
+                  className={
+                    navStyles.button +
+                    navStyles.buttonDescription
+                  }
                   onClick={() =>
                     console.log("edit profile button")
                   }
@@ -368,7 +381,10 @@ const Navigation = () => {
                 <button
                   type="button"
                   title="Click to create a new group chat"
-                  className="w-full px-4 sm:px-6 hover:bg-neutral-700 h-12 text-lg flex items-center space-x-2"
+                  className={
+                    navStyles.button +
+                    navStyles.buttonDescription
+                  }
                   onClick={() =>
                     console.log("new group button")
                   }
@@ -378,11 +394,14 @@ const Navigation = () => {
                 </button>
               </div>
               {/* Signout button */}
-              <div className="w-full px-4 sm:px-6 hover:bg-neutral-700">
+              <div className={navStyles.button}>
                 <a
                   href="/api/auth/signout"
                   title="Click to sign out"
-                  className="h-12 text-red-500 text-lg flex items-center space-x-2"
+                  className={
+                    "text-red-600 dark:text-red-500 " +
+                    navStyles.buttonDescription
+                  }
                 >
                   <VscSignOut />
                   <span>Signout</span>
@@ -394,28 +413,19 @@ const Navigation = () => {
           <div className="flex-1 w-full flex justify-between">
             <Link
               to="/"
-              className="text-2xl select-none tracking-tight"
+              className="text-2xl select-none tracking-tight font-semibold"
             >
               {authError ? (
-                <span
-                  title="There was a connection error, please refresh the page"
-                  className="font-semibold"
-                >
+                <span title="There was a connection error, please refresh the page">
                   Connection error
                 </span>
               ) : isConnected ? (
                 showArchived ? (
-                  <span
-                    title="Click to go home - Connected"
-                    className="font-semibold"
-                  >
+                  <span title="Click to go home - Connected">
                     Archived chats
                   </span>
                 ) : (
-                  <span
-                    title="Click to go home - Connected"
-                    className="font-semibold"
-                  >
+                  <span title="Click to go home - Connected">
                     Chat app
                   </span>
                 )
@@ -438,7 +448,7 @@ const Navigation = () => {
           </div>
           {/* Search bar */}
           {openSearch && (
-            <form className="absolute z-10 left-0 bg-neutral-700 rounded-md overflow-hidden w-full">
+            <form className="absolute z-10 left-0 bg-gray-200 dark:bg-neutral-700 rounded-md overflow-hidden w-full">
               <div>
                 <label
                   htmlFor="user-search"
@@ -504,7 +514,7 @@ const Navigation = () => {
               title="Start searching for users"
               type="button"
               onClick={toggleSearch}
-              className="border rounded-md px-2 py-1 hover:bg-neutral-900"
+              className="border rounded-md px-2 py-1 hover:bg-gray-200 dark:hover:bg-neutral-900"
             >
               Search now
             </button>
@@ -514,12 +524,12 @@ const Navigation = () => {
         <ChatCardsContainer chats={archivedChats} />
       ) : (
         <div className="flex flex-col justify-center items-center h-full select-none space-y-4 p-12 sm:px-4 text-center">
-          <p className="text-2xl">No chats archived yet.</p>
+          <p className="text-2xl">Archive is empty.</p>
           <button
             title="Back to chats"
             type="button"
             onClick={closeArchviedChats}
-            className="border rounded-md px-2 py-1 hover:bg-neutral-900"
+            className="border rounded-md px-2 py-1 hover:bg-gray-200 dark:hover:bg-neutral-900"
           >
             Go back to chats
           </button>
