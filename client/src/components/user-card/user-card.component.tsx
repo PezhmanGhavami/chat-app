@@ -106,7 +106,7 @@ const UserCard = ({ user, isInChat }: IUserCard) => {
           {user.displayName}
         </h3>
         {isInChat && (
-          <p className="text-xs text-white/80">
+          <p className="text-xs opacity-80">
             {(user as IChatUser).isOnline
               ? "online"
               : (user as IChatUser).lastOnline

@@ -523,7 +523,7 @@ io.on("connection", async (socket) => {
           .emit(`chat-${chatId}-read-all`);
         socketWithTimeout.emit("chats-list-update", {
           chatId,
-          unreadCount: 0,
+          readAll: true,
         });
       } catch (error) {
         socketWithTimeout.emit(`chat-${chatId}-error`, {

@@ -122,42 +122,56 @@ const Navigation = () => {
         lastMessage,
         lastMessageDate,
         unreadCount,
+        readAll,
       }) => {
         const targetChatIndex = chats.findIndex(
           (chat) => chat.id === chatId
         );
         if (chatId !== -1) {
-          const newArr = [...chats];
-          if (
-            unreadCount !== undefined &&
-            !lastMessage &&
-            !lastMessageDate
-          ) {
-            newArr[targetChatIndex] = {
-              ...newArr[targetChatIndex],
-              unreadCount,
-            };
+          if (readAll) {
+            setChats((prev) => {
+              const newArr = [...prev!];
+              newArr[targetChatIndex] = {
+                ...newArr[targetChatIndex],
+                unreadCount: 0,
+              };
+              newArr.sort(
+                (a, b) =>
+                  new Date(b.lastMessageDate).getTime() -
+                  new Date(a.lastMessageDate).getTime()
+              );
+
+              return newArr;
+            });
           } else {
-            const basePayload = {
-              ...newArr[targetChatIndex],
-              lastMessage,
-              lastMessageDate,
-            };
-            newArr[targetChatIndex] = unreadCount
-              ? {
-                  ...basePayload,
-                  unreadCount,
-                }
-              : basePayload;
+            setChats((prev) => {
+              const newArr = [...prev!];
+              newArr[targetChatIndex] = {
+                ...newArr[targetChatIndex],
+                unreadCount: 0,
+              };
+
+              const basePayload = {
+                ...newArr[targetChatIndex],
+                lastMessage,
+                lastMessageDate,
+              };
+              newArr[targetChatIndex] = unreadCount
+                ? {
+                    ...basePayload,
+                    unreadCount,
+                  }
+                : basePayload;
+
+              newArr.sort(
+                (a, b) =>
+                  new Date(b.lastMessageDate).getTime() -
+                  new Date(a.lastMessageDate).getTime()
+              );
+
+              return newArr;
+            });
           }
-
-          newArr.sort(
-            (a, b) =>
-              new Date(b.lastMessageDate).getTime() -
-              new Date(a.lastMessageDate).getTime()
-          );
-
-          setChats(newArr);
         }
       }
     );
@@ -285,7 +299,7 @@ const Navigation = () => {
   return (
     <>
       {/* Header (seach bar, menu, connection status) */}
-      <div className="p-3 pb-0 border-b border-b-neutral-300 dark:border-b-neutral-500">
+      <div className="p-3 pb-0 border-b border-b-neutral-300 dark:border-b-neutral-500 shadow">
         {/* TODO - fix the sizings */}
         <header className="relative flex justify-between pb-3">
           {/* The menu */}
