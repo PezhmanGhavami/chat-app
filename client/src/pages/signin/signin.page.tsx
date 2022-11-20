@@ -17,25 +17,25 @@ export const authFormStyles = {
   colorAnimation: "transition-colors duration-150",
   get label() {
     return (
-      "group-hover:text-blue-400 group-focus-within:text-blue-400 " +
+      "group-hover:text-blue-500 dark:group-hover:text-blue-400 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 " +
       this.colorAnimation
     );
   },
   get input() {
     return (
-      "w-full h-12 px-4 bg-transparent rounded-md border border-neutral-100 dark:border-neutral-700 group-hover:border-blue-600 focus:outline-none group-focus-within:border-blue-600 focus:ring-1 focus:ring-blue-600 " +
+      "w-full h-12 px-4 bg-transparent rounded-md border border-neutral-300 dark:border-neutral-700 group-hover:border-blue-600 focus:outline-none group-focus-within:border-blue-600 focus:ring-1 focus:ring-blue-600 " +
       this.colorAnimation
     );
   },
   get submitButton() {
     return (
-      "w-full h-12 rounded-md bg-blue-600 hover:bg-blue-700 font-bold text-lg " +
+      "w-full h-12 rounded-md bg-blue-600 hover:bg-blue-700 font-bold text-lg text-white " +
       this.colorAnimation
     );
   },
   get link() {
     return (
-      "flex justify-center items-center text-blue-400 text-lg text-center mt-6 h-12 hover:bg-blue-900/10 rounded-md " +
+      "flex justify-center items-center text-blue-500 dark:text-blue-400 text-lg text-center mt-6 h-12 hover:bg-blue-900/10 rounded-md " +
       this.colorAnimation
     );
   },

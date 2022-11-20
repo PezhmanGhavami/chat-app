@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  @apply bg-neutral-100 text-neutral-900 dark:bg-neutral-900 dark:text-white;
+  @apply bg-white text-neutral-900 dark:bg-neutral-900 dark:text-white;
 }
 
 @media screen and (min-width: 640px) {
