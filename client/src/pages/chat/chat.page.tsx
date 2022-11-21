@@ -30,6 +30,7 @@ import UserCard, {
   IUser,
 } from "../../components/user-card/user-card.component";
 import LoadingSpinner from "../../components/loading-spinner/loading-spinner.component";
+import Pill from "../../components/pill/pill.component";
 
 export interface IChatUser extends IUser {
   chatId: string;
@@ -92,10 +93,10 @@ const Message = ({
       <div
         className={`w-fit max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl mt-[2px] py-2 px-4 rounded-2xl break-words ${
           isOwn
-            ? `bg-blue-600 ml-auto ${
+            ? `bg-blue-600 text-white ml-auto ${
                 isLast || showTime ? "rounded-br-sm" : ""
               }`
-            : `bg-neutral-600 mr-auto ${
+            : `bg-gray-200 dark:bg-neutral-600 mr-auto ${
                 isLast || showTime ? "rounded-bl-sm" : ""
               }`
         }`}
@@ -105,7 +106,7 @@ const Message = ({
       </div>
       {(isLast || showTime) && (
         <p
-          className={`block text-xs pt-1 select-none text-white/70 mb-2 ${
+          className={`block text-xs pt-1 select-none opacity-70 mb-2 ${
             isOwn ? "text-right" : "text-left"
           }`}
         >
@@ -154,14 +155,6 @@ const isLast = (messages: IMessage[], index: number) => {
     return true;
   }
   return false;
-};
-
-const Pill = ({ text }: { text: string }) => {
-  return (
-    <p className="bg-neutral-800 px-4 py-1 mx-auto my-2 w-fit rounded-full select-none">
-      {text}
-    </p>
-  );
 };
 
 function Chat() {
@@ -526,6 +519,7 @@ function Chat() {
     currentRecipientUser,
   ]);
 
+  // TODO - add a prompt to confirm delete
   const deleteChatEmitter = (
     event: MouseEvent<HTMLAnchorElement>
   ) => {
@@ -564,26 +558,27 @@ function Chat() {
     !currentUser
   ) {
     return (
-      <div className="text-3xl bg-neutral-900 h-full">
+      <div className="text-3xl bg-white dark:bg-neutral-900 h-full">
         <LoadingSpinner />
       </div>
     );
   }
 
   return (
-    <div className="relative overflow-x-hidden flex flex-col justify-between h-full bg-neutral-900 sm:border-l border-neutral-100 dark:border-neutral-500">
+    <div className="relative overflow-x-hidden flex flex-col justify-between h-full bg-white dark:bg-neutral-900">
       {/* Go to bottom button */}
       {showGoToBottom && (
         <button
           type="button"
+          title="Click to go to bottom"
           onClick={scrollToBottom}
-          className="absolute right-8 bottom-24 bg-neutral-600 hover:bg-neutral-700 rounded-full p-3 shadow-lg text-2xl"
+          className="absolute right-8 bottom-24 bg-white hover:bg-gray-200 dark:bg-neutral-600 dark:hover:bg-neutral-700 rounded-full p-3 border-2 dark:border-0 text-2xl z-20"
         >
           <VscArrowDown />
         </button>
       )}
       {/* Header */}
-      <div className="p-3 pr-1 bg-neutral-800 border-b border-neutral-100 dark:border-neutral-500">
+      <div className="p-3 pr-1 bg-white dark:bg-neutral-800 border-b border-neutral-300 dark:border-neutral-500 shadow">
         <header className="flex justify-between items-center text-lg">
           {/* Back */}
           <Link
@@ -604,19 +599,19 @@ function Chat() {
           <button
             title="Chat options"
             type="button"
-            className="relative rounded-full focus:bg-neutral-700 group p-2 "
+            className="relative rounded-full focus:bg-gray-200 dark:focus:bg-neutral-700 group p-2 "
           >
             <div className="w-4 h-4 space-y-[3px] flex flex-col justify-center items-center">
-              <div className="w-[3px] h-[3px] rounded-full bg-white" />
-              <div className="w-[3px] h-[3px] rounded-full bg-white" />
-              <div className="w-[3px] h-[3px] rounded-full bg-white" />
+              <div className="w-[3px] h-[3px] rounded-full bg-neutral-900 dark:bg-white" />
+              <div className="w-[3px] h-[3px] rounded-full bg-neutral-900 dark:bg-white" />
+              <div className="w-[3px] h-[3px] rounded-full bg-neutral-900 dark:bg-white" />
             </div>
             {/* Content */}
-            <div className="invisible absolute top-9 right-0 text-lg sm:text-base whitespace-nowrap flex flex-col bg-neutral-50 dark:bg-neutral-800 shadow-md rounded-lg border dark:border-neutral-600 py-2 z-20 group-focus-within:visible group-active:visible">
+            <div className="invisible absolute top-9 right-0 text-lg sm:text-base whitespace-nowrap flex flex-col bg-white dark:bg-neutral-800 shadow-md rounded-lg border dark:border-neutral-600 py-2 z-20 group-focus-within:visible group-active:visible">
               <a
                 title="Click to delete chat"
                 onClick={archiveChatEmitter}
-                className="px-5 py-2 sm:px-2 sm:py-1 hover:bg-neutral-700 space-x-1 flex items-center"
+                className="px-5 py-2 sm:px-2 sm:py-1 hover:bg-gray-200 dark:hover:bg-neutral-700 space-x-1 flex items-center"
               >
                 <VscArchive />
                 <span>
@@ -628,7 +623,7 @@ function Chat() {
               <a
                 title="Click to delete chat"
                 onClick={deleteChatEmitter}
-                className="px-5 py-2 sm:px-2 sm:py-1 text-red-500 hover:bg-neutral-700 space-x-1 flex items-center"
+                className="px-5 py-2 sm:px-2 sm:py-1 text-red-600 dark:text-red-500 hover:bg-gray-200 dark:hover:bg-neutral-700 space-x-1 flex items-center"
               >
                 <VscTrash />
                 <span>Delete chat</span>
@@ -650,6 +645,13 @@ function Chat() {
           </div>
         )}
 
+        {/* End of messages */}
+        {endOfMessages && (
+          <div className="text-xs font-medium">
+            <Pill text="Chat Started" />
+          </div>
+        )}
+
         {/* Message list */}
         {messagesList.map((message, index, messages) => (
           <div id={message.id} key={message.id}>
@@ -659,11 +661,7 @@ function Chat() {
                 message.createdAt,
                 messagesList[index - 1].createdAt
               )) && (
-              <>
-                {/* End of messages */}
-                {endOfMessages && (
-                  <Pill text="Chat Started" />
-                )}
+              <div className="text-xs font-medium">
                 <Pill
                   text={new Date(
                     message.createdAt
@@ -674,14 +672,14 @@ function Chat() {
                     year: "numeric",
                   })}
                 />
-              </>
+              </div>
             )}
             {/* Unread banner */}
             {startOfUnread === index && (
               <div
                 ref={unreadMessages}
                 id="unread-messages"
-                className="w-full text-center my-2 bg-neutral-800 select-none"
+                className="w-full text-center my-2 bg-gray-100 dark:bg-neutral-800 select-none"
               >
                 <p>Unread Messages &#8595;</p>
               </div>
@@ -705,42 +703,44 @@ function Chat() {
       </div>
 
       {/* Text input */}
-      <div className="p-2 ">
-        <form
-          onSubmit={handleSubmit}
-          className="flex bg-neutral-800 rounded-full overflow-hidden"
+      <form
+        onSubmit={handleSubmit}
+        className="flex bg-white dark:bg-neutral-800 border-t border-t-neutral-300 dark:border-t-neutral-500 overflow-hidden"
+      >
+        <label htmlFor="message" className="sr-only">
+          Message
+        </label>
+        <textarea
+          className="bg-transparent w-full h-12 px-5 py-3 rounded-md focus:outline-none resize-none"
+          name="message"
+          id="message"
+          placeholder="Write a message"
+          autoComplete="off"
+          autoFocus
+          value={message}
+          onKeyDown={(event) => {
+            if (
+              event.nativeEvent.code === "Enter" &&
+              !event.shiftKey
+            ) {
+              event.preventDefault();
+              sendMessage();
+            }
+          }}
+          onChange={handleChange}
+        ></textarea>
+        <button
+          type="submit"
+          title="Send message"
+          className={`p-2 mr-2 rounded-full self-center text-lg${
+            message.length > 0
+              ? " bg-blue-600 hover:bg-blue-700 text-white"
+              : " text-blue-600 dark:text-blue-500"
+          }`}
         >
-          <label htmlFor="message" className="sr-only">
-            Message
-          </label>
-          <textarea
-            className="bg-transparent w-full h-12 px-5 py-3 focus:outline-none resize-none"
-            name="message"
-            id="message"
-            placeholder="Write a message"
-            autoComplete="off"
-            autoFocus
-            value={message}
-            onKeyDown={(event) => {
-              if (
-                event.nativeEvent.code === "Enter" &&
-                !event.shiftKey
-              ) {
-                event.preventDefault();
-                sendMessage();
-              }
-            }}
-            onChange={handleChange}
-          ></textarea>
-          <button
-            type="submit"
-            title="Send message"
-            className="bg-transparent hover:bg-neutral-700 flex justify-center items-center text-2xl text-white/75 w-20 hover:cursor-pointer"
-          >
-            <BsFillCursorFill className="rotate-45" />
-          </button>
-        </form>
-      </div>
+          <BsFillCursorFill className="rotate-45" />
+        </button>
+      </form>
     </div>
   );
 }
