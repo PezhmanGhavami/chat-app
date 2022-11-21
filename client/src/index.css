@@ -7,16 +7,28 @@ body {
 }
 
 @media screen and (min-width: 640px) {
-  ::-webkit-scrollbar {
+  html ::-webkit-scrollbar {
     width: 6px;
   }
-  ::-webkit-scrollbar-track {
+  html ::-webkit-scrollbar-track {
+    background: #ccc;
+    border-radius: 30px;
+  }
+  html ::-webkit-scrollbar-thumb {
+    background: #999;
+    border-radius: 30px;
+  }
+  html ::-webkit-scrollbar-thumb:hover {
+    background: #777;
+  }
+
+  html.dark ::-webkit-scrollbar-track {
     background: #404040;
   }
-  ::-webkit-scrollbar-thumb {
+  html.dark ::-webkit-scrollbar-thumb {
     background: #888;
   }
-  ::-webkit-scrollbar-thumb:hover {
+  html.dark ::-webkit-scrollbar-thumb:hover {
     background: #aaa;
   }
 }
