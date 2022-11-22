@@ -46,7 +46,7 @@ const UserModal = ({
     <Modal closeModal={closeModal}>
       <div className="flex flex-col">
         <div className="flex items-center space-x-4 pb-4">
-          <div className="flex-none w-14 h-14">
+          <div className="flex-none w-14 h-14 text-3xl">
             <ProfilePicture user={user} />
           </div>
           <p>{user.displayName}</p>

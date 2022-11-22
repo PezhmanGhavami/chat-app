@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import { BsSunFill, BsMoonFill } from "react-icons/bs";
 
 import LoadingSpinner from "../loading-spinner/loading-spinner.component";
-import { authFormStyles } from "../../pages/signin/signin.page";
+import { formStyles } from "../../pages/signin/signin.page";
 
 import useUser from "../../hooks/useUser";
 
@@ -39,7 +39,7 @@ const AuthLayout = () => {
           } theme`}
           className={
             "flex justify-center items-center space-x-2 text-xl p-2 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-800 " +
-            authFormStyles.colorAnimation
+            formStyles.colorAnimation
           }
           onClick={changeTheme}
         >

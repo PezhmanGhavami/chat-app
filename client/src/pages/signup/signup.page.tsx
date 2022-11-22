@@ -8,7 +8,7 @@ import useUser from "../../hooks/useUser";
 
 import fetcher from "../../utils/fetcher";
 
-import { authFormStyles } from "../signin/signin.page";
+import { formStyles } from "../signin/signin.page";
 
 const initialFormData = {
   email: "",
@@ -149,24 +149,22 @@ const Signup = () => {
   };
 
   return (
-    <div className={authFormStyles.formContainer}>
-      <h2 className={authFormStyles.h2}>
-        Sign up to Chat App
-      </h2>
+    <div className={formStyles.formContainer}>
+      <h2 className={formStyles.h2}>Sign up to Chat App</h2>
       <form
         onSubmit={handleSubmit}
-        className={authFormStyles.form}
+        className={formStyles.form}
       >
-        <div className={authFormStyles.inputsContainer}>
-          <div className={authFormStyles.inputContainer}>
+        <div className={formStyles.inputsContainer}>
+          <div className={formStyles.inputContainer}>
             <label
-              className={authFormStyles.label}
+              className={formStyles.label}
               htmlFor="signup-email"
             >
               Email address
             </label>
             <input
-              className={authFormStyles.input}
+              className={formStyles.input}
               type="email"
               name="email"
               id="signup-email"
@@ -176,15 +174,15 @@ const Signup = () => {
               tabIndex={1}
             />
           </div>
-          <div className={authFormStyles.inputContainer}>
+          <div className={formStyles.inputContainer}>
             <label
-              className={authFormStyles.label}
+              className={formStyles.label}
               htmlFor="signup-display-name"
             >
               Display name
             </label>
             <input
-              className={authFormStyles.input}
+              className={formStyles.input}
               type="text"
               name="displayName"
               id="signup-display-name"
@@ -193,15 +191,15 @@ const Signup = () => {
               tabIndex={2}
             />
           </div>
-          <div className={authFormStyles.inputContainer}>
+          <div className={formStyles.inputContainer}>
             <label
-              className={authFormStyles.label}
+              className={formStyles.label}
               htmlFor="signup-password"
             >
               Password
             </label>
             <input
-              className={authFormStyles.input}
+              className={formStyles.input}
               type="password"
               name="password"
               id="signup-password"
@@ -210,15 +208,15 @@ const Signup = () => {
               tabIndex={3}
             />
           </div>
-          <div className={authFormStyles.inputContainer}>
+          <div className={formStyles.inputContainer}>
             <label
-              className={authFormStyles.label}
+              className={formStyles.label}
               htmlFor="signup-password-confirmation"
             >
               Confirm pasword
             </label>
             <input
-              className={authFormStyles.input}
+              className={formStyles.input}
               type="password"
               name="confirmPassword"
               id="signup-password-confirmation"
@@ -229,7 +227,7 @@ const Signup = () => {
           </div>
         </div>
         <button
-          className={authFormStyles.submitButton}
+          className={formStyles.submitButton}
           type="submit"
           tabIndex={5}
         >
@@ -238,7 +236,7 @@ const Signup = () => {
         <Link
           to={"/auth/signin"}
           tabIndex={6}
-          className={authFormStyles.link}
+          className={formStyles.link}
         >
           <span>or sign in to your account</span>
         </Link>

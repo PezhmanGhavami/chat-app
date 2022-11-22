@@ -40,7 +40,7 @@ const ChatCard = ({ chat }: { chat: IChat }) => {
     >
       <div className="flex py-2 px-3 select-none hover:bg-gray-200 dark:hover:bg-neutral-700">
         {/* Profile picture */}
-        <div className="flex-none w-12 h-12">
+        <div className="flex-none w-12 h-12 text-2xl">
           <ProfilePicture
             user={{
               displayName: chat.displayName,
