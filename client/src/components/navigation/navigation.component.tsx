@@ -507,7 +507,10 @@ const Navigation = () => {
           {openUserForm && (
             <Modal closeModal={closeUserForm}>
               <h2 className={formStyles.h2}>User info</h2>
-              <div className="relative w-24 h-24 text-5xl mx-auto mb-2">
+              <div
+                title="Click to change the background color"
+                className="relative w-24 h-24 text-5xl mx-auto mb-2 cursor-pointer hover:opacity-80 transition-opacity duration-150"
+              >
                 <ProfilePicture
                   user={{
                     displayName: user.displayName,
@@ -515,7 +518,7 @@ const Navigation = () => {
                     profilePicure: user.profilePicure,
                   }}
                 />
-                <div className="absolute bottom-1 right-1 rounded-full bg-white p-1 text-base">
+                <div className="absolute bottom-1 right-1 rounded-full bg-white dark:bg-neutral-900 p-1 text-base">
                   <VscEdit />
                 </div>
               </div>
