@@ -1,8 +1,7 @@
 import { useState, useContext, MouseEvent } from "react";
-import { VscClose } from "react-icons/vsc";
 import { toast } from "react-toastify";
 
-import Overlay from "../overlay/overlay.component";
+import Modal from "../modal/modal.component";
 import ProfilePicture from "../profile-picture/profile-picture.component";
 
 import { WebSocketContext } from "../../context/websocket.context";
@@ -44,16 +43,8 @@ const UserModal = ({
   };
 
   return (
-    <div className="fixed z-40 inset-x-0 bottom-1/2 w-11/12 md:w-3/5 xl:w-2/5 mx-auto bg-gray-100 dark:bg-neutral-800 rounded-lg p-4 hover:cursor-default shadow-2xl">
+    <Modal closeModal={closeModal}>
       <div className="flex flex-col">
-        <button
-          type="button"
-          className="p-2 pt-0 self-end"
-          onClick={closeModal}
-        >
-          <VscClose className="h-6 w-6" />
-        </button>
-
         <div className="flex items-center space-x-4 pb-4">
           <div className="flex-none w-14 h-14">
             <ProfilePicture user={user} />
@@ -68,7 +59,7 @@ const UserModal = ({
           Click to start conversation
         </button>
       </div>
-    </div>
+    </Modal>
   );
 };
 
@@ -119,10 +110,7 @@ const UserCard = ({ user, isInChat }: IUserCard) => {
       </div>
 
       {modalIsOpen && (
-        <>
-          <Overlay handleClick={closeModal} />
-          <UserModal user={user} closeModal={closeModal} />
-        </>
+        <UserModal user={user} closeModal={closeModal} />
       )}
     </div>
   );
