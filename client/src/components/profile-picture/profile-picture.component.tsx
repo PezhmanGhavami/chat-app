@@ -4,16 +4,16 @@ const ProfilePicture = ({
   user: {
     bgColor: string;
     displayName: string;
-    profilePicure: string | null;
+    profilePicture: string | null;
   };
 }) => {
   return (
     <div
       className={`bg-gradient-to-b ${user.bgColor} w-full h-full rounded-full overflow-hidden text-white flex justify-center items-center select-none shadow`}
     >
-      {user.profilePicure ? (
+      {user.profilePicture ? (
         <img
-          src={user.profilePicure}
+          src={user.profilePicture}
           alt={user.displayName[0].toLocaleUpperCase()}
         />
       ) : (

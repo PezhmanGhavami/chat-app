@@ -14,7 +14,7 @@ export interface IUser {
   email: string;
   displayName: string;
   sessionId: string;
-  profilePicure: string | null;
+  profilePicture: string | null;
   username: string | null;
   bgColor: string;
 }
@@ -22,13 +22,13 @@ export interface IUser {
 export interface IUserCard {
   id: string;
   displayName: string;
-  profilePicure: string | null;
+  profilePicture: string | null;
   bgColor: string;
 }
 
 export interface IChatCard {
   id: string;
-  profilePicure: string | null;
+  profilePicture: string | null;
   displayName: string;
   lastMessage: string;
   unreadCount: number;

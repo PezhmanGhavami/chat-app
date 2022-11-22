@@ -46,7 +46,7 @@ const getChats: IExpressEndpointHandler = async (
           userChats.chats.map((chat) => ({
             id: chat.id,
             displayName: chat.users[0].displayName,
-            profilePicure: chat.users[0].profilePicure,
+            profilePicture: chat.users[0].profilePicture,
             lastMessage: chat.lastMessage,
             lastMessageDate: chat.updatedAt,
             unreadCount: chat.membersStatus[0].unreadCount,

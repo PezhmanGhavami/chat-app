@@ -4,7 +4,7 @@ import ProfilePicture from "../profile-picture/profile-picture.component";
 
 export interface IChat {
   id: string;
-  profilePicure: string | null;
+  profilePicture: string | null;
   displayName: string;
   lastMessage: string;
   unreadCount: number;
@@ -44,7 +44,7 @@ const ChatCard = ({ chat }: { chat: IChat }) => {
           <ProfilePicture
             user={{
               displayName: chat.displayName,
-              profilePicure: chat.profilePicure,
+              profilePicture: chat.profilePicture,
               bgColor: chat.bgColor,
             }}
           />

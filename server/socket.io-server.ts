@@ -103,7 +103,7 @@ io.on("connection", async (socket) => {
           id: true,
           bgColor: true,
           displayName: true,
-          profilePicure: true,
+          profilePicture: true,
         },
       });
 
@@ -164,7 +164,7 @@ io.on("connection", async (socket) => {
         id: newChat.id,
         bgColor: recipientUser.bgColor,
         displayName: recipientUser.displayName,
-        profilePicure: recipientUser.profilePicure,
+        profilePicture: recipientUser.profilePicture,
         lastMessage: newChat.lastMessage,
         lastMessageDate: newChat.updatedAt,
         unreadCount: 0,
@@ -179,7 +179,7 @@ io.on("connection", async (socket) => {
         const recipientPayload: IChatCard = {
           ...currentUserPayload,
           displayName: currentUser.displayName,
-          profilePicure: currentUser.profilePicure,
+          profilePicture: currentUser.profilePicture,
         };
 
         socketWithTimeout
@@ -304,7 +304,7 @@ io.on("connection", async (socket) => {
         isOnline: recipient.isOnline,
         lastOnline: recipient.lastOnline,
         displayName: recipient.displayName,
-        profilePicure: recipient.profilePicure,
+        profilePicture: recipient.profilePicture,
       };
 
       const chatLatestMessages =

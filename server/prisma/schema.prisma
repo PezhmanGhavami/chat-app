@@ -66,7 +66,7 @@ model Session {
 model User {
   id             String    @id @default(cuid())
   displayName    String
-  profilePicure  String?
+  profilePicture  String?
   email          String    @unique
   phoneNumber    Int?      @unique
   username       String?   @unique

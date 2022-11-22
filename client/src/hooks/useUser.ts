@@ -10,7 +10,7 @@ interface IUser {
   email: string;
   displayName: string;
   sessionId: string;
-  profilePicure: string | null;
+  profilePicture: string | null;
   username: string | null;
   bgColor: string;
 }
