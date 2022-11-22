@@ -574,7 +574,7 @@ const Navigation = () => {
           {openUserForm && (
             <Modal closeModal={closeUserForm}>
               <h2 className={formStyles.h2}>User info</h2>
-              {/* Profile picture / profile bgColor */}
+              {/* Profile picture / profile bgColor selector*/}
               <div className="relative mb-2">
                 {/* Selector */}
                 <button
@@ -601,7 +601,7 @@ const Navigation = () => {
                             user={{
                               displayName:
                                 userInfoForm.displayName
-                                  .length > 1
+                                  .length >= 1
                                   ? userInfoForm.displayName
                                   : user.displayName,
                               bgColor: color,
@@ -625,7 +625,7 @@ const Navigation = () => {
                   <ProfilePicture
                     user={{
                       displayName:
-                        userInfoForm.displayName.length > 1
+                        userInfoForm.displayName.length >= 1
                           ? userInfoForm.displayName
                           : user.displayName,
                       bgColor: userInfoForm.bgColor,
@@ -638,11 +638,15 @@ const Navigation = () => {
                   </div>
                 </div>
 
-                {userInfoForm.bgColor !== user.bgColor && (
-                  <div className="text-center">
-                    {unsavedChangSpan}
-                  </div>
-                )}
+                <div
+                  className={`text-center ${
+                    userInfoForm.bgColor !== user.bgColor
+                      ? "visible"
+                      : "invisible"
+                  }`}
+                >
+                  {unsavedChangSpan}
+                </div>
               </div>
               <form
                 onSubmit={(e) => e.preventDefault()}
@@ -657,7 +661,13 @@ const Navigation = () => {
                       className={formStyles.label}
                       htmlFor="update-display-name"
                     >
-                      Name
+                      Name{" "}
+                      {userInfoForm.displayName !==
+                        user.displayName && (
+                        <div className="float-right">
+                          {unsavedChangSpan}
+                        </div>
+                      )}
                     </label>
                     <input
                       type="text"
@@ -667,8 +677,6 @@ const Navigation = () => {
                       onChange={handleUserInfoFormChange}
                       className={formStyles.input}
                     />
-                    {userInfoForm.displayName !==
-                      user.displayName && unsavedChangSpan}
                   </div>
                   <div
                     className={formStyles.inputContainer}
@@ -677,7 +685,17 @@ const Navigation = () => {
                       className={formStyles.label}
                       htmlFor="update-username"
                     >
-                      Username
+                      Username{" "}
+                      {(user.username !== null &&
+                        userInfoForm.username !==
+                          user.username) ||
+                        (userInfoForm.username.length >=
+                          1 &&
+                          user.username === null && (
+                            <div className="float-right">
+                              {unsavedChangSpan}
+                            </div>
+                          ))}
                     </label>
                     <input
                       type="text"
@@ -687,12 +705,6 @@ const Navigation = () => {
                       onChange={handleUserInfoFormChange}
                       className={formStyles.input}
                     />
-                    {(user.username !== null &&
-                      userInfoForm.username !==
-                        user.username) ||
-                      (userInfoForm.username.length > 1 &&
-                        user.username === null &&
-                        unsavedChangSpan)}
                   </div>
                   <div
                     className={formStyles.inputContainer}
@@ -701,7 +713,13 @@ const Navigation = () => {
                       className={formStyles.label}
                       htmlFor="update-email"
                     >
-                      Email address
+                      Email address{" "}
+                      {userInfoForm.email !==
+                        user.email && (
+                        <div className="float-right">
+                          {unsavedChangSpan}
+                        </div>
+                      )}
                     </label>
                     <input
                       type="email"
@@ -711,8 +729,6 @@ const Navigation = () => {
                       onChange={handleUserInfoFormChange}
                       className={formStyles.input}
                     />
-                    {userInfoForm.email !== user.email &&
-                      unsavedChangSpan}
                   </div>
                 </div>
                 <button
