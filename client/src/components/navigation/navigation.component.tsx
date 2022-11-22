@@ -600,7 +600,10 @@ const Navigation = () => {
                           <ProfilePicture
                             user={{
                               displayName:
-                                userInfoForm.displayName,
+                                userInfoForm.displayName
+                                  .length > 1
+                                  ? userInfoForm.displayName
+                                  : user.displayName,
                               bgColor: color,
                               profilePicture:
                                 userInfoForm.profilePicture,
@@ -621,7 +624,10 @@ const Navigation = () => {
                 <div className="relative w-24 h-24 text-5xl mx-auto peer-hover:opacity-80">
                   <ProfilePicture
                     user={{
-                      displayName: userInfoForm.displayName,
+                      displayName:
+                        userInfoForm.displayName.length > 1
+                          ? userInfoForm.displayName
+                          : user.displayName,
                       bgColor: userInfoForm.bgColor,
                       profilePicture:
                         userInfoForm.profilePicture,
