@@ -13,6 +13,7 @@ import {
   VscArchive,
   VscAccount,
   VscArrowLeft,
+  VscEdit,
 } from "react-icons/vsc";
 import {
   BsPeople,
@@ -31,8 +32,10 @@ import fetcher from "../../utils/fetcher";
 import ChatCardsContainer from "../chat-cards-container/chat-cards-container.component";
 import UserCardsContainer from "../user-card-container/user-cards-container.component";
 import ProfilePicture from "../profile-picture/profile-picture.component";
+import Modal from "../modal/modal.component";
 import Overlay from "../overlay/overlay.component";
 import LoadingSpinner from "../loading-spinner/loading-spinner.component";
+import { formStyles } from "../../pages/signin/signin.page";
 import { IChat } from "../chat-card/chat-card.component";
 import { IUser } from "../user-card/user-card.component";
 
@@ -46,6 +49,7 @@ const navStyles = {
 const Navigation = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
+  const [openUserForm, setOpenUserForm] = useState(false);
   const [chats, setChats] = useState<null | IChat[]>(null);
   const [archivedChats, setArchivedChats] = useState<
     null | IChat[]
@@ -278,6 +282,14 @@ const Navigation = () => {
     setShowArchived(false);
   };
 
+  const toggleUserForm = () => {
+    setOpenUserForm((prev) => !prev);
+    toggleMenu();
+  };
+  const closeUserForm = () => {
+    setOpenUserForm(false);
+  };
+
   const handleSearchChange = (
     event: ChangeEvent<HTMLInputElement>
   ) => {
@@ -333,7 +345,7 @@ const Navigation = () => {
             {/* Top part */}
             <div className="border-b border-b-neutral-300 dark:border-neutral-b-500 p-4 sm:p-6 pb-2">
               <div className=" flex justify-between">
-                <div className="w-12 h-12 sm:w-14 sm:h-14">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 text-2xl">
                   <ProfilePicture
                     user={{
                       bgColor: user.bgColor,
@@ -385,9 +397,7 @@ const Navigation = () => {
                     navStyles.button +
                     navStyles.buttonDescription
                   }
-                  onClick={() =>
-                    console.log("edit profile button")
-                  }
+                  onClick={toggleUserForm}
                 >
                   <VscAccount />
                   <span>Edit profile</span>
@@ -493,6 +503,86 @@ const Navigation = () => {
                 </div>
               </div>
             </form>
+          )}
+          {openUserForm && (
+            <Modal closeModal={closeUserForm}>
+              <h2 className={formStyles.h2}>User info</h2>
+              <div className="relative w-24 h-24 text-5xl mx-auto mb-2">
+                <ProfilePicture
+                  user={{
+                    displayName: user.displayName,
+                    bgColor: user.bgColor,
+                    profilePicure: user.profilePicure,
+                  }}
+                />
+                <div className="absolute bottom-1 right-1 rounded-full bg-white p-1 text-base">
+                  <VscEdit />
+                </div>
+              </div>
+              <form
+                onSubmit={(e) => e.preventDefault()}
+                className="flex flex-col space-y-2"
+              >
+                {/* TODO - handle image upload */}
+                <div className={formStyles.inputsContainer}>
+                  <div
+                    className={formStyles.inputContainer}
+                  >
+                    <label
+                      className={formStyles.label}
+                      htmlFor="update-display-name"
+                    >
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      name="displayName"
+                      id="update-display-name"
+                      className={formStyles.input}
+                    />
+                  </div>
+                  <div
+                    className={formStyles.inputContainer}
+                  >
+                    <label
+                      className={formStyles.label}
+                      htmlFor="update-username"
+                    >
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      name="username"
+                      id="update-username"
+                      className={formStyles.input}
+                    />
+                  </div>
+                  <div
+                    className={formStyles.inputContainer}
+                  >
+                    <label
+                      className={formStyles.label}
+                      htmlFor="update-email"
+                    >
+                      Email address
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      id="update-email"
+                      className={formStyles.input}
+                    />
+                  </div>
+                </div>
+                <button
+                  className={formStyles.submitButton}
+                  title="Click to save info"
+                  type="submit"
+                >
+                  Save
+                </button>
+              </form>
+            </Modal>
           )}
         </header>
       </div>
