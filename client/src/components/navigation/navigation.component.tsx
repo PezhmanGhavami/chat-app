@@ -14,6 +14,7 @@ import {
   VscAccount,
   VscArrowLeft,
   VscEdit,
+  VscCheck,
 } from "react-icons/vsc";
 import {
   BsPeople,
@@ -46,6 +47,39 @@ const navStyles = {
     "h-12 text-lg flex items-center space-x-2 ",
 };
 
+const bgColors = [
+  "from-pink-400 to-pink-600",
+  "from-rose-400 to-rose-600",
+  "from-emerald-400 to-emerald-600",
+  "from-green-500 to-green-600",
+  "from-teal-400 to-teal-700",
+  "from-cyan-500 to-cyan-600",
+  "from-blue-400 to-blue-600",
+  "from-indigo-400 to-indigo-600",
+  "from-orange-400 to-orange-600",
+  "from-amber-400 to-amber-500",
+];
+
+const defaultFormDate: {
+  displayName: string;
+  username: string;
+  bgColor: string;
+  email: string;
+  profilePicture: null | string;
+} = {
+  displayName: "",
+  username: "",
+  bgColor: "",
+  email: "",
+  profilePicture: null,
+};
+
+const unsavedChangSpan = (
+  <span className="text-sm text-red-600 dark:text-red-500">
+    *Unsaved change
+  </span>
+);
+
 const Navigation = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
@@ -60,6 +94,8 @@ const Navigation = () => {
     null | IUser[]
   >(null);
   const [authError, setAuthError] = useState(false);
+  const [userInfoForm, setUserInfoForm] =
+    useState(defaultFormDate);
 
   const { user } = useUser();
   const { socket, isConnected, updateIsConnected } =
@@ -264,6 +300,19 @@ const Navigation = () => {
     };
   }, [openSearch]);
 
+  // Setting default value for form
+  useEffect(() => {
+    if (user) {
+      setUserInfoForm({
+        displayName: user.displayName,
+        email: user.email,
+        username: user.username ? user.username : "",
+        bgColor: user.bgColor,
+        profilePicture: user.profilePicture,
+      });
+    }
+  }, [user]);
+
   const toggleSearch = () => {
     setOpenSearch((prev) => !prev);
     setSearchInput("");
@@ -298,6 +347,24 @@ const Navigation = () => {
     if (event.target.value.length >= 3) {
       socket?.emit("search", { query: event.target.value });
     }
+  };
+
+  const handleUserInfoFormChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    setUserInfoForm((prev) => ({
+      ...prev,
+      [event.target.name]: event.target.value,
+    }));
+  };
+  const handleBgColorChange = (selectedColor: string) => {
+    setUserInfoForm((prev) => ({
+      ...prev,
+      bgColor: selectedColor,
+    }));
+    (
+      globalThis.document.activeElement as HTMLButtonElement
+    ).blur();
   };
 
   if (!user) {
@@ -350,7 +417,7 @@ const Navigation = () => {
                     user={{
                       bgColor: user.bgColor,
                       displayName: user.displayName,
-                      profilePicure: user.profilePicure,
+                      profilePicture: user.profilePicture,
                     }}
                   />
                 </div>
@@ -507,20 +574,69 @@ const Navigation = () => {
           {openUserForm && (
             <Modal closeModal={closeUserForm}>
               <h2 className={formStyles.h2}>User info</h2>
-              <div
-                title="Click to change the background color"
-                className="relative w-24 h-24 text-5xl mx-auto mb-2 cursor-pointer hover:opacity-80 transition-opacity duration-150"
-              >
-                <ProfilePicture
-                  user={{
-                    displayName: user.displayName,
-                    bgColor: user.bgColor,
-                    profilePicure: user.profilePicure,
-                  }}
-                />
-                <div className="absolute bottom-1 right-1 rounded-full bg-white dark:bg-neutral-900 p-1 text-base">
-                  <VscEdit />
+              {/* Profile picture / profile bgColor */}
+              <div className="relative mb-2">
+                {/* Selector */}
+                <button
+                  title="Click to change the background color"
+                  type="button"
+                  className="group absolute left-1/2 -translate-x-1/2 top-0 w-24 h-24 peer z-[41] rounded-full"
+                >
+                  <div className="invisible absolute left-1/2 -translate-x-1/2 top-0 w-52 bg-white dark:bg-neutral-900 shadow-md rounded-lg border dark:border-neutral-600 py-2 z-50 group-focus-within:visible group-active:visible">
+                    <div className="grid grid-cols-3 justify-items-center text-xl">
+                      {bgColors.map((color, index) => (
+                        <div
+                          key={index}
+                          className="relative h-12 w-12 m-1 hover:cursor-pointer hover:opacity-80"
+                          title={
+                            color === userInfoForm.bgColor
+                              ? "Currently selected"
+                              : "Click to select background color"
+                          }
+                          onClick={() => {
+                            handleBgColorChange(color);
+                          }}
+                        >
+                          <ProfilePicture
+                            user={{
+                              displayName:
+                                userInfoForm.displayName,
+                              bgColor: color,
+                              profilePicture:
+                                userInfoForm.profilePicture,
+                            }}
+                          />
+                          {color ===
+                            userInfoForm.bgColor && (
+                            <div className="absolute top-0 right-0 rounded-full bg-blue-600 text-white w-fit p-[2px] text-xs">
+                              <VscCheck />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </button>
+                {/* Preview */}
+                <div className="relative w-24 h-24 text-5xl mx-auto peer-hover:opacity-80">
+                  <ProfilePicture
+                    user={{
+                      displayName: userInfoForm.displayName,
+                      bgColor: userInfoForm.bgColor,
+                      profilePicture:
+                        userInfoForm.profilePicture,
+                    }}
+                  />
+                  <div className="absolute bottom-1 right-1 rounded-full bg-white dark:bg-neutral-900 p-1 text-base">
+                    <VscEdit />
+                  </div>
                 </div>
+
+                {userInfoForm.bgColor !== user.bgColor && (
+                  <div className="text-center">
+                    {unsavedChangSpan}
+                  </div>
+                )}
               </div>
               <form
                 onSubmit={(e) => e.preventDefault()}
@@ -541,8 +657,12 @@ const Navigation = () => {
                       type="text"
                       name="displayName"
                       id="update-display-name"
+                      value={userInfoForm.displayName}
+                      onChange={handleUserInfoFormChange}
                       className={formStyles.input}
                     />
+                    {userInfoForm.displayName !==
+                      user.displayName && unsavedChangSpan}
                   </div>
                   <div
                     className={formStyles.inputContainer}
@@ -557,8 +677,16 @@ const Navigation = () => {
                       type="text"
                       name="username"
                       id="update-username"
+                      value={userInfoForm.username}
+                      onChange={handleUserInfoFormChange}
                       className={formStyles.input}
                     />
+                    {(user.username !== null &&
+                      userInfoForm.username !==
+                        user.username) ||
+                      (userInfoForm.username.length > 1 &&
+                        user.username === null &&
+                        unsavedChangSpan)}
                   </div>
                   <div
                     className={formStyles.inputContainer}
@@ -573,8 +701,12 @@ const Navigation = () => {
                       type="email"
                       name="email"
                       id="update-email"
+                      value={userInfoForm.email}
+                      onChange={handleUserInfoFormChange}
                       className={formStyles.input}
                     />
+                    {userInfoForm.email !== user.email &&
+                      unsavedChangSpan}
                   </div>
                 </div>
                 <button
