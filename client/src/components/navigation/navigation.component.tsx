@@ -21,6 +21,7 @@ import {
   BsSunFill,
   BsMoonFill,
 } from "react-icons/bs";
+import { MdDevices } from "react-icons/md";
 import { toast } from "react-toastify";
 
 import useUser from "../../hooks/useUser";
@@ -80,10 +81,20 @@ const unsavedChangSpan = (
   </span>
 );
 
+interface ISession {
+  id: string;
+  socketId: string;
+  isOnline: boolean;
+  lastOnline: Date | null;
+  createdAt: Date;
+}
+
 const Navigation = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
   const [openUserForm, setOpenUserForm] = useState(false);
+  const [openSessionManager, setOpenSessionManager] =
+    useState(false);
   const [chats, setChats] = useState<null | IChat[]>(null);
   const [archivedChats, setArchivedChats] = useState<
     null | IChat[]
@@ -94,6 +105,9 @@ const Navigation = () => {
     null | IUser[]
   >(null);
   const [authError, setAuthError] = useState(false);
+  const [activeSessions, setActiveSessions] = useState<
+    null | ISession[]
+  >(null);
   const [userInfoForm, setUserInfoForm] =
     useState(defaultFormDate);
 
@@ -339,6 +353,26 @@ const Navigation = () => {
     setOpenUserForm(false);
   };
 
+  const toggleSessionManager = () => {
+    setOpenSessionManager(true);
+    toggleMenu();
+    fetcher("/api/auth/sessions", { method: "GET" })
+      .then((sessions) => {
+        setActiveSessions(sessions);
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Couldn't fetch sessions.");
+        }
+      });
+  };
+  const closeSessionManager = () => {
+    setOpenSessionManager(false);
+    setActiveSessions(null);
+  };
+
   const handleSearchChange = (
     event: ChangeEvent<HTMLInputElement>
   ) => {
@@ -482,6 +516,18 @@ const Navigation = () => {
                 >
                   <BsPeople />
                   <span>New group</span>
+                </button>
+                <button
+                  type="button"
+                  title="Click to see and terminate active sessions"
+                  className={
+                    navStyles.button +
+                    navStyles.buttonDescription
+                  }
+                  onClick={toggleSessionManager}
+                >
+                  <MdDevices />
+                  <span>Active sessions</span>
                 </button>
               </div>
               {/* Signout button */}
@@ -739,6 +785,34 @@ const Navigation = () => {
                   Save
                 </button>
               </form>
+            </Modal>
+          )}
+          {openSessionManager && (
+            <Modal closeModal={closeSessionManager}>
+              {!activeSessions ? (
+                <div className="py-24 text-3xl">
+                  <LoadingSpinner />
+                </div>
+              ) : (
+                <div>
+                  <h2 className="text-lg font-medium">
+                    Active sessions
+                  </h2>
+                  <div>
+                    {activeSessions.map((session) => (
+                      <div key={session.id} className="">
+                        <p>{session.isOnline}</p>
+                        <p>
+                          {new Date(
+                            session.createdAt
+                          ).toLocaleString()}
+                        </p>
+                        <p>{session.socketId}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </Modal>
           )}
         </header>

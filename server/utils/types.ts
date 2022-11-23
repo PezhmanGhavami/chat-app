@@ -36,3 +36,11 @@ export interface IChatCard {
   isArchived: boolean;
   bgColor: string;
 }
+
+export interface ISession {
+  id: string;
+  socketId: string;
+  isOnline: boolean;
+  lastOnline: Date | null;
+  createdAt: Date;
+}

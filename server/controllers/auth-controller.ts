@@ -4,6 +4,7 @@ import { prisma } from "../utils/prisma-client";
 import getRandomColor from "../utils/getRandomColor";
 import {
   IUser,
+  ISession,
   IExpressEndpointHandler,
 } from "../utils/types";
 
@@ -295,8 +296,111 @@ const getUser: IExpressEndpointHandler = async (
   return res.json(loggedOutUser);
 };
 
+/**
+ * @desc   Updates a user
+ * @route  PUT /api/auth/
+ * @access Private
+ * */
+const updateUser: IExpressEndpointHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const user = req.session.user;
+    if (!user) {
+      res.status(401);
+      throw new Error("Unauthorized.");
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc   Gets a all active sessions
+ * @route  GET /api/auth/sessions
+ * @access Private
+ * */
+const getSessions: IExpressEndpointHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const user = req.session.user;
+    if (!user) {
+      res.status(401);
+      throw new Error("Unauthorized.");
+    }
+
+    const sessions = await prisma.session.findMany({
+      where: {
+        userId: user.userID,
+      },
+    });
+    const payload: ISession[] = sessions.map((session) => ({
+      id: session.id,
+      isOnline: session.isOnline,
+      socketId: session.socketId,
+      createdAt: session.updatedAt,
+      lastOnline: session.lastOnline,
+    }));
+
+    return res.json(payload);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc   Deletes an active session
+ * @route  DELETE /api/auth/sessions
+ * @access Private
+ * */
+const terminateSession: IExpressEndpointHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const user = req.session.user;
+    if (!user) {
+      res.status(401);
+      throw new Error("Unauthorized.");
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc   Deltes all sessions except the current one
+ * @route  DELETE /api/auth/signout-all
+ * @access Private
+ * */
+const signoutAll: IExpressEndpointHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const user = req.session.user;
+    if (!user) {
+      res.status(401);
+      throw new Error("Unauthorized.");
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   getUser,
+  updateUser,
+  getSessions,
+  terminateSession,
+  signoutAll,
   handleSignin,
   handleSignout,
   handleRegister,
