@@ -1,5 +1,6 @@
 import {
   ChangeEvent,
+  FormEvent,
   useState,
   useContext,
   useEffect,
@@ -397,8 +398,11 @@ const Navigation = () => {
       bgColor: selectedColor,
     }));
     (
-      globalThis.document.activeElement as HTMLButtonElement
+      globalThis.document.activeElement as HTMLElement
     ).blur();
+  };
+  const handleUserInfoFormSubmit = (event: FormEvent) => {
+    event.preventDefault();
   };
 
   if (!user) {
@@ -617,6 +621,7 @@ const Navigation = () => {
               </div>
             </form>
           )}
+          {/* User info update form */}
           {openUserForm && (
             <Modal closeModal={closeUserForm}>
               <h2 className={formStyles.h2}>User info</h2>
@@ -628,8 +633,9 @@ const Navigation = () => {
                   type="button"
                   className="group absolute left-1/2 -translate-x-1/2 top-0 w-24 h-24 peer z-[41] rounded-full"
                 >
-                  <div className="invisible absolute left-1/2 -translate-x-1/2 top-0 w-52 bg-white dark:bg-neutral-900 shadow-md rounded-lg border dark:border-neutral-600 py-2 z-50 group-focus-within:visible group-active:visible">
-                    <div className="grid grid-cols-3 justify-items-center text-xl">
+                  <div className="invisible absolute left-1/2 -translate-x-1/2 top-24 w-2 h-2 rotate-45 bg-white dark:bg-neutral-900 border dark:border-neutral-600 border-r-0 border-b-0 z-[51] group-focus-within:visible group-active:visible cursor-default" />
+                  <div className="invisible absolute left-1/2 -translate-x-1/2 top-[6.25rem] w-52 bg-white dark:bg-neutral-900 shadow-md rounded-lg border dark:border-neutral-600 py-2 z-50 group-focus-within:visible group-active:visible">
+                    <div className="grid grid-cols-3 justify-items-center text-xl cursor-default">
                       {bgColors.map((color, index) => (
                         <div
                           key={index}
@@ -695,7 +701,7 @@ const Navigation = () => {
                 </div>
               </div>
               <form
-                onSubmit={(e) => e.preventDefault()}
+                onSubmit={handleUserInfoFormSubmit}
                 className="flex flex-col space-y-2"
               >
                 {/* TODO - handle image upload */}
@@ -787,6 +793,7 @@ const Navigation = () => {
               </form>
             </Modal>
           )}
+          {/* Session manager */}
           {openSessionManager && (
             <Modal closeModal={closeSessionManager}>
               {!activeSessions ? (
