@@ -384,6 +384,60 @@ const Navigation = () => {
     }
   };
 
+  const validateForm = (onSubmit: boolean = false) => {
+    let formIsValid = true;
+    const emailRegex =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    const usernameRegex = /^[a-z0-9_-]{3,20}$/i;
+    const displayNameRegex = /^(?!.{21,})\w+( *?\w)+$/;
+
+    if (
+      (userInfoForm.username !== "" ||
+        userInfoForm.username) &&
+      !usernameRegex.test(userInfoForm.username)
+    ) {
+      formIsValid = false;
+
+      onSubmit &&
+        toast.error(
+          "Invalid username.\nUsername can only contain alphanumeric values and (-),(_) symbols.\nUsername should be between 3 to 20 characters long"
+        );
+    }
+    if (
+      userInfoForm.email === "" ||
+      !userInfoForm.email ||
+      !emailRegex.test(userInfoForm.email)
+    ) {
+      formIsValid = false;
+
+      onSubmit &&
+        toast.error(
+          userInfoForm.email === "" || !userInfoForm.email
+            ? "You should provide an email address"
+            : "Invalid email address."
+        );
+    }
+
+    if (
+      userInfoForm.displayName === "" ||
+      !userInfoForm.displayName ||
+      !displayNameRegex.test(userInfoForm.displayName)
+    ) {
+      formIsValid = false;
+
+      onSubmit &&
+        toast.error(
+          userInfoForm.displayName === "" ||
+            !userInfoForm.displayName
+            ? "You should provide a name"
+            : "Invalid name.\nName should be less than 20 characters.Only alphanumeric characters and space is allowed."
+        );
+    }
+
+    return {
+      formIsValid,
+    };
+  };
   const handleUserInfoFormChange = (
     event: ChangeEvent<HTMLInputElement>
   ) => {
@@ -403,6 +457,10 @@ const Navigation = () => {
   };
   const handleUserInfoFormSubmit = (event: FormEvent) => {
     event.preventDefault();
+
+    const { formIsValid } = validateForm(true);
+
+    if (!formIsValid) return;
   };
 
   if (!user) {

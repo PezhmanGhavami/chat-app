@@ -77,8 +77,7 @@ const Signin = () => {
     let passwordStatus = inputStatus.VALID;
     const emailRegex =
       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-    const usernameRegex =
-      /^(?=[a-z0-9.]{3,20}$)[a-z0-9]+\.?[a-z0-9]+$/i;
+    const usernameRegex = /^[a-z0-9_-]{3,20}$/i;
 
     if (
       usernameOrEmail === "" ||

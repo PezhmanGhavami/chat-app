@@ -51,6 +51,7 @@ const Signup = () => {
     let confirmPasswordStatus = inputStatus.VALID;
     const emailRegex =
       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    const displayNameRegex = /^(?!.{21,})\w+( *?\w)+$/;
 
     if (email === "" || !email || !emailRegex.test(email)) {
       formIsValid = false;
@@ -66,10 +67,22 @@ const Signup = () => {
         );
     }
 
-    if (displayName === "" || !displayName) {
+    if (
+      displayName === "" ||
+      !displayName ||
+      !displayNameRegex.test(displayName)
+    ) {
       formIsValid = false;
-      displayNameStatus = inputStatus.EMPTY;
-      onSubmit && toast.error("You should provide a name.");
+      displayNameStatus =
+        displayName === "" || !displayName
+          ? inputStatus.EMPTY
+          : inputStatus.INVALID;
+      onSubmit &&
+        toast.error(
+          displayNameStatus === inputStatus.EMPTY
+            ? "You should provide a name."
+            : "Invalid name.\nName should be less than 20 characters.Only alphanumeric characters and space is allowed."
+        );
     }
 
     if (password === "" || !password) {
