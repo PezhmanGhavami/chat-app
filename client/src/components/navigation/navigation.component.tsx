@@ -636,7 +636,8 @@ const Navigation = () => {
                   <VscLock />
                   <span>Account security</span>
                 </button>
-                <button
+                {/* TODO - make groups work */}
+                {/* <button
                   type="button"
                   title="Click to create a new group chat"
                   className={
@@ -649,7 +650,7 @@ const Navigation = () => {
                 >
                   <BsPeople />
                   <span>New group</span>
-                </button>
+                </button> */}
                 <button
                   type="button"
                   title="Click to see and terminate active sessions"
