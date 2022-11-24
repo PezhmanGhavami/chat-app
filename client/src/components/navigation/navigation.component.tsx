@@ -16,6 +16,7 @@ import {
   VscArrowLeft,
   VscEdit,
   VscCheck,
+  VscLock,
 } from "react-icons/vsc";
 import {
   BsPeople,
@@ -62,18 +63,28 @@ const bgColors = [
   "from-amber-400 to-amber-500",
 ];
 
-const defaultFormDate: {
+const userInfoFormDefault: {
   displayName: string;
   username: string;
   bgColor: string;
-  email: string;
   profilePicture: null | string;
 } = {
   displayName: "",
   username: "",
   bgColor: "",
-  email: "",
   profilePicture: null,
+};
+
+const userAuthFormDefault: {
+  password: string;
+  email: string;
+  newPassword: string;
+  newPasswordConfirmation: string;
+} = {
+  password: "",
+  email: "",
+  newPassword: "",
+  newPasswordConfirmation: "",
 };
 
 const unsavedChangSpan = (
@@ -93,7 +104,10 @@ interface ISession {
 const Navigation = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
-  const [openUserForm, setOpenUserForm] = useState(false);
+  const [openUserInfoForm, setOpenUserInfoForm] =
+    useState(false);
+  const [openUserAuthForm, setOpenUserAuthForm] =
+    useState(false);
   const [openSessionManager, setOpenSessionManager] =
     useState(false);
   const [chats, setChats] = useState<null | IChat[]>(null);
@@ -109,8 +123,12 @@ const Navigation = () => {
   const [activeSessions, setActiveSessions] = useState<
     null | ISession[]
   >(null);
-  const [userInfoForm, setUserInfoForm] =
-    useState(defaultFormDate);
+  const [userInfoForm, setUserInfoForm] = useState(
+    userInfoFormDefault
+  );
+  const [userAuthForm, setUserAuthForm] = useState(
+    userAuthFormDefault
+  );
 
   const { user } = useUser();
   const { socket, isConnected, updateIsConnected } =
@@ -333,21 +351,34 @@ const Navigation = () => {
     setShowArchived(false);
   };
 
-  const toggleUserForm = () => {
+  const toggleUserInfoForm = () => {
     if (user) {
-      setOpenUserForm((prev) => !prev);
+      setOpenUserInfoForm((prev) => !prev);
       toggleMenu();
       setUserInfoForm({
         displayName: user.displayName,
-        email: user.email,
         username: user.username ? user.username : "",
         bgColor: user.bgColor,
         profilePicture: user.profilePicture,
       });
     }
   };
-  const closeUserForm = () => {
-    setOpenUserForm(false);
+  const closeUserInfoForm = () => {
+    setOpenUserInfoForm(false);
+  };
+
+  const toggleUserAuthForm = () => {
+    if (user) {
+      setOpenUserAuthForm((prev) => !prev);
+      toggleMenu();
+      setUserAuthForm({
+        ...userAuthFormDefault,
+        email: user.email,
+      });
+    }
+  };
+  const closeUserAuthForm = () => {
+    setOpenUserAuthForm(false);
   };
 
   const toggleSessionManager = () => {
@@ -380,60 +411,80 @@ const Navigation = () => {
     }
   };
 
-  const validateForm = (onSubmit: boolean = false) => {
+  const validateForm = (type: "info" | "auth") => {
     let formIsValid = true;
-    const emailRegex =
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-    const usernameRegex = /^[a-z0-9_-]{3,20}$/i;
-    const displayNameRegex = /^(?!.{21,})\w+( *?\w)+$/;
 
-    if (
-      (userInfoForm.username !== "" ||
-        userInfoForm.username) &&
-      !usernameRegex.test(userInfoForm.username)
-    ) {
-      formIsValid = false;
+    if (type === "info") {
+      const usernameRegex = /^[a-z0-9_-]{3,20}$/i;
+      const displayNameRegex = /^(?!.{21,})\w+( *?\w)+$/;
 
-      onSubmit &&
+      if (
+        (userInfoForm.username !== "" ||
+          userInfoForm.username) &&
+        !usernameRegex.test(userInfoForm.username)
+      ) {
+        formIsValid = false;
+
         toast.error(
           "Invalid username.\nUsername can only contain alphanumeric values and (-),(_) symbols.\nUsername should be between 3 to 20 characters long"
         );
-    }
-    if (
-      userInfoForm.email === "" ||
-      !userInfoForm.email ||
-      !emailRegex.test(userInfoForm.email)
-    ) {
-      formIsValid = false;
+      }
+      if (
+        userInfoForm.displayName === "" ||
+        !userInfoForm.displayName ||
+        !displayNameRegex.test(userInfoForm.displayName)
+      ) {
+        formIsValid = false;
 
-      onSubmit &&
-        toast.error(
-          userInfoForm.email === "" || !userInfoForm.email
-            ? "You should provide an email address"
-            : "Invalid email address."
-        );
-    }
-
-    if (
-      userInfoForm.displayName === "" ||
-      !userInfoForm.displayName ||
-      !displayNameRegex.test(userInfoForm.displayName)
-    ) {
-      formIsValid = false;
-
-      onSubmit &&
         toast.error(
           userInfoForm.displayName === "" ||
             !userInfoForm.displayName
             ? "You should provide a name"
             : "Invalid name.\nName should be less than 20 characters.Only alphanumeric characters and space is allowed."
         );
+      }
+    } else if (type === "auth") {
+      const emailRegex =
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+      if (
+        userAuthForm.email === "" ||
+        !userAuthForm.email ||
+        !emailRegex.test(userAuthForm.email)
+      ) {
+        formIsValid = false;
+
+        toast.error(
+          userAuthForm.email === "" || !userAuthForm.email
+            ? "You should provide an email address"
+            : "Invalid email address."
+        );
+      }
+
+      if (userAuthForm.newPassword === "") {
+        formIsValid = false;
+
+        toast.error("You should provide a password.");
+      }
+
+      if (
+        userAuthForm.newPasswordConfirmation === "" ||
+        userAuthForm.newPasswordConfirmation !==
+          userAuthForm.newPassword
+      ) {
+        formIsValid = false;
+        toast.error(
+          userAuthForm.newPasswordConfirmation !==
+            userAuthForm.newPassword
+            ? "Passwords should match."
+            : "Please confirm your password before you continue."
+        );
+      }
     }
 
-    return {
-      formIsValid,
-    };
+    return formIsValid;
   };
+
   const handleUserInfoFormChange = (
     event: ChangeEvent<HTMLInputElement>
   ) => {
@@ -454,9 +505,21 @@ const Navigation = () => {
   const handleUserInfoFormSubmit = (event: FormEvent) => {
     event.preventDefault();
 
-    const { formIsValid } = validateForm(true);
+    if (!validateForm("info")) return;
+  };
 
-    if (!formIsValid) return;
+  const handleUserAuthFormChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    setUserAuthForm((prev) => ({
+      ...prev,
+      [event.target.name]: event.target.value,
+    }));
+  };
+  const handleUserAuthFormSubmit = (event: FormEvent) => {
+    event.preventDefault();
+
+    if (!validateForm("auth")) return;
   };
 
   if (!user) {
@@ -556,10 +619,22 @@ const Navigation = () => {
                     navStyles.button +
                     navStyles.buttonDescription
                   }
-                  onClick={toggleUserForm}
+                  onClick={toggleUserInfoForm}
                 >
                   <VscAccount />
                   <span>Edit profile</span>
+                </button>
+                <button
+                  type="button"
+                  title="Click to change your credentials"
+                  className={
+                    navStyles.button +
+                    navStyles.buttonDescription
+                  }
+                  onClick={toggleUserAuthForm}
+                >
+                  <VscLock />
+                  <span>Account security</span>
                 </button>
                 <button
                   type="button"
@@ -676,8 +751,8 @@ const Navigation = () => {
             </form>
           )}
           {/* User info update form */}
-          {openUserForm && (
-            <Modal closeModal={closeUserForm}>
+          {openUserInfoForm && (
+            <Modal closeModal={closeUserInfoForm}>
               <h2 className={formStyles.h2}>User info</h2>
               {/* Profile picture / profile bgColor selector*/}
               <div className="relative mb-2">
@@ -792,7 +867,7 @@ const Navigation = () => {
                       htmlFor="update-username"
                     >
                       Username{" "}
-                      {(user.username !== null &&
+                      {(user.username &&
                         userInfoForm.username !==
                           user.username) ||
                         (userInfoForm.username.length >=
@@ -812,6 +887,51 @@ const Navigation = () => {
                       className={formStyles.input}
                     />
                   </div>
+                </div>
+                <button
+                  className={formStyles.submitButton}
+                  title="Click to save info"
+                  type="submit"
+                >
+                  Save
+                </button>
+              </form>
+            </Modal>
+          )}
+          {/* User credentials update form */}
+          {openUserAuthForm && (
+            <Modal closeModal={closeUserAuthForm}>
+              <h2 className={formStyles.h2}>
+                Account security
+              </h2>
+              <form
+                onSubmit={handleUserAuthFormSubmit}
+                className="flex flex-col space-y-2"
+              >
+                <div className={formStyles.inputsContainer}>
+                  <div
+                    className={formStyles.inputContainer}
+                  >
+                    <label
+                      className={formStyles.label}
+                      htmlFor="confirm-password"
+                    >
+                      Password{" "}
+                      <div className="float-right">
+                        <span className="text-sm text-red-600 dark:text-red-500">
+                          *Required
+                        </span>
+                      </div>
+                    </label>
+                    <input
+                      type="password"
+                      name="password"
+                      id="confirm-password"
+                      value={userAuthForm.password}
+                      onChange={handleUserAuthFormChange}
+                      className={formStyles.input}
+                    />
+                  </div>
                   <div
                     className={formStyles.inputContainer}
                   >
@@ -820,7 +940,7 @@ const Navigation = () => {
                       htmlFor="update-email"
                     >
                       Email address{" "}
-                      {userInfoForm.email !==
+                      {userAuthForm.email !==
                         user.email && (
                         <div className="float-right">
                           {unsavedChangSpan}
@@ -831,15 +951,79 @@ const Navigation = () => {
                       type="email"
                       name="email"
                       id="update-email"
-                      value={userInfoForm.email}
-                      onChange={handleUserInfoFormChange}
+                      value={userAuthForm.email}
+                      onChange={handleUserAuthFormChange}
+                      className={formStyles.input}
+                    />
+                  </div>
+                  <div
+                    className={formStyles.inputContainer}
+                  >
+                    <label
+                      className={formStyles.label}
+                      htmlFor="update-password"
+                    >
+                      New password{" "}
+                      <div className="float-right">
+                        {userAuthForm.newPassword !== "" &&
+                          userAuthForm.newPasswordConfirmation !==
+                            "" &&
+                          (userAuthForm.newPassword !==
+                          userAuthForm.newPasswordConfirmation ? (
+                            <span className="text-sm text-red-600 dark:text-red-500">
+                              Passwords should match
+                            </span>
+                          ) : (
+                            unsavedChangSpan
+                          ))}
+                      </div>
+                    </label>
+                    <input
+                      type="password"
+                      name="newPassword"
+                      id="update-password"
+                      value={userAuthForm.newPassword}
+                      onChange={handleUserAuthFormChange}
+                      className={formStyles.input}
+                    />
+                  </div>
+                  <div
+                    className={formStyles.inputContainer}
+                  >
+                    <label
+                      className={formStyles.label}
+                      htmlFor="update-password-confirmation"
+                    >
+                      Confirm password{" "}
+                      <div className="float-right">
+                        {userAuthForm.newPassword !== "" &&
+                          userAuthForm.newPasswordConfirmation !==
+                            "" &&
+                          (userAuthForm.newPassword !==
+                          userAuthForm.newPasswordConfirmation ? (
+                            <span className="text-sm text-red-600 dark:text-red-500">
+                              Passwords should match
+                            </span>
+                          ) : (
+                            unsavedChangSpan
+                          ))}
+                      </div>
+                    </label>
+                    <input
+                      type="password"
+                      name="newPasswordConfirmation"
+                      id="update-password-confirmation"
+                      value={
+                        userAuthForm.newPasswordConfirmation
+                      }
+                      onChange={handleUserAuthFormChange}
                       className={formStyles.input}
                     />
                   </div>
                 </div>
                 <button
                   className={formStyles.submitButton}
-                  title="Click to save info"
+                  title="Click to save credentials"
                   type="submit"
                 >
                   Save
