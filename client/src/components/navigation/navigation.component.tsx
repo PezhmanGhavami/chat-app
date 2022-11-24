@@ -315,19 +315,6 @@ const Navigation = () => {
     };
   }, [openSearch]);
 
-  // Setting default value for form
-  useEffect(() => {
-    if (user) {
-      setUserInfoForm({
-        displayName: user.displayName,
-        email: user.email,
-        username: user.username ? user.username : "",
-        bgColor: user.bgColor,
-        profilePicture: user.profilePicture,
-      });
-    }
-  }, [user]);
-
   const toggleSearch = () => {
     setOpenSearch((prev) => !prev);
     setSearchInput("");
@@ -347,8 +334,17 @@ const Navigation = () => {
   };
 
   const toggleUserForm = () => {
-    setOpenUserForm((prev) => !prev);
-    toggleMenu();
+    if (user) {
+      setOpenUserForm((prev) => !prev);
+      toggleMenu();
+      setUserInfoForm({
+        displayName: user.displayName,
+        email: user.email,
+        username: user.username ? user.username : "",
+        bgColor: user.bgColor,
+        profilePicture: user.profilePicture,
+      });
+    }
   };
   const closeUserForm = () => {
     setOpenUserForm(false);
