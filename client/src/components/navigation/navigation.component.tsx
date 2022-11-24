@@ -461,16 +461,28 @@ const Navigation = () => {
         );
       }
 
-      if (userAuthForm.newPassword === "") {
+      if (userAuthForm.password === "") {
         formIsValid = false;
 
         toast.error("You should provide a password.");
       }
 
       if (
-        userAuthForm.newPasswordConfirmation === "" ||
-        userAuthForm.newPasswordConfirmation !==
-          userAuthForm.newPassword
+        userAuthForm.newPassword !== "" &&
+        userAuthForm.newPassword.length < 6
+      ) {
+        formIsValid = false;
+
+        toast.error(
+          "Your new password should be at least 6 characters."
+        );
+      }
+
+      if (
+        userAuthForm.newPassword !== "" &&
+        (userAuthForm.newPasswordConfirmation === "" ||
+          userAuthForm.newPasswordConfirmation !==
+            userAuthForm.newPassword)
       ) {
         formIsValid = false;
         toast.error(
@@ -506,6 +518,8 @@ const Navigation = () => {
     event.preventDefault();
 
     if (!validateForm("info")) return;
+
+    console.log(userInfoForm);
   };
 
   const handleUserAuthFormChange = (
@@ -520,6 +534,8 @@ const Navigation = () => {
     event.preventDefault();
 
     if (!validateForm("auth")) return;
+
+    console.log(userAuthForm);
   };
 
   if (!user) {
@@ -967,16 +983,20 @@ const Navigation = () => {
                       New password{" "}
                       <div className="float-right">
                         {userAuthForm.newPassword !== "" &&
-                          userAuthForm.newPasswordConfirmation !==
-                            "" &&
-                          (userAuthForm.newPassword !==
+                        userAuthForm.newPassword.length <
+                          6 ? (
+                          <span className="text-sm text-red-600 dark:text-red-500">
+                            Needs to be at least 6
+                            characters
+                          </span>
+                        ) : userAuthForm.newPassword !==
                           userAuthForm.newPasswordConfirmation ? (
-                            <span className="text-sm text-red-600 dark:text-red-500">
-                              Passwords should match
-                            </span>
-                          ) : (
-                            unsavedChangSpan
-                          ))}
+                          <span className="text-sm text-red-600 dark:text-red-500">
+                            Passwords should match
+                          </span>
+                        ) : (
+                          unsavedChangSpan
+                        )}
                       </div>
                     </label>
                     <input
