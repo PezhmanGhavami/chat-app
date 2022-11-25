@@ -515,12 +515,61 @@ const Navigation = () => {
       globalThis.document.activeElement as HTMLElement
     ).blur();
   };
-  const handleUserInfoFormSubmit = (event: FormEvent) => {
+  const handleUserInfoFormSubmit = async (
+    event: FormEvent
+  ) => {
     event.preventDefault();
 
     if (!validateForm("info")) return;
 
-    console.log(userInfoForm);
+    if (
+      userInfoForm.bgColor === user?.bgColor &&
+      userInfoForm.displayName === user?.displayName &&
+      userInfoForm.username === user?.username
+    ) {
+      toast.info("Nothing to update.");
+      return;
+    }
+
+    const payload: {
+      bgColor?: string;
+      displayName?: string;
+      username?: string;
+    } = {};
+
+    if (userInfoForm.displayName !== user?.displayName) {
+      payload.displayName = userInfoForm.displayName;
+    }
+    if (userInfoForm.bgColor !== user?.bgColor) {
+      payload.bgColor = userInfoForm.bgColor;
+    }
+    if (userInfoForm.username !== "") {
+      payload.username = userInfoForm.username;
+    }
+
+    const headers = new Headers({
+      "Content-Type": "application/json",
+    });
+    try {
+      setFormIsLoading(true);
+      mutateUser(
+        await fetcher("/api/auth", {
+          method: "PUT",
+          headers,
+          body: JSON.stringify(payload),
+        }),
+        { revalidate: true }
+      );
+      toast.success("Changes saved successfully.");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Couldn't updated user info.");
+      }
+    } finally {
+      setFormIsLoading(false);
+    }
   };
 
   const handleUserAuthFormChange = (
@@ -962,7 +1011,11 @@ const Navigation = () => {
                   title="Click to save info"
                   type="submit"
                 >
-                  Save
+                  {formIsLoading ? (
+                    <LoadingSpinner />
+                  ) : (
+                    "Save"
+                  )}
                 </button>
               </form>
             </Modal>
