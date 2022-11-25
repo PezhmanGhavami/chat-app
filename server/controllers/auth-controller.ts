@@ -5,6 +5,7 @@ import getRandomColor from "../utils/getRandomColor";
 import {
   IUser,
   ISession,
+  IApiMessage,
   IExpressEndpointHandler,
 } from "../utils/types";
 
@@ -259,10 +260,7 @@ const getUser: IExpressEndpointHandler = async (
   };
   const user = req.session.user;
   if (user) {
-    if (
-      Date.now() - user.dateCreated >
-      1000 * 60 * 60 * 24
-    ) {
+    if (Date.now() - user.dateCreated > 1000 * 60 * 5) {
       const userSessionExists =
         await prisma.session.findFirst({
           where: {
@@ -312,6 +310,180 @@ const updateUser: IExpressEndpointHandler = async (
       res.status(401);
       throw new Error("Unauthorized.");
     }
+
+    const {
+      password,
+      email,
+      newPassword,
+      newPasswordConfirmation,
+      username,
+      displayName,
+      bgColor,
+    } = await req.body;
+
+    const userDbData = await prisma.user.findUnique({
+      where: {
+        id: user.userID,
+      },
+    });
+
+    if (!userDbData) {
+      res.status(409);
+      throw new Error("User doesn't exists.");
+    }
+
+    if (password) {
+      if (
+        (!email &&
+          !newPassword &&
+          !newPasswordConfirmation) ||
+        (newPassword && !newPasswordConfirmation) ||
+        (newPasswordConfirmation && !newPassword)
+      ) {
+        res.status(400);
+        throw new Error("Bad request.");
+      }
+
+      const passwordIsCorrect = await bcrypt.compare(
+        password,
+        userDbData.password
+      );
+      if (!passwordIsCorrect) {
+        res.status(401);
+        throw new Error("Wrong password.");
+      }
+
+      const updatePayload: {
+        email?: string;
+        password?: string;
+      } = {};
+
+      if (email) {
+        if (email === userDbData.email) {
+          res.status(400);
+          throw new Error(
+            "New email can't be the old one."
+          );
+        }
+        updatePayload.email = email;
+      }
+
+      if (newPassword && newPasswordConfirmation) {
+        if (newPassword !== newPasswordConfirmation) {
+          res.status(400);
+          throw new Error("Passwords should match.");
+        }
+
+        const newPasswrodIsOldPassword =
+          await bcrypt.compare(
+            newPassword,
+            userDbData.password
+          );
+
+        if (newPasswrodIsOldPassword) {
+          res.status(400);
+          throw new Error(
+            "New password can't be your old one."
+          );
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(
+          newPassword,
+          salt
+        );
+
+        updatePayload.password = hashedPassword;
+      }
+
+      await prisma.user.update({
+        where: {
+          id: user.userID,
+        },
+        data: {
+          ...updatePayload,
+        },
+      });
+
+      if (updatePayload.password) {
+        delete updatePayload.password;
+      }
+      const newUser = {
+        ...user,
+        ...updatePayload,
+        dateCreated: Date.now(),
+      };
+      req.session.user = newUser;
+      await req.session.save();
+    } else {
+      if (!username && !displayName && !bgColor) {
+        res.status(400);
+        throw new Error("Bad request.");
+      }
+
+      const updatePayload: {
+        username?: string;
+        displayName?: string;
+        bgColor?: string;
+      } = {};
+
+      if (username) {
+        if (username === userDbData.username) {
+          res.status(400);
+          throw new Error(
+            "New username can't be the old one."
+          );
+        }
+        updatePayload.username = username;
+      }
+
+      if (displayName) {
+        if (displayName === userDbData.displayName) {
+          res.status(400);
+          throw new Error("New name can't be the old one.");
+        }
+        updatePayload.displayName = displayName;
+      }
+
+      if (bgColor) {
+        if (bgColor === userDbData.bgColor) {
+          res.status(400);
+          throw new Error(
+            "New background color can't be the old one."
+          );
+        }
+        updatePayload.bgColor = bgColor;
+      }
+
+      await prisma.user.update({
+        where: {
+          id: user.userID,
+        },
+        data: {
+          ...updatePayload,
+        },
+      });
+
+      const newUser = {
+        ...user,
+        ...updatePayload,
+        dateCreated: Date.now(),
+      };
+      req.session.user = newUser;
+      await req.session.save();
+    }
+
+    const result: IUser = {
+      isLoggedIn: true,
+      userID: user.userID,
+      email: user.email,
+      displayName: user.displayName,
+      profilePicture: user.profilePicture,
+      sessionId: user.sessionId,
+      username: user.username,
+      bgColor: user.bgColor,
+    };
+    return res.json(result);
   } catch (error) {
     next(error);
   }

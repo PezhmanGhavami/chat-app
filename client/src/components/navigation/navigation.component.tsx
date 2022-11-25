@@ -110,6 +110,7 @@ const Navigation = () => {
     useState(false);
   const [openSessionManager, setOpenSessionManager] =
     useState(false);
+  const [formIsLoading, setFormIsLoading] = useState(false);
   const [chats, setChats] = useState<null | IChat[]>(null);
   const [archivedChats, setArchivedChats] = useState<
     null | IChat[]
@@ -130,7 +131,7 @@ const Navigation = () => {
     userAuthFormDefault
   );
 
-  const { user } = useUser();
+  const { user, mutateUser } = useUser();
   const { socket, isConnected, updateIsConnected } =
     useContext(WebSocketContext);
   const { theme, changeTheme } = useContext(ThemeContext);
@@ -530,12 +531,63 @@ const Navigation = () => {
       [event.target.name]: event.target.value,
     }));
   };
-  const handleUserAuthFormSubmit = (event: FormEvent) => {
+  const handleUserAuthFormSubmit = async (
+    event: FormEvent
+  ) => {
     event.preventDefault();
 
     if (!validateForm("auth")) return;
 
-    console.log(userAuthForm);
+    if (
+      userAuthForm.email === user?.email &&
+      userAuthForm.newPassword === ""
+    ) {
+      toast.info("Nothing to update.");
+      return;
+    }
+
+    const payload: {
+      password: string;
+      email?: string;
+      newPassword?: string;
+      newPasswordConfirmation?: string;
+    } = {
+      password: userAuthForm.password,
+    };
+
+    if (userAuthForm.email !== user?.email) {
+      payload.email = userAuthForm.email;
+    }
+    if (userAuthForm.newPassword !== "") {
+      payload.newPassword = userAuthForm.newPassword;
+      payload.newPasswordConfirmation =
+        userAuthForm.newPasswordConfirmation;
+    }
+
+    const headers = new Headers({
+      "Content-Type": "application/json",
+    });
+    try {
+      setFormIsLoading(true);
+      mutateUser(
+        await fetcher("/api/auth", {
+          method: "PUT",
+          headers,
+          body: JSON.stringify(payload),
+        }),
+        { revalidate: true }
+      );
+      toast.success("Changes saved successfully.");
+      closeUserAuthForm();
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Couldn't updated credentials.");
+      }
+    } finally {
+      setFormIsLoading(false);
+    }
   };
 
   if (!user) {
@@ -983,20 +1035,20 @@ const Navigation = () => {
                       New password{" "}
                       <div className="float-right">
                         {userAuthForm.newPassword !== "" &&
-                        userAuthForm.newPassword.length <
+                          (userAuthForm.newPassword.length <
                           6 ? (
-                          <span className="text-sm text-red-600 dark:text-red-500">
-                            Needs to be at least 6
-                            characters
-                          </span>
-                        ) : userAuthForm.newPassword !==
-                          userAuthForm.newPasswordConfirmation ? (
-                          <span className="text-sm text-red-600 dark:text-red-500">
-                            Passwords should match
-                          </span>
-                        ) : (
-                          unsavedChangSpan
-                        )}
+                            <span className="text-sm text-red-600 dark:text-red-500">
+                              Needs to be at least 6
+                              characters
+                            </span>
+                          ) : userAuthForm.newPassword !==
+                            userAuthForm.newPasswordConfirmation ? (
+                            <span className="text-sm text-red-600 dark:text-red-500">
+                              Passwords should match
+                            </span>
+                          ) : (
+                            unsavedChangSpan
+                          ))}
                       </div>
                     </label>
                     <input
@@ -1047,7 +1099,11 @@ const Navigation = () => {
                   title="Click to save credentials"
                   type="submit"
                 >
-                  Save
+                  {formIsLoading ? (
+                    <LoadingSpinner />
+                  ) : (
+                    "Save"
+                  )}
                 </button>
               </form>
             </Modal>
