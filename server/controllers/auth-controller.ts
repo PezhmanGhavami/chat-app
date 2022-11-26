@@ -321,13 +321,19 @@ const updateUser: IExpressEndpointHandler = async (
       bgColor,
     } = await req.body;
 
-    const userDbData = await prisma.user.findUnique({
+    const userDbData = await prisma.user.findFirst({
       where: {
         id: user.userID,
+        activeSessions: {
+          some: {
+            id: user.sessionId,
+          },
+        },
       },
     });
 
     if (!userDbData) {
+      
       res.status(409);
       throw new Error("User doesn't exists.");
     }
@@ -515,7 +521,7 @@ const getSessions: IExpressEndpointHandler = async (
       id: session.id,
       isOnline: session.isOnline,
       socketId: session.socketId,
-      createdAt: session.updatedAt,
+      createdAt: session.createdAt,
       lastOnline: session.lastOnline,
     }));
 
@@ -562,6 +568,22 @@ const signoutAll: IExpressEndpointHandler = async (
       res.status(401);
       throw new Error("Unauthorized.");
     }
+
+    await prisma.session.deleteMany({
+      where: {
+        userId: user.userID,
+        NOT: {
+          id: user.sessionId,
+        },
+      },
+    });
+
+    const payload: IApiMessage = {
+      status: "SUCCESS",
+      message: "Sessions terminated.",
+    };
+
+    return res.json(payload);
   } catch (error) {
     next(error);
   }

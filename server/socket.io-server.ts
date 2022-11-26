@@ -1,3 +1,4 @@
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import { Server } from "socket.io";
 
 import { prisma } from "./utils/prisma-client";
@@ -683,6 +684,39 @@ io.on("connection", async (socket) => {
       }
     );
 
+    socket.on(
+      "session-terminated",
+      async ({ all, socketId }) => {
+        if (all) {
+          return io.sockets.adapter.rooms
+            .get(id as string)
+            ?.forEach(async (activeSocketId) => {
+              if (activeSocketId !== socket.id) {
+                const foundSockets = await io
+                  .in(activeSocketId)
+                  .fetchSockets();
+
+                foundSockets[0].emit("auth-error", {
+                  status: 401,
+                  errorMessage: "Session termintated.",
+                });
+                foundSockets[0].disconnect(true);
+              }
+            });
+        }
+
+        const foundSockets = await io
+          .in(socketId)
+          .fetchSockets();
+
+        foundSockets[0].emit("auth-error", {
+          status: 401,
+          errorMessage: "Session termintated.",
+        });
+        foundSockets[0].disconnect(true);
+      }
+    );
+
     socket.on("disconnect", async (reason) => {
       for (const chat of updatedSession.user.chats) {
         const room = io.sockets.adapter.rooms.get(chat.id);
@@ -723,6 +757,15 @@ io.on("connection", async (socket) => {
   } catch (error) {
     console.log(error);
     if (error instanceof Error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      ) {
+        return socketWithTimeout.emit(`auth-error`, {
+          status: 401,
+          errorMessage: `${error.name} - Session expired, please try to re-login`,
+        });
+      }
       socketWithTimeout.emit(`auth-error`, {
         status: 500,
         errorMessage: `${error.name} - Please try refreshing the page, if the problem persists, contact support`,

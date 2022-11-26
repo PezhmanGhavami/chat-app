@@ -165,6 +165,11 @@ const Navigation = () => {
     socket.on("auth-error", ({ status, errorMessage }) => {
       toast.error(status + " - " + errorMessage);
       setAuthError(true);
+      if (status === 401) {
+        globalThis.document
+          .getElementById("the-signout-button")
+          ?.click();
+      }
     });
     socket.on("disconnect", () => {
       updateIsConnected(false);
@@ -412,9 +417,31 @@ const Navigation = () => {
   };
   const handleSessionTermination = (index: number) => {
     if (index === -1) {
-      // Terminate all
+      return fetcher("/api/auth/signout-all", {
+        method: "DELETE",
+      })
+        .then((res) => {
+          toast.success(res.message);
+          setActiveSessions((prev) =>
+            prev!.filter(
+              (session) => session.id !== user?.sessionId
+            )
+          );
+          setCurrentSessionIndex(0);
+          socket?.emit("session-terminated", {
+            all: true,
+          });
+        })
+        .catch((error) => {
+          if (error instanceof Error) {
+            toast.error(error.message);
+          } else {
+            toast.error(
+              "Couldn't terminate other sessions."
+            );
+          }
+        });
     }
-    // Terminate one
   };
 
   const handleSearchChange = (
@@ -801,6 +828,7 @@ const Navigation = () => {
                 <a
                   href="/api/auth/signout"
                   title="Click to sign out"
+                  id="the-signout-button"
                   className={
                     "text-red-600 dark:text-red-500 " +
                     navStyles.buttonDescription
