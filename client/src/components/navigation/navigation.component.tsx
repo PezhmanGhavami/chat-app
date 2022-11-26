@@ -24,6 +24,7 @@ import {
   BsMoonFill,
 } from "react-icons/bs";
 import { MdDevices } from "react-icons/md";
+import { IoHandLeftOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 
 import useUser from "../../hooks/useUser";
@@ -124,6 +125,8 @@ const Navigation = () => {
   const [activeSessions, setActiveSessions] = useState<
     null | ISession[]
   >(null);
+  const [currentSessionIndex, setCurrentSessionIndex] =
+    useState<null | number>(null);
   const [userInfoForm, setUserInfoForm] = useState(
     userInfoFormDefault
   );
@@ -388,6 +391,10 @@ const Navigation = () => {
     fetcher("/api/auth/sessions", { method: "GET" })
       .then((sessions) => {
         setActiveSessions(sessions);
+        const index = (sessions as ISession[]).findIndex(
+          (session) => session.id === user?.sessionId
+        );
+        setCurrentSessionIndex(index);
       })
       .catch((error) => {
         if (error instanceof Error) {
@@ -400,6 +407,13 @@ const Navigation = () => {
   const closeSessionManager = () => {
     setOpenSessionManager(false);
     setActiveSessions(null);
+    setCurrentSessionIndex(null);
+  };
+  const handleSessionTermination = (index: number) => {
+    if (index === -1) {
+      // Terminate all
+    }
+    // Terminate one
   };
 
   const handleSearchChange = (
@@ -1169,23 +1183,98 @@ const Navigation = () => {
                   <LoadingSpinner />
                 </div>
               ) : (
-                <div>
-                  <h2 className="text-lg font-medium">
-                    Active sessions
-                  </h2>
+                <div className="py-2 space-y-2">
                   <div>
-                    {activeSessions.map((session) => (
-                      <div key={session.id} className="">
-                        <p>{session.isOnline}</p>
-                        <p>
+                    <h2 className="text-lg font-medium text-blue-500 dark:text-blue-400">
+                      Current session
+                    </h2>
+                    <div>
+                      <p className="pb-1">
+                        Created at:{" "}
+                        <span>
                           {new Date(
-                            session.createdAt
-                          ).toLocaleString()}
+                            activeSessions[
+                              currentSessionIndex!
+                            ].createdAt
+                          ).toLocaleString("default", {
+                            year: "numeric",
+                            month: "long",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </p>
+                      {activeSessions.length > 1 ? (
+                        <button
+                          type="button"
+                          title="Click to terminate all other sessions except this one"
+                          className="flex items-center space-x-2 w-full h-9 px-2 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700 text-red-500"
+                          onClick={() =>
+                            handleSessionTermination(-1)
+                          }
+                        >
+                          <IoHandLeftOutline />
+                          <span>
+                            Terminate all other sessions
+                          </span>
+                        </button>
+                      ) : (
+                        <p className="p-2 font-medium hover:bg-gray-200 dark:hover:bg-neutral-700 rounded-md">
+                          This is the only active session
                         </p>
-                        <p>{session.socketId}</p>
-                      </div>
-                    ))}
+                      )}
+                    </div>
                   </div>
+                  {activeSessions.length > 1 && (
+                    <div>
+                      <h2 className="text-lg font-medium text-blue-500 dark:text-blue-400">
+                        Active sessions
+                      </h2>
+                      <div>
+                        {activeSessions.map(
+                          (session, index) =>
+                            index !==
+                              currentSessionIndex && (
+                              <div
+                                key={session.id}
+                                className="flex justify-between items-center rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700 pl-2 py-[2px]"
+                              >
+                                <p>
+                                  Created at:{" "}
+                                  <span>
+                                    {new Date(
+                                      session.createdAt
+                                    ).toLocaleString(
+                                      "default",
+                                      {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "2-digit",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      }
+                                    )}
+                                  </span>
+                                </p>
+                                <button
+                                  type="button"
+                                  title="Click to terminate this session"
+                                  className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700 hover:text-red-500"
+                                  onClick={() =>
+                                    handleSessionTermination(
+                                      index
+                                    )
+                                  }
+                                >
+                                  <VscClose />
+                                </button>
+                              </div>
+                            )
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </Modal>
