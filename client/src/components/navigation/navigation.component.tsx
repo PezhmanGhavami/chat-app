@@ -619,7 +619,10 @@ const Navigation = () => {
     if (userInfoForm.bgColor !== user?.bgColor) {
       payload.bgColor = userInfoForm.bgColor;
     }
-    if (userInfoForm.username !== "") {
+    if (
+      userInfoForm.username !== "" &&
+      userInfoForm.username !== user?.username
+    ) {
       payload.username = userInfoForm.username;
     }
 
