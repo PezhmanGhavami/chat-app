@@ -1209,7 +1209,7 @@ const Navigation = () => {
                         <button
                           type="button"
                           title="Click to terminate all other sessions except this one"
-                          className="flex items-center space-x-2 w-full h-9 px-2 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700 text-red-500"
+                          className="flex items-center space-x-2 w-full h-9 px-2 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700 text-red-600 dark:text-red-500"
                           onClick={() =>
                             handleSessionTermination(-1)
                           }
@@ -1260,7 +1260,7 @@ const Navigation = () => {
                                 <button
                                   type="button"
                                   title="Click to terminate this session"
-                                  className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700 hover:text-red-500"
+                                  className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700 hover:text-red-600 dark:hover:text-red-500"
                                   onClick={() =>
                                     handleSessionTermination(
                                       index
