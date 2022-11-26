@@ -45,7 +45,7 @@ const getChats: IExpressEndpointHandler = async (
         const formattedChats: IChatCard[] =
           userChats.chats.map((chat) => ({
             id: chat.id,
-            displayName: chat.users[0].displayName,
+            displayName: chat.membersStatus[0].chatName,
             profilePicture: chat.users[0].profilePicture,
             lastMessage: chat.lastMessage,
             lastMessageDate: chat.updatedAt,

@@ -32,6 +32,7 @@ model Recipient {
 model Status {
   id             String  @id @default(cuid())
   unreadCount    Int     @default(0)
+  chatName       String  @default("")
   user           User    @relation(fields: [userId], references: [id])
   userId         String
   Chat           Chat    @relation(fields: [chatId], references: [id])
@@ -66,7 +67,7 @@ model Session {
 model User {
   id             String    @id @default(cuid())
   displayName    String
-  profilePicture  String?
+  profilePicture String?
   email          String    @unique
   phoneNumber    Int?      @unique
   username       String?   @unique

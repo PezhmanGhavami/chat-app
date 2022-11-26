@@ -130,79 +130,88 @@ io.on("connection", async (socket) => {
     });
 
     // Create chat
-    socket.on("create-chat", async ({ recipientId }) => {
-      const chat = await prisma.chat.findFirst({
-        where: {
-          users: {
-            every: {
-              OR: [
-                { id: id as string },
-                { id: recipientId },
+    socket.on(
+      "create-chat",
+      async ({ recipientName, recipientId }) => {
+        const chat = await prisma.chat.findFirst({
+          where: {
+            users: {
+              every: {
+                OR: [
+                  { id: id as string },
+                  { id: recipientId },
+                ],
+              },
+            },
+          },
+        });
+        if (chat) {
+          return socketWithTimeout.emit("chat-exists", {
+            chatId: chat.id,
+          });
+        }
+        const newChat = await prisma.chat.create({
+          data: {
+            users: {
+              connect: [{ id: recipientId }, { id }],
+            },
+            membersStatus: {
+              create: [
+                {
+                  user: { connect: { id: id as string } },
+                  chatName: recipientName,
+                },
+                {
+                  user: { connect: { id: recipientId } },
+                  chatName: updatedSession.user.displayName,
+                },
               ],
             },
           },
-        },
-      });
-      if (chat) {
-        return socketWithTimeout.emit("chat-exists", {
-          chatId: chat.id,
+          include: {
+            users: true,
+          },
         });
-      }
-      const newChat = await prisma.chat.create({
-        data: {
-          users: {
-            connect: [{ id: recipientId }, { id }],
-          },
-          membersStatus: {
-            create: [
-              { user: { connect: { id: id as string } } },
-              { user: { connect: { id: recipientId } } },
-            ],
-          },
-        },
-        include: {
-          users: true,
-        },
-      });
 
-      let currentUser;
-      let recipientUser;
+        let currentUser;
+        let recipientUser;
 
-      if (newChat.users[0].id === id) {
-        currentUser = newChat.users[0];
-        recipientUser = newChat.users[1];
-      } else {
-        recipientUser = newChat.users[0];
-        currentUser = newChat.users[1];
-      }
+        if (newChat.users[0].id === id) {
+          currentUser = newChat.users[0];
+          recipientUser = newChat.users[1];
+        } else {
+          recipientUser = newChat.users[0];
+          currentUser = newChat.users[1];
+        }
 
-      const currentUserPayload: IChatCard = {
-        id: newChat.id,
-        bgColor: recipientUser.bgColor,
-        displayName: recipientUser.displayName,
-        profilePicture: recipientUser.profilePicture,
-        lastMessage: newChat.lastMessage,
-        lastMessageDate: newChat.updatedAt,
-        unreadCount: 0,
-        isArchived: false,
-      };
-
-      socketWithTimeout.emit(
-        "new-chat-created",
-        currentUserPayload
-      );
-      if (recipientUser.isOnline) {
-        const recipientPayload: IChatCard = {
-          ...currentUserPayload,
-          displayName: currentUser.displayName,
-          profilePicture: currentUser.profilePicture,
+        const currentUserPayload: IChatCard = {
+          id: newChat.id,
+          bgColor: recipientUser.bgColor,
+          displayName: recipientUser.displayName,
+          profilePicture: recipientUser.profilePicture,
+          lastMessage: newChat.lastMessage,
+          lastMessageDate: newChat.updatedAt,
+          unreadCount: 0,
+          isArchived: false,
         };
 
-        socketWithTimeout
-          .to(recipientId)
-          .emit("new-chat", recipientPayload);
+        socketWithTimeout.emit(
+          "new-chat-created",
+          currentUserPayload
+        );
+        if (recipientUser.isOnline) {
+          const recipientPayload: IChatCard = {
+            ...currentUserPayload,
+            displayName: currentUser.displayName,
+            profilePicture: currentUser.profilePicture,
+          };
+
+          socketWithTimeout
+            .to(recipientId)
+            .emit("new-chat", recipientPayload);
+        }
       }
-    });
+    );
 
     // Delete chat
     socket.on("delete-chat", async ({ chatId }) => {
@@ -320,7 +329,7 @@ io.on("connection", async (socket) => {
         bgColor: recipient.bgColor,
         isOnline: recipient.isOnline,
         lastOnline: recipient.lastOnline,
-        displayName: recipient.displayName,
+        displayName: chatDetails.membersStatus[0].chatName,
         profilePicture: recipient.profilePicture,
       };
 
@@ -684,6 +693,7 @@ io.on("connection", async (socket) => {
       }
     );
 
+    // Socket termintation
     socket.on(
       "session-terminated",
       async ({ all, socketId }) => {

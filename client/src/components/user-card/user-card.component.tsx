@@ -40,7 +40,10 @@ const UserModal = ({
         "Connection lost\nReconnecting..."
       );
     }
-    socket.emit("create-chat", { recipientId: user.id });
+    socket.emit("create-chat", {
+      recipientId: user.id,
+      recipientName: user.displayName,
+    });
   };
 
   return (
