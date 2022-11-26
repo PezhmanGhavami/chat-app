@@ -21,6 +21,7 @@ export interface IUser {
 
 export interface IUserCard {
   id: string;
+  username: string | null;
   displayName: string;
   profilePicture: string | null;
   bgColor: string;

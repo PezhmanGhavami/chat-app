@@ -76,6 +76,20 @@ io.on("connection", async (socket) => {
 
     // Search
     socket.on("search", async ({ query }) => {
+      if (query.startsWith("@")) {
+        const res = await prisma.user.findUnique({
+          where: {
+            username: query.slice(1),
+          },
+        });
+        // TODO - add other suggestions to this mode
+        if (!res)
+          return socket.volatile.emit("search-result", []);
+
+        return socket.volatile.emit("search-result", [
+          res,
+        ] as IUserCard[]);
+      }
       const res = await prisma.user.findMany({
         where: {
           OR: [
@@ -102,6 +116,7 @@ io.on("connection", async (socket) => {
         select: {
           id: true,
           bgColor: true,
+          username: true,
           displayName: true,
           profilePicture: true,
         },
@@ -297,6 +312,7 @@ io.on("connection", async (socket) => {
       } = {
         id: recipient.id,
         chatId: chatDetails.id,
+        username: recipient.username,
         isArchived:
           chatDetails.membersStatus[0].chatIsArchived,
         chatCreated: chatDetails.createdAt,

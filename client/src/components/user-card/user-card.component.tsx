@@ -12,6 +12,7 @@ import { IChatUser } from "../../pages/chat/chat.page";
 // NOTE - Naming conflict with the main IUser interface from useUser hook
 export interface IUser {
   id: string;
+  username: string | null;
   bgColor: string;
   displayName: string;
   profilePicture: string | null;
@@ -49,7 +50,14 @@ const UserModal = ({
           <div className="flex-none w-14 h-14 text-3xl">
             <ProfilePicture user={user} />
           </div>
-          <p>{user.displayName}</p>
+          <div>
+            <p className="leading-4">{user.displayName}</p>
+            {user.username && (
+              <p className="text-xs opacity-80">
+                @{user.username}
+              </p>
+            )}
+          </div>
         </div>
 
         <button
