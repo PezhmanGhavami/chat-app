@@ -12,7 +12,7 @@ authRouter.get("/signout", authController.handleSignout);
 authRouter.get("/sessions", authController.getSessions);
 authRouter.delete(
   "/sessions/:sessionId",
-  authController.getSessions
+  authController.terminateSession
 );
 authRouter.delete(
   "/signout-all",

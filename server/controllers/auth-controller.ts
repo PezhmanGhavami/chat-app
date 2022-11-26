@@ -547,7 +547,7 @@ const terminateSession: IExpressEndpointHandler = async (
       throw new Error("Unauthorized.");
     }
 
-    const { sessionId } = req.query;
+    const { sessionId } = req.params;
 
     if (!sessionId) {
       res.status(400);
@@ -556,13 +556,13 @@ const terminateSession: IExpressEndpointHandler = async (
 
     await prisma.session.delete({
       where: {
-        id: sessionId as string,
+        id: sessionId,
       },
     });
 
     const payload: IApiMessage = {
       status: "SUCCESS",
-      message: "Sessions terminated.",
+      message: "Session terminated.",
     };
 
     return res.json(payload);

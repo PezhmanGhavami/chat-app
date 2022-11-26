@@ -424,7 +424,7 @@ const Navigation = () => {
           toast.success(res.message);
           setActiveSessions((prev) =>
             prev!.filter(
-              (session) => session.id !== user?.sessionId
+              (session) => session.id === user?.sessionId
             )
           );
           setCurrentSessionIndex(0);
@@ -443,20 +443,30 @@ const Navigation = () => {
         });
     }
 
-    const session = activeSessions![index];
-    return fetcher(`/api/auth/sessions/${session.id}`, {
-      method: "DELETE",
-    })
+    const selectedSession = activeSessions![index];
+    return fetcher(
+      `/api/auth/sessions/${selectedSession.id}`,
+      {
+        method: "DELETE",
+      }
+    )
       .then((res) => {
+        console.log(res);
         toast.success(res.message);
-        setActiveSessions((prev) =>
-          prev!.filter(
-            (session) => session.id !== user?.sessionId
-          )
-        );
-        setCurrentSessionIndex(0);
+        setActiveSessions((prev) => {
+          const newArr = prev!.filter(
+            (session) => session.id !== selectedSession.id
+          );
+
+          const index = newArr.findIndex(
+            (session) => session.id === user?.sessionId
+          );
+          setCurrentSessionIndex(index);
+
+          return newArr;
+        });
         socket?.emit("session-terminated", {
-          socketId: session.socketId,
+          socketId: selectedSession.socketId,
         });
       })
       .catch((error) => {
