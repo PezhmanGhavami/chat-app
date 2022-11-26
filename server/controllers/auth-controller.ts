@@ -333,7 +333,6 @@ const updateUser: IExpressEndpointHandler = async (
     });
 
     if (!userDbData) {
-      
       res.status(409);
       throw new Error("User doesn't exists.");
     }
@@ -533,7 +532,7 @@ const getSessions: IExpressEndpointHandler = async (
 
 /**
  * @desc   Deletes an active session
- * @route  DELETE /api/auth/sessions
+ * @route  DELETE /api/auth/sessions/:sessionId
  * @access Private
  * */
 const terminateSession: IExpressEndpointHandler = async (
@@ -547,6 +546,26 @@ const terminateSession: IExpressEndpointHandler = async (
       res.status(401);
       throw new Error("Unauthorized.");
     }
+
+    const { sessionId } = req.query;
+
+    if (!sessionId) {
+      res.status(400);
+      throw new Error("All fields are required.");
+    }
+
+    await prisma.session.delete({
+      where: {
+        id: sessionId as string,
+      },
+    });
+
+    const payload: IApiMessage = {
+      status: "SUCCESS",
+      message: "Sessions terminated.",
+    };
+
+    return res.json(payload);
   } catch (error) {
     next(error);
   }

@@ -442,6 +442,30 @@ const Navigation = () => {
           }
         });
     }
+
+    const session = activeSessions![index];
+    return fetcher(`/api/auth/sessions/${session.id}`, {
+      method: "DELETE",
+    })
+      .then((res) => {
+        toast.success(res.message);
+        setActiveSessions((prev) =>
+          prev!.filter(
+            (session) => session.id !== user?.sessionId
+          )
+        );
+        setCurrentSessionIndex(0);
+        socket?.emit("session-terminated", {
+          socketId: session.socketId,
+        });
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Couldn't terminate other sessions.");
+        }
+      });
   };
 
   const handleSearchChange = (

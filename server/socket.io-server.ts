@@ -696,11 +696,13 @@ io.on("connection", async (socket) => {
                   .in(activeSocketId)
                   .fetchSockets();
 
-                foundSockets[0].emit("auth-error", {
-                  status: 401,
-                  errorMessage: "Session termintated.",
-                });
-                foundSockets[0].disconnect(true);
+                for (const foundSocket of foundSockets) {
+                  foundSocket.emit("auth-error", {
+                    status: 401,
+                    errorMessage: "Session termintated.",
+                  });
+                  foundSocket.disconnect(true);
+                }
               }
             });
         }
@@ -709,11 +711,13 @@ io.on("connection", async (socket) => {
           .in(socketId)
           .fetchSockets();
 
-        foundSockets[0].emit("auth-error", {
-          status: 401,
-          errorMessage: "Session termintated.",
-        });
-        foundSockets[0].disconnect(true);
+        for (const foundSocket of foundSockets) {
+          foundSocket.emit("auth-error", {
+            status: 401,
+            errorMessage: "Session termintated.",
+          });
+          foundSocket.disconnect(true);
+        }
       }
     );
 
