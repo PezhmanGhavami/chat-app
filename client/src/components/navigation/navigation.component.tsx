@@ -24,6 +24,7 @@ import {
   BsMoonFill,
 } from "react-icons/bs";
 import { MdDevices } from "react-icons/md";
+import { AiOutlineStop } from "react-icons/ai";
 import { IoHandLeftOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 
@@ -1240,34 +1241,53 @@ const Navigation = () => {
                                 key={session.id}
                                 className="flex justify-between items-center rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700 pl-2 py-[2px]"
                               >
-                                <p>
-                                  Created at:{" "}
-                                  <span className="block pl-1 sm:inline sm:p-0">
-                                    {new Date(
-                                      session.createdAt
-                                    ).toLocaleString(
-                                      "default",
-                                      {
-                                        year: "numeric",
-                                        month: "long",
-                                        day: "2-digit",
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                      }
-                                    )}
-                                  </span>
-                                </p>
+                                <div>
+                                  <p>
+                                    Status:
+                                    <span>
+                                      {session.isOnline
+                                        ? " Online"
+                                        : ` Last online ${new Date(
+                                            session.lastOnline!
+                                          ).toLocaleDateString(
+                                            "default",
+                                            {
+                                              month: "long",
+                                              day: "2-digit",
+                                              year: "numeric",
+                                            }
+                                          )}`}
+                                    </span>
+                                  </p>
+                                  <p>
+                                    Created at:{" "}
+                                    <span className="block pl-1 sm:inline sm:p-0">
+                                      {new Date(
+                                        session.createdAt
+                                      ).toLocaleString(
+                                        "default",
+                                        {
+                                          year: "numeric",
+                                          month: "long",
+                                          day: "2-digit",
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                        }
+                                      )}
+                                    </span>
+                                  </p>
+                                </div>
                                 <button
                                   type="button"
                                   title="Click to terminate this session"
-                                  className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700 hover:text-red-600 dark:hover:text-red-500"
+                                  className="p-4 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700 hover:text-red-600 dark:hover:text-red-500"
                                   onClick={() =>
                                     handleSessionTermination(
                                       index
                                     )
                                   }
                                 >
-                                  <VscClose />
+                                  <AiOutlineStop />
                                 </button>
                               </div>
                             )
