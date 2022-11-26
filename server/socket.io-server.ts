@@ -673,6 +673,12 @@ io.on("connection", async (socket) => {
               currentUserPayload
             );
             socketWithTimeout
+              .to(id as string)
+              .emit(
+                "chats-list-update",
+                currentUserPayload
+              );
+            socketWithTimeout
               .to(recipientId)
               .emit("chats-list-update", {
                 ...currentUserPayload,
