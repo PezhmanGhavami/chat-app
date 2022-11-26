@@ -231,14 +231,16 @@ function Chat() {
     socket.on(
       `chat-${params.chatId}-new-message`,
       ({ message }) => {
-        socket.emit("read-messages", {
-          chatId: params.chatId,
-        });
         setMessagesList((prev) => [
           ...(prev as IMessage[]),
           message,
         ]);
-        setAllToRead();
+        if (message.recipientId === currentUser?.userID) {
+          socket.emit("read-messages", {
+            chatId: params.chatId,
+          });
+          setAllToRead();
+        }
       }
     );
     // Read all handler

@@ -491,6 +491,7 @@ io.on("connection", async (socket) => {
     );
     // Read messages
     socket.on("read-messages", async ({ chatId }) => {
+      // TODO - optimize this
       const chatStatus = await prisma.status.findFirst({
         where: {
           userId: id as string,
