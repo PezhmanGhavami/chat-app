@@ -736,6 +736,7 @@ io.on("connection", async (socket) => {
         }
       }
       try {
+        const lastOnline = new Date(Date.now());
         await prisma.session.update({
           where: {
             id: updatedSession.id,
@@ -743,9 +744,10 @@ io.on("connection", async (socket) => {
           data: {
             isOnline: false,
             socketId: "",
+            lastOnline,
             user: {
               update: {
-                lastOnline: new Date(Date.now()),
+                lastOnline,
                 isOnline: false,
               },
             },
