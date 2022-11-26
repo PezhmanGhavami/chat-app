@@ -1189,7 +1189,7 @@ const Navigation = () => {
                       Current session
                     </h2>
                     <div>
-                      <p className="pb-1">
+                      <p className="pb-1 px-2">
                         Created at:{" "}
                         <span>
                           {new Date(
@@ -1242,7 +1242,7 @@ const Navigation = () => {
                               >
                                 <p>
                                   Created at:{" "}
-                                  <span>
+                                  <span className="block pl-1 sm:inline sm:p-0">
                                     {new Date(
                                       session.createdAt
                                     ).toLocaleString(
