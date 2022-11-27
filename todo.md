@@ -1,0 +1,14 @@
+- [] Tests
+  - [] e2e for client
+  - [] Unit testing for server
+- [] Caching in the client
+  - [] Chats list
+  - [] 50 latest messages for each chat
+- [] Add redis as a cache layer to the server
+- [] Handle image uploads and sending images as a message
+- [] User profile image
+- [] Image modification (Simple editor)
+- [] Voice messages
+- [] Voice calls
+- [] Group chats
+- [] Channels
