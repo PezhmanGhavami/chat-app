@@ -739,20 +739,43 @@ io.on("connection", async (socket) => {
     );
 
     socket.on("disconnect", async (reason) => {
-      for (const chat of updatedSession.user.chats) {
-        const room = io.sockets.adapter.rooms.get(chat.id);
-        if (room) {
-          socketWithTimeout
-            .to(chat.id)
-            .emit(
-              `chat-${chat.id}-recipient-status-change`,
-              {
-                isOnline: false,
-              }
-            );
-        }
-      }
       try {
+        const activeSockets = io.sockets.adapter.rooms.get(
+          id as string
+        );
+        if (activeSockets?.size) {
+          const lastOnline = new Date(Date.now());
+          await prisma.session.update({
+            where: {
+              id: updatedSession.id,
+            },
+            data: {
+              isOnline: false,
+              socketId: "",
+              lastOnline,
+            },
+          });
+
+          return console.log(
+            `One connection for ${id} closed\n${reason}`
+          );
+        }
+
+        for (const chat of updatedSession.user.chats) {
+          const room = io.sockets.adapter.rooms.get(
+            chat.id
+          );
+          if (room) {
+            socketWithTimeout
+              .to(chat.id)
+              .emit(
+                `chat-${chat.id}-recipient-status-change`,
+                {
+                  isOnline: false,
+                }
+              );
+          }
+        }
         const lastOnline = new Date(Date.now());
         await prisma.session.update({
           where: {

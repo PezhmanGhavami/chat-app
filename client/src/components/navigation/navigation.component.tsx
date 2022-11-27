@@ -1297,7 +1297,7 @@ const Navigation = () => {
                       <h2 className="text-lg font-medium text-blue-500 dark:text-blue-400">
                         Active sessions
                       </h2>
-                      <div>
+                      <div className="max-h-96 overflow-y-auto">
                         {activeSessions.map(
                           (session, index) =>
                             index !==
