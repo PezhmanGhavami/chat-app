@@ -14,7 +14,7 @@ import startSocketServer from "./socket.io-server";
 const app = express();
 const httpServer = createServer(app);
 
-const HOST = "127.0.0.1";
+const HOST = process.env.HOST || "localhost";
 const envPort = process.env.PORT;
 const PORT = envPort ? parseInt(envPort) : 5000;
 
