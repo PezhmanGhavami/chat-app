@@ -21,6 +21,7 @@ export interface IUser {
 interface IUserCard {
   user: IUser | IChatUser;
   isInChat: boolean;
+  isReconnecting: boolean;
 }
 
 const UserModal = ({
@@ -74,7 +75,11 @@ const UserModal = ({
   );
 };
 
-const UserCard = ({ user, isInChat }: IUserCard) => {
+const UserCard = ({
+  user,
+  isInChat,
+  isReconnecting,
+}: IUserCard) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const closeModal = (event: MouseEvent) => {
@@ -108,8 +113,14 @@ const UserCard = ({ user, isInChat }: IUserCard) => {
           {user.displayName}
         </h3>
         {isInChat && (
-          <p className="text-xs opacity-80">
-            {(user as IChatUser).isOnline
+          <p
+            className={`text-xs opacity-80${
+              isReconnecting ? " animate-pulse" : ""
+            }`}
+          >
+            {isReconnecting
+              ? "reconnecting..."
+              : (user as IChatUser).isOnline
               ? "online"
               : (user as IChatUser).lastOnline
               ? `last seen ${dateFormatter(
@@ -129,6 +140,7 @@ const UserCard = ({ user, isInChat }: IUserCard) => {
 
 UserCard.defaultProps = {
   isInChat: false,
+  isReconnecting: false,
 };
 
 export default UserCard;

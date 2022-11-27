@@ -594,6 +594,7 @@ function Chat() {
           <div className="flex-1">
             <UserCard
               isInChat={true}
+              isReconnecting={!isConnected}
               user={currentRecipientUser}
             />
           </div>
