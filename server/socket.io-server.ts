@@ -13,7 +13,9 @@ const startSocketServer = (httpServer: Server) => {
     path: "/ws",
   });
 
-  console.log("Socket.IO server started at localhost:5001");
+  console.log(
+    "Socket.IO server started at localhost:5000/ws"
+  );
 
   io.on("connection", async (socket) => {
     const id = socket.handshake.query.id;
@@ -78,8 +80,6 @@ const startSocketServer = (httpServer: Server) => {
             );
         }
       }
-
-      console.log(`${id} connected`);
 
       // Search
       socket.on("search", async ({ query }) => {
@@ -292,7 +292,6 @@ const startSocketServer = (httpServer: Server) => {
       // Joined chat
       socket.on("joined-chat", async ({ chatId }) => {
         socket.join(chatId);
-        console.log(id + " joined chat " + chatId);
 
         const chatDetails = await prisma.chat.findUnique({
           where: {
@@ -443,7 +442,6 @@ const startSocketServer = (httpServer: Server) => {
       // Left chat
       socket.on("left-chat", ({ chatId }) => {
         socket.leave(chatId);
-        console.log(id + " left chat " + chatId);
       });
 
       // Load more messages from chat
@@ -501,6 +499,7 @@ const startSocketServer = (httpServer: Server) => {
           );
         }
       );
+
       // Read messages
       socket.on("read-messages", async ({ chatId }) => {
         // TODO - optimize this
@@ -776,9 +775,7 @@ const startSocketServer = (httpServer: Server) => {
               },
             });
 
-            return console.log(
-              `One connection for ${id} closed\n${reason}`
-            );
+            return;
           }
 
           for (const chat of updatedSession.user.chats) {
@@ -817,10 +814,9 @@ const startSocketServer = (httpServer: Server) => {
           console.log("Disconnect update failed.");
           console.log(error);
         }
-
-        console.log(id + " disconnected\n" + reason);
       });
     } catch (error) {
+      console.log("Error in socket main body");
       console.log(error);
       if (error instanceof Error) {
         if (
