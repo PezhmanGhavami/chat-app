@@ -33,11 +33,12 @@ const WebSocketProvider = ({
   const { user } = useUser();
 
   useEffect(() => {
-    const newSocekt = io("http://localhost:5001", {
+    const newSocekt = io("http://localhost:5000", {
       query: {
         id: user?.userID,
         sessionId: user?.sessionId,
       },
+      path: "/ws",
     });
     setSocket(newSocekt);
 

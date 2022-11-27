@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
+import { createServer } from "http";
 
 import authRouter from "./routes/auth-routes";
 import chatsRouter from "./routes/chats-routes";
@@ -8,7 +9,10 @@ import chatsRouter from "./routes/chats-routes";
 import { session } from "./middlewares/session-middleware";
 import errorHandler from "./middlewares/error-middleware";
 
+import startSocketServer from "./socket.io-server";
+
 const app = express();
+const httpServer = createServer(app);
 
 const HOST = "127.0.0.1";
 const envPort = process.env.PORT;
@@ -36,10 +40,12 @@ app.use("*", (req, res) => {
 
 app.use(errorHandler);
 
-app
+httpServer
   .listen(PORT, HOST, () => {
     console.log(`Server started at http://${HOST}:${PORT}`);
   })
   .on("error", (err) => {
     return console.error(err + "\n\n" + err.message);
   });
+
+startSocketServer(httpServer);
