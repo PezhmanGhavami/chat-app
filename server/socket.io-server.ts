@@ -53,8 +53,7 @@ const startSocketServer = (httpServer: Server) => {
         });
 
       if (
-        sessionIsAlreadyConnected &&
-        sessionIsAlreadyConnected.isOnline &&
+        sessionIsAlreadyConnected?.isOnline &&
         sessionIsAlreadyConnected.socketId.length > 1
       ) {
         const foundSockets = await io
