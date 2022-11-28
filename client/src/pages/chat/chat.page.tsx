@@ -31,6 +31,7 @@ import UserCard, {
 } from "../../components/user-card/user-card.component";
 import LoadingSpinner from "../../components/loading-spinner/loading-spinner.component";
 import Pill from "../../components/pill/pill.component";
+import ConfirmationModal from "../../components/confirmation-modal/confirmation-modal.component";
 
 export interface IChatUser extends IUser {
   chatId: string;
@@ -173,7 +174,6 @@ function Chat() {
     useState(false);
   const [thereIsNoScrollbar, setThereIsNoScrollbar] =
     useState(false);
-  // TODO - use this to load more messages
   const [scrollbarAtTop, setScrollbarAtTop] =
     useState(false);
   const [isLoadingMoreMessages, setIsLoadingMoreMessages] =
@@ -181,6 +181,8 @@ function Chat() {
   const [endOfMessages, setEndOfMessages] = useState(false);
   const [lastUpdateRequest, setLastUpdateRequest] =
     useState(0);
+  const [openChatDeleteModal, setOpenChatDeleteModal] =
+    useState(false);
 
   const messagesListEnd = useRef<null | HTMLDivElement>(
     null
@@ -522,9 +524,7 @@ function Chat() {
   ]);
 
   // TODO - add a prompt to confirm delete
-  const deleteChatEmitter = (
-    event: MouseEvent<HTMLAnchorElement>
-  ) => {
+  const deleteChatEmitter = (event: MouseEvent) => {
     event.preventDefault();
     if (!socket || !currentRecipientUser)
       return toast.error(
@@ -536,6 +536,13 @@ function Chat() {
     });
 
     navigate("/");
+  };
+  const toggleChatDeleteModal = () => {
+    setOpenChatDeleteModal(true);
+  };
+  const closeChatDeleteModal = (event: MouseEvent) => {
+    event.stopPropagation();
+    setOpenChatDeleteModal(false);
   };
 
   const archiveChatEmitter = (
@@ -625,7 +632,7 @@ function Chat() {
               </a>
               <a
                 title="Click to delete chat"
-                onClick={deleteChatEmitter}
+                onClick={toggleChatDeleteModal}
                 className="px-5 py-2 sm:px-2 sm:py-1 text-red-600 dark:text-red-500 hover:bg-gray-200 dark:hover:bg-neutral-700 space-x-1 flex items-center"
               >
                 <VscTrash />
@@ -634,6 +641,13 @@ function Chat() {
             </div>
           </button>
         </header>
+        {openChatDeleteModal && (
+          <ConfirmationModal
+            message="By confirming, this chat will be deleted for all chat members."
+            closeModal={closeChatDeleteModal}
+            confirmModal={deleteChatEmitter}
+          />
+        )}
       </div>
 
       {/* Message loading indicator */}
@@ -652,6 +666,18 @@ function Chat() {
         {endOfMessages && (
           <div className="text-xs font-medium">
             <Pill text="Chat Started" />
+            {messagesList.length === 0 && (
+              <Pill
+                text={new Date(
+                  currentRecipientUser.chatCreated
+                ).toLocaleDateString("default", {
+                  weekday: "short",
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                })}
+              />
+            )}
           </div>
         )}
 
