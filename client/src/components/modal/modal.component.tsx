@@ -13,7 +13,7 @@ const Modal = ({
   return (
     <>
       <Overlay handleClick={closeModal} />
-      <div className="fixed z-40 inset-x-0 bottom-1/2 translate-y-1/2 w-11/12 max-w-md mx-auto bg-gray-100 dark:bg-neutral-800 rounded-lg p-4 hover:cursor-default shadow-2xl">
+      <div className="fixed z-40 inset-x-0 bottom-1/2 translate-y-1/2 w-11/12 max-w-md mx-auto bg-white dark:bg-neutral-800 rounded-lg p-4 hover:cursor-default shadow-2xl">
         <button
           type="button"
           title="Close"
