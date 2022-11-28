@@ -45,6 +45,32 @@ const startSocketServer = (httpServer: Server) => {
         return socket.disconnect(true);
       }
 
+      const sessionIsAlreadyConnected =
+        await prisma.session.findUnique({
+          where: {
+            id: sessionId as string,
+          },
+        });
+
+      if (
+        sessionIsAlreadyConnected &&
+        sessionIsAlreadyConnected.isOnline &&
+        sessionIsAlreadyConnected.socketId.length > 1
+      ) {
+        const foundSockets = await io
+          .in(sessionIsAlreadyConnected.socketId)
+          .fetchSockets();
+
+        for (const foundSocket of foundSockets) {
+          foundSocket.emit("auth-error", {
+            status: 501,
+            errorMessage:
+              "Each session can only have one active connection.",
+          });
+          foundSocket.disconnect(true);
+        }
+      }
+
       const updatedSession = await prisma.session.update({
         where: {
           id: sessionId as string,
