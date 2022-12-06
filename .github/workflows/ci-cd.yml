@@ -1,0 +1,28 @@
+name: ChatApp CI/CD
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build_client_and_setup_server:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setting up server env variables
+        run: |
+          touch ./server/.env
+          echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> ./server/.env
+          echo SECRET_COOKIE_PASSWORD=${{ secrets.SECRET_COOKIE_PASSWORD }} >> ./server/.env
+      - name: Installing server dependencies
+        run: npm i --prefix ./server
+      - name: Restarting the server
+        run: pm2 restart chat-app-server
+      - name: Installing client dependencies
+        run: npm i --prefix ./client
+      - name: Building client
+        run: npm run build --prefix ./client

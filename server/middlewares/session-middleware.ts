@@ -2,7 +2,7 @@ import { ironSession } from "iron-session/express";
 
 export const session = ironSession({
   password: process.env.SECRET_COOKIE_PASSWORD as string,
-  cookieName: "seal",
+  cookieName: "chatAppSeal",
   cookieOptions: {
     secure: process.env.NODE_ENV === "production",
   },
