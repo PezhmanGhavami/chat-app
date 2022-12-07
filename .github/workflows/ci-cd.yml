@@ -16,12 +16,18 @@ jobs:
       - name: Setting up server env variables
         run: |
           touch ./server/.env
+          echo NODE_ENV=${{ secrets.NODE_ENV }} >> ./server/.env
           echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> ./server/.env
           echo SECRET_COOKIE_PASSWORD=${{ secrets.SECRET_COOKIE_PASSWORD }} >> ./server/.env
+          echo ORIGIN=${{ secrets.ORIGIN }} >> ./server/.env
       - name: Installing server dependencies
         run: npm i --prefix ./server
       - name: Restarting the server
-        run: pm2 restart chat-app-server
+        run: pm2 restart chat-app-server -s
+      - name: Setting up client env variables
+        run: |
+          touch ./client/.env
+          echo VITE_SOCKET_URL=${{ secrets.VITE_SOCKET_URL }} >> ./client/.env
       - name: Installing client dependencies
         run: npm i --prefix ./client
       - name: Building client

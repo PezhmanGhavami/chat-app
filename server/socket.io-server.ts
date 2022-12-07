@@ -5,16 +5,20 @@ import { Server as socketServer } from "socket.io";
 import { prisma } from "./utils/prisma-client";
 import { IUserCard, IChatCard } from "./utils/types";
 
-const startSocketServer = (httpServer: Server) => {
+const startSocketServer = (
+  httpServer: Server,
+  currentHost: string,
+  currentPort: number
+) => {
   const io = new socketServer(httpServer, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: process.env.ORIGIN,
     },
     path: "/ws",
   });
 
   console.log(
-    "Socket.IO server started at localhost:5000/ws"
+    `Socket.IO server started at http://${currentHost}:${currentPort}/ws`
   );
 
   io.on("connection", async (socket) => {

@@ -33,7 +33,7 @@ const WebSocketProvider = ({
   const { user } = useUser();
 
   useEffect(() => {
-    const newSocekt = io("http://localhost:5000", {
+    const newSocekt = io(import.meta.env.VITE_SOCKET_URL, {
       query: {
         id: user?.userID,
         sessionId: user?.sessionId,

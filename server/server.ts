@@ -43,9 +43,8 @@ app.use(errorHandler);
 httpServer
   .listen(PORT, HOST, () => {
     console.log(`Server started at http://${HOST}:${PORT}`);
+    startSocketServer(httpServer, HOST, PORT);
   })
   .on("error", (err) => {
     return console.error(err + "\n\n" + err.message);
   });
-
-startSocketServer(httpServer);
