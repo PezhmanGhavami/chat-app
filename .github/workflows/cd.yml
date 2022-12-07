@@ -6,6 +6,8 @@ on:
     paths:
       - "client/**"
       - "server/**"
+    paths-ignore:
+      - "**/README.md"
 
 jobs:
   build_client_and_setup_server:
