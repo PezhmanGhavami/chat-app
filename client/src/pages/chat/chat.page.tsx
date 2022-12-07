@@ -734,18 +734,17 @@ function Chat() {
       {/* Text input */}
       <form
         onSubmit={handleSubmit}
-        className="flex bg-white dark:bg-neutral-800 border-t border-t-neutral-300 dark:border-t-neutral-500 overflow-hidden"
+        className="flex bg-white dark:bg-neutral-800 border-t border-t-neutral-300 dark:border-t-neutral-500 overflow-hidden transition-all duration-200"
       >
         <label htmlFor="message" className="sr-only">
           Message
         </label>
         <textarea
-          className="bg-transparent w-full h-12 px-5 py-3 rounded-md focus:outline-none resize-none"
+          className="bg-transparent w-full h-12 focus-within:h-28 transition-all duration-200 px-5 py-3 outline-none focus:outline-none resize-none"
           name="message"
           id="message"
           placeholder="Write a message"
           autoComplete="off"
-          autoFocus
           value={message}
           onKeyDown={(event) => {
             if (
@@ -761,7 +760,7 @@ function Chat() {
         <button
           type="submit"
           title="Send message"
-          className={`p-2 mr-2 rounded-full self-center text-lg${
+          className={`p-2 mr-2 mb-2 rounded-full self-end text-lg transition-all duration-200${
             message.length > 0
               ? " bg-blue-600 hover:bg-blue-700 text-white"
               : " text-blue-600 dark:text-blue-500"

@@ -1,10 +1,11 @@
-name: ChatApp CI/CD
+name: ChatApp CD
 
 on:
   push:
     branches: ["main"]
-  pull_request:
-    branches: ["main"]
+    paths:
+      - "client/**"
+      - "server/**"
 
 jobs:
   build_client_and_setup_server:
