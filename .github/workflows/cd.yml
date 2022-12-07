@@ -4,10 +4,9 @@ on:
   push:
     branches: ["main"]
     paths:
+      - "!**/README.md"
       - "client/**"
       - "server/**"
-    paths-ignore:
-      - "**/README.md"
 
 jobs:
   build_client_and_setup_server:
