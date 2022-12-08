@@ -1,4 +1,4 @@
-name: ChatApp CD
+name: CD
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
           echo SECRET_COOKIE_PASSWORD=${{ secrets.SECRET_COOKIE_PASSWORD }} >> ./server/.env
           echo ORIGIN=${{ secrets.ORIGIN }} >> ./server/.env
       - name: Installing server dependencies
-        run: npm i --prefix ./server
+        run: npm ci --prefix ./server
       - name: Restarting the server
         run: pm2 restart chat-app-server -s
       - name: Setting up client env variables
@@ -31,6 +31,6 @@ jobs:
           touch ./client/.env
           echo VITE_SOCKET_URL=${{ secrets.VITE_SOCKET_URL }} >> ./client/.env
       - name: Installing client dependencies
-        run: npm i --prefix ./client
+        run: npm ci --prefix ./client
       - name: Building client
         run: npm run build --prefix ./client
