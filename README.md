@@ -18,3 +18,5 @@ To run locally:
 >> For [socket.io cors](https://socket.io/docs/v4/handling-cors/) `ORIGIN="http://localhost:5173"`
 >
 > 6 - While in server directory start the project by running `npm run dev`
+
+The UI is heavily inspired by [Telegram](https://telegram.org/)
