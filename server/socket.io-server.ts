@@ -136,7 +136,10 @@ const startSocketServer = (
                 id: query,
               },
               {
-                email: query,
+                email: {
+                  equals: query,
+                  mode: "insensitive",
+                },
               },
               {
                 username: query,

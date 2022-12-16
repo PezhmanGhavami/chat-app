@@ -37,6 +37,8 @@ const handleRegister: IExpressEndpointHandler = async (
       throw new Error("All fields are required.");
     }
 
+    const controlledEmail = (email as string).toLowerCase();
+
     if (password !== confirmPassword) {
       res.status(400);
       throw new Error("Passwords should match.");
@@ -44,7 +46,7 @@ const handleRegister: IExpressEndpointHandler = async (
 
     const userExists = await prisma.user.findUnique({
       where: {
-        email,
+        email: controlledEmail,
       },
     });
     if (userExists) {
@@ -60,7 +62,7 @@ const handleRegister: IExpressEndpointHandler = async (
 
     const newUser = await prisma.user.create({
       data: {
-        email,
+        email: controlledEmail,
         password: hashedPassword,
         displayName,
         bgColor: getRandomColor(),
@@ -127,7 +129,10 @@ const handleSignin: IExpressEndpointHandler = async (
       where: {
         OR: [
           {
-            email: usernameOrEmail,
+            email: {
+              equals: usernameOrEmail,
+              mode: "insensitive",
+            },
           },
           {
             username: usernameOrEmail,
