@@ -1,6 +1,12 @@
+- [] Make a preview mode to just showcase the UI
 - [] Tests
   - [] e2e for client
   - [] Unit testing for server
+- [] Make it PWA compliant
+- [] Animations
+  - [] Chat change animation (Close, Change)
+  - [] Improve new message animation
+  - [] Improve message loading animation and scroll jumping
 - [] Caching in the client
   - [] Chats list
   - [] 50 latest messages for each chat
