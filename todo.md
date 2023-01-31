@@ -18,3 +18,6 @@
 - [] Voice calls
 - [] Group chats
 - [] Channels
+- [x] Toast a link to the repo
+- [x] Style react toastify
+- [] Fix browser autofill style change

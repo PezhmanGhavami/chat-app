@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import Layout from "./components/layout/layout.component";
 import AuthLayout from "./components/auth-layout/auth-layout.component";
@@ -10,7 +12,31 @@ import Signin from "./pages/signin/signin.page";
 import Signup from "./pages/signup/signup.page";
 import NotFound from "./pages/not-found/not-found.page";
 
+const CustomToast = () => {
+  return (
+    <div>
+      <p>
+        This is a prototype project made for educational
+        purposes. You can find the source code here:
+      </p>
+      <a
+        className="text-blue-600 dark:text-blue-300 hover:underline"
+        href="https://github.com/PejmanG/chat-app"
+        target="_blank"
+        rel="noreferrer"
+      >
+        https://github.com/PejmanG/chat-app
+      </a>
+    </div>
+  );
+};
+
 function App() {
+  useEffect(() => {
+    toast.info(CustomToast, {
+      autoClose: false,
+    });
+  }, []);
   return (
     <Routes>
       <Route

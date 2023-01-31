@@ -16,7 +16,7 @@ ReactDOM.createRoot(
   <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider>
-        <ToastContainer theme="colored" />
+        <ToastContainer />
         <App />
       </ThemeProvider>
     </BrowserRouter>
