@@ -1,6 +1,6 @@
 const fetcher = async (
   input: RequestInfo,
-  init: RequestInit
+  init: RequestInit,
 ) => {
   const res = await fetch(input, init);
 

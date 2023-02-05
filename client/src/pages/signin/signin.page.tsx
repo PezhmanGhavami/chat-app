@@ -61,7 +61,7 @@ const Signin = () => {
   const { usernameOrEmail, password } = formData;
 
   const handleChange = (
-    event: ChangeEvent<HTMLInputElement>
+    event: ChangeEvent<HTMLInputElement>,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -94,7 +94,7 @@ const Signin = () => {
         toast.error(
           usernameOrEmailStatus === inputStatus.EMPTY
             ? "You should provide your username or email address."
-            : "Invalid email address or username format."
+            : "Invalid email address or username format.",
         );
     }
 
@@ -113,7 +113,7 @@ const Signin = () => {
   };
 
   const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>
+    event: FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
 
@@ -138,7 +138,7 @@ const Signin = () => {
           headers,
           body: JSON.stringify(userData),
         }),
-        false
+        false,
       );
     } catch (error) {
       if (error instanceof Error) {

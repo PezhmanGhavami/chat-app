@@ -1,6 +1,6 @@
 const Pill = ({ text }: { text: string }) => {
   return (
-    <p className="bg-gray-100 dark:bg-neutral-800 px-4 py-1 mx-auto my-2 w-fit rounded-full select-none">
+    <p className="mx-auto my-2 w-fit select-none rounded-full bg-gray-100 px-4 py-1 dark:bg-neutral-800">
       {text}
     </p>
   );

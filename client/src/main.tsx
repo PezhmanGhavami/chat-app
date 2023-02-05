@@ -11,7 +11,7 @@ import "react-toastify/dist/ReactToastify.min.css";
 import ThemeProvider from "./context/theme.context";
 
 ReactDOM.createRoot(
-  document.getElementById("root")!
+  document.getElementById("root")!,
 ).render(
   <React.StrictMode>
     <BrowserRouter>
@@ -20,5 +20,5 @@ ReactDOM.createRoot(
         <App />
       </ThemeProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

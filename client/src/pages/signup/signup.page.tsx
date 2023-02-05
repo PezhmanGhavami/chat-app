@@ -33,7 +33,7 @@ const Signup = () => {
     formData;
 
   const handleChange = (
-    event: ChangeEvent<HTMLInputElement>
+    event: ChangeEvent<HTMLInputElement>,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -63,7 +63,7 @@ const Signup = () => {
         toast.error(
           emailStatus === inputStatus.EMPTY
             ? "You should provide an email address."
-            : "Invalid email address."
+            : "Invalid email address.",
         );
     }
 
@@ -81,7 +81,7 @@ const Signup = () => {
         toast.error(
           displayNameStatus === inputStatus.EMPTY
             ? "You should provide a name."
-            : "Invalid name.\nName should be less than 20 characters.Only alphanumeric characters and space is allowed."
+            : "Invalid name.\nName should be less than 20 characters.Only alphanumeric characters and space is allowed.",
         );
     }
 
@@ -107,7 +107,7 @@ const Signup = () => {
         toast.error(
           confirmPasswordStatus === inputStatus.INVALID
             ? "Passwords should match."
-            : "Please confirm your password before you continue."
+            : "Please confirm your password before you continue.",
         );
     }
 
@@ -121,7 +121,7 @@ const Signup = () => {
   };
 
   const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>
+    event: FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
 
@@ -148,7 +148,7 @@ const Signup = () => {
           headers,
           body: JSON.stringify(userData),
         }),
-        false
+        false,
       );
     } catch (error) {
       if (error instanceof Error) {

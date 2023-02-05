@@ -32,13 +32,13 @@ const UserModal = ({
   closeModal: (event: MouseEvent) => void;
 }) => {
   const { socket, isConnected } = useContext(
-    WebSocketContext
+    WebSocketContext,
   );
 
   const handleClick = () => {
     if (!socket || !isConnected) {
       return toast.error(
-        "Connection lost\nReconnecting..."
+        "Connection lost\nReconnecting...",
       );
     }
     socket.emit("create-chat", {
@@ -51,7 +51,7 @@ const UserModal = ({
     <Modal closeModal={closeModal}>
       <div className="flex flex-col">
         <div className="flex items-center space-x-4 pb-4">
-          <div className="flex-none w-14 h-14 text-3xl">
+          <div className="h-14 w-14 flex-none text-3xl">
             <ProfilePicture user={user} />
           </div>
           <div>
@@ -66,7 +66,7 @@ const UserModal = ({
 
         <button
           onClick={handleClick}
-          className="text-white bg-blue-600 hover:bg-blue-700 w-full rounded-lg p-1"
+          className="w-full rounded-lg bg-blue-600 p-1 text-white hover:bg-blue-700"
         >
           Click to start conversation
         </button>
@@ -95,10 +95,10 @@ const UserCard = ({
   return (
     <div
       onClick={openModal}
-      className="flex items-center px-3 select-none w-full h-full"
+      className="flex h-full w-full select-none items-center px-3"
     >
       {/* Profile picture */}
-      <div className="flex-none w-8 h-8">
+      <div className="h-8 w-8 flex-none">
         <ProfilePicture user={user} />
       </div>
       {/* Display name */}
@@ -124,7 +124,7 @@ const UserCard = ({
               ? "online"
               : (user as IChatUser).lastOnline
               ? `last seen ${dateFormatter(
-                  new Date((user as IChatUser).lastOnline!)
+                  new Date((user as IChatUser).lastOnline!),
                 )}`
               : "last seen a long time ago"}
           </p>

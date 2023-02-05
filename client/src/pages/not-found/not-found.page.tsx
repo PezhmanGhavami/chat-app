@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 
 function NotFound() {
   return (
-    <div className="h-[85vh] flex flex-col justify-center items-center">
-      <p className="text-4xl pb-4">There's nothing here!</p>
+    <div className="flex h-[85vh] flex-col items-center justify-center">
+      <p className="pb-4 text-4xl">There's nothing here!</p>
       <Link
-        className="pt-4 text-neutral-600 dark:text-neutral-400 hover:underline hover:text-neutral-800 dark:hover:text-neutral-100"
+        className="pt-4 text-neutral-600 hover:text-neutral-800 hover:underline dark:text-neutral-400 dark:hover:text-neutral-100"
         to={"/"}
       >
         Go Back Home

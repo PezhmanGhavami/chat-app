@@ -20,7 +20,7 @@ const redirectRoutes = ["/auth/signin", "/auth/signup"];
 export default function useUser() {
   const { data, mutate } = useSWR<IUser>(
     "/api/auth",
-    fetcher
+    fetcher,
   );
 
   const location = useLocation();

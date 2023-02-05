@@ -39,11 +39,11 @@ const ThemeProvider = ({
   useEffect(() => {
     if (theme === "dark") {
       globalThis.document.documentElement.classList.add(
-        "dark"
+        "dark",
       );
     } else {
       globalThis.document.documentElement.classList.remove(
-        "dark"
+        "dark",
       );
     }
   }, [theme]);

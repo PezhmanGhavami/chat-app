@@ -13,11 +13,11 @@ const Modal = ({
   return (
     <>
       <Overlay handleClick={closeModal} />
-      <div className="fixed z-40 inset-x-0 bottom-1/2 translate-y-1/2 w-11/12 max-w-md mx-auto bg-white dark:bg-neutral-800 rounded-lg p-4 hover:cursor-default shadow-2xl">
+      <div className="fixed inset-x-0 bottom-1/2 z-40 mx-auto w-11/12 max-w-md translate-y-1/2 rounded-lg bg-white p-4 shadow-2xl hover:cursor-default dark:bg-neutral-800">
         <button
           type="button"
           title="Close"
-          className="absolute top-0 right-0 p-3 self-end"
+          className="absolute top-0 right-0 self-end p-3"
           onClick={closeModal}
         >
           <VscClose className="h-6 w-6 hover:opacity-75" />

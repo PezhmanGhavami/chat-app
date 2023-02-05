@@ -9,7 +9,7 @@ const ProfilePicture = ({
 }) => {
   return (
     <div
-      className={`bg-gradient-to-b ${user.bgColor} w-full h-full rounded-full overflow-hidden text-white flex justify-center items-center select-none shadow`}
+      className={`bg-gradient-to-b ${user.bgColor} flex h-full w-full select-none items-center justify-center overflow-hidden rounded-full text-white shadow`}
     >
       {user.profilePicture ? (
         <img

@@ -8,14 +8,14 @@ const Layout = () => {
 
   return (
     <WebSocketProvider>
-      <div className="w-screen h-screen flex">
-        <div className="flex flex-col dark:bg-neutral-800 sm:shadow sm:border-r sm:border-r-neutral-300 sm:dark:border-r-neutral-500 w-full h-full sm:w-64 md:w-72 lg:w-80 xl:w-96 z-10">
+      <div className="flex h-screen w-screen">
+        <div className="z-10 flex h-full w-full flex-col dark:bg-neutral-800 sm:w-64 sm:border-r sm:border-r-neutral-300 sm:shadow sm:dark:border-r-neutral-500 md:w-72 lg:w-80 xl:w-96">
           <Navigation />
         </div>
         <main
-          className={`fixed inset-0 sm:static sm:translate-x-0 sm:flex-1 sm-w-full ${
+          className={`sm-w-full fixed inset-0 sm:static sm:flex-1 sm:translate-x-0 ${
             params.chatId
-              ? "translate-x-0 z-50 sm:z-0"
+              ? "z-50 translate-x-0 sm:z-0"
               : "translate-x-full"
           }`}
         >

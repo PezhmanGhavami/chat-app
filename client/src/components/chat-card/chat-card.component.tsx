@@ -35,12 +35,12 @@ const ChatCard = ({ chat }: { chat: IChat }) => {
 
   return (
     <Link
-      className="block border-b border-b-gray-200 dark:border-b-neutral-700 last-of-type:border-0"
+      className="block border-b border-b-gray-200 last-of-type:border-0 dark:border-b-neutral-700"
       to={"/chat/" + chat.id}
     >
-      <div className="flex py-2 px-3 select-none hover:bg-gray-200 dark:hover:bg-neutral-700">
+      <div className="flex select-none py-2 px-3 hover:bg-gray-200 dark:hover:bg-neutral-700">
         {/* Profile picture */}
-        <div className="flex-none w-12 h-12 text-2xl">
+        <div className="h-12 w-12 flex-none text-2xl">
           <ProfilePicture
             user={{
               displayName: chat.displayName,
@@ -50,7 +50,7 @@ const ChatCard = ({ chat }: { chat: IChat }) => {
           />
         </div>
         {/* Chat details */}
-        <div className="pl-3 w-full">
+        <div className="w-full pl-3">
           {/* Title and last message time */}
           <div className="flex justify-between ">
             <h3 className="font-semibold">
@@ -62,13 +62,13 @@ const ChatCard = ({ chat }: { chat: IChat }) => {
           </div>
           {/* Last message summary and unread messages */}
           <div className="flex justify-between">
-            <div className="relative w-full mr-2">
-              <p className="absolute inset-0 truncate opacity-70 h-fit">
+            <div className="relative mr-2 w-full">
+              <p className="absolute inset-0 h-fit truncate opacity-70">
                 {chat.lastMessage}
               </p>
             </div>
             {chat.unreadCount > 0 && (
-              <span className="flex-none bg-gray-300 dark:bg-neutral-600 rounded-full text-sm tracking-tighter w-5 h-5 flex justify-center items-center">
+              <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-gray-300 text-sm tracking-tighter dark:bg-neutral-600">
                 {chat.unreadCount}
               </span>
             )}

@@ -11,7 +11,7 @@ const UserCardsContainer = ({
 }: IUserCardsContainer) => {
   if (!users || users?.length === 0) {
     return (
-      <div className="flex justify-center items-center text-center text-xl p-12 sm:p-2 h-full select-none">
+      <div className="flex h-full select-none items-center justify-center p-12 text-center text-xl sm:p-2">
         <p>There are no results for your search</p>
       </div>
     );
@@ -22,7 +22,7 @@ const UserCardsContainer = ({
       {users.map((user) => (
         <div
           key={user.id}
-          className="hover:bg-gray-200 dark:hover:bg-neutral-700 hover:cursor-pointer h-14 flex items-center"
+          className="flex h-14 items-center hover:cursor-pointer hover:bg-gray-200 dark:hover:bg-neutral-700"
         >
           <UserCard user={user} />
         </div>

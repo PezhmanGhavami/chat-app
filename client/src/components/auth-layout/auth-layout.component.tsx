@@ -22,23 +22,23 @@ const AuthLayout = () => {
   }
 
   return (
-    <div className="flex flex-col justify-between w-screen h-screen">
+    <div className="flex h-screen w-screen flex-col justify-between">
       <div>
-        <h1 className="text-center tracking-tight pt-28 text-6xl pb-9">
+        <h1 className="pt-28 pb-9 text-center text-6xl tracking-tight">
           Chat App
         </h1>
         <main>
           <Outlet />
         </main>
       </div>
-      <div className="self-end m-2">
+      <div className="m-2 self-end">
         <button
           type="button"
           title={`Click to switch to ${
             theme === "dark" ? "light" : "dark"
           } theme`}
           className={
-            "flex justify-center items-center space-x-2 text-xl p-2 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-800 " +
+            "flex items-center justify-center space-x-2 rounded-md p-2 text-xl hover:bg-neutral-200 dark:hover:bg-neutral-800 " +
             formStyles.colorAnimation
           }
           onClick={changeTheme}

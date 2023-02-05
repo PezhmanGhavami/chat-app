@@ -2,7 +2,7 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 function LoadingSpinner() {
   return (
-    <div className="h-full w-full flex justify-center items-center">
+    <div className="flex h-full w-full items-center justify-center">
       <AiOutlineLoading3Quarters className="animate-spin" />
     </div>
   );

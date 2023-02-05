@@ -20,7 +20,7 @@ const CustomToast = () => {
         purposes. You can find the source code here:
       </p>
       <a
-        className="text-blue-600 dark:text-blue-300 hover:underline"
+        className="text-blue-600 hover:underline dark:text-blue-300"
         href="https://github.com/PejmanG/chat-app"
         target="_blank"
         rel="noreferrer"

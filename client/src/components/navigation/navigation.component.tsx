@@ -129,10 +129,10 @@ const Navigation = () => {
   const [currentSessionIndex, setCurrentSessionIndex] =
     useState<null | number>(null);
   const [userInfoForm, setUserInfoForm] = useState(
-    userInfoFormDefault
+    userInfoFormDefault,
   );
   const [userAuthForm, setUserAuthForm] = useState(
-    userAuthFormDefault
+    userAuthFormDefault,
   );
 
   const { user, mutateUser } = useUser();
@@ -208,7 +208,7 @@ const Navigation = () => {
         readAll,
       }) => {
         const targetChatIndex = chats.findIndex(
-          (chat) => chat.id === chatId
+          (chat) => chat.id === chatId,
         );
         if (chatId !== -1) {
           if (readAll) {
@@ -221,7 +221,7 @@ const Navigation = () => {
               newArr.sort(
                 (a, b) =>
                   new Date(b.lastMessageDate).getTime() -
-                  new Date(a.lastMessageDate).getTime()
+                  new Date(a.lastMessageDate).getTime(),
               );
 
               return newArr;
@@ -249,29 +249,29 @@ const Navigation = () => {
               newArr.sort(
                 (a, b) =>
                   new Date(b.lastMessageDate).getTime() -
-                  new Date(a.lastMessageDate).getTime()
+                  new Date(a.lastMessageDate).getTime(),
               );
 
               return newArr;
             });
           }
         }
-      }
+      },
     );
     // Chat deleted
     socket.on("chat-deleted", ({ chatId }) => {
       setChats((prev) =>
-        prev!.filter((chat) => chat.id !== chatId)
+        prev!.filter((chat) => chat.id !== chatId),
       );
     });
 
     socket.on("archive-change", ({ chatId, archive }) => {
       if (archive) {
         const newArchived = chats.find(
-          (chat) => chat.id === chatId
+          (chat) => chat.id === chatId,
         );
         setChats((prev) =>
-          prev!.filter((chat) => chat.id !== chatId)
+          prev!.filter((chat) => chat.id !== chatId),
         );
         setArchivedChats((prev) => [
           newArchived!,
@@ -279,11 +279,11 @@ const Navigation = () => {
         ]);
       } else {
         const newUnarchived = archivedChats.find(
-          (chat) => chat.id === chatId
+          (chat) => chat.id === chatId,
         );
         setChats((prev) => [newUnarchived!, ...prev!]);
         setArchivedChats((prev) =>
-          prev!.filter((chat) => chat.id !== chatId)
+          prev!.filter((chat) => chat.id !== chatId),
         );
       }
     });
@@ -303,10 +303,10 @@ const Navigation = () => {
     fetcher("/api/chats", { method: "GET" })
       .then((chats) => {
         const normalChats = (chats as IChat[]).filter(
-          (chat) => !chat.isArchived
+          (chat) => !chat.isArchived,
         );
         const archivedChats = (chats as IChat[]).filter(
-          (chat) => chat.isArchived
+          (chat) => chat.isArchived,
         );
         setChats(normalChats);
         setArchivedChats(archivedChats);
@@ -332,13 +332,13 @@ const Navigation = () => {
 
     globalThis.addEventListener(
       "keyup",
-      escapeEventFunction
+      escapeEventFunction,
     );
 
     return () => {
       globalThis.removeEventListener(
         "keyup",
-        escapeEventFunction
+        escapeEventFunction,
       );
     };
   }, [openSearch]);
@@ -398,7 +398,7 @@ const Navigation = () => {
       .then((sessions) => {
         setActiveSessions(sessions);
         const index = (sessions as ISession[]).findIndex(
-          (session) => session.id === user?.sessionId
+          (session) => session.id === user?.sessionId,
         );
         setCurrentSessionIndex(index);
       })
@@ -424,8 +424,8 @@ const Navigation = () => {
           toast.success(res.message);
           setActiveSessions((prev) =>
             prev!.filter(
-              (session) => session.id === user?.sessionId
-            )
+              (session) => session.id === user?.sessionId,
+            ),
           );
           setCurrentSessionIndex(0);
           socket?.emit("session-terminated", {
@@ -437,7 +437,7 @@ const Navigation = () => {
             toast.error(error.message);
           } else {
             toast.error(
-              "Couldn't terminate other sessions."
+              "Couldn't terminate other sessions.",
             );
           }
         });
@@ -448,18 +448,18 @@ const Navigation = () => {
       `/api/auth/sessions/${selectedSession.id}`,
       {
         method: "DELETE",
-      }
+      },
     )
       .then((res) => {
         console.log(res);
         toast.success(res.message);
         setActiveSessions((prev) => {
           const newArr = prev!.filter(
-            (session) => session.id !== selectedSession.id
+            (session) => session.id !== selectedSession.id,
           );
 
           const index = newArr.findIndex(
-            (session) => session.id === user?.sessionId
+            (session) => session.id === user?.sessionId,
           );
           setCurrentSessionIndex(index);
 
@@ -479,7 +479,7 @@ const Navigation = () => {
   };
 
   const handleSearchChange = (
-    event: ChangeEvent<HTMLInputElement>
+    event: ChangeEvent<HTMLInputElement>,
   ) => {
     setSearchInput(event.target.value);
 
@@ -503,7 +503,7 @@ const Navigation = () => {
         formIsValid = false;
 
         toast.error(
-          "Invalid username.\nUsername can only contain alphanumeric values and (-),(_) symbols.\nUsername should be between 3 to 20 characters long"
+          "Invalid username.\nUsername can only contain alphanumeric values and (-),(_) symbols.\nUsername should be between 3 to 20 characters long",
         );
       }
       if (
@@ -517,7 +517,7 @@ const Navigation = () => {
           userInfoForm.displayName === "" ||
             !userInfoForm.displayName
             ? "You should provide a name"
-            : "Invalid name.\nName should be less than 20 characters.Only alphanumeric characters and space is allowed."
+            : "Invalid name.\nName should be less than 20 characters.Only alphanumeric characters and space is allowed.",
         );
       }
     } else if (type === "auth") {
@@ -534,7 +534,7 @@ const Navigation = () => {
         toast.error(
           userAuthForm.email === "" || !userAuthForm.email
             ? "You should provide an email address"
-            : "Invalid email address."
+            : "Invalid email address.",
         );
       }
 
@@ -551,7 +551,7 @@ const Navigation = () => {
         formIsValid = false;
 
         toast.error(
-          "Your new password should be at least 6 characters."
+          "Your new password should be at least 6 characters.",
         );
       }
 
@@ -566,7 +566,7 @@ const Navigation = () => {
           userAuthForm.newPasswordConfirmation !==
             userAuthForm.newPassword
             ? "Passwords should match."
-            : "Please confirm your password before you continue."
+            : "Please confirm your password before you continue.",
         );
       }
     }
@@ -575,7 +575,7 @@ const Navigation = () => {
   };
 
   const handleUserInfoFormChange = (
-    event: ChangeEvent<HTMLInputElement>
+    event: ChangeEvent<HTMLInputElement>,
   ) => {
     setUserInfoForm((prev) => ({
       ...prev,
@@ -592,7 +592,7 @@ const Navigation = () => {
     ).blur();
   };
   const handleUserInfoFormSubmit = async (
-    event: FormEvent
+    event: FormEvent,
   ) => {
     event.preventDefault();
 
@@ -637,7 +637,7 @@ const Navigation = () => {
           headers,
           body: JSON.stringify(payload),
         }),
-        { revalidate: true }
+        { revalidate: true },
       );
       toast.success("Changes saved successfully.");
     } catch (error) {
@@ -652,7 +652,7 @@ const Navigation = () => {
   };
 
   const handleUserAuthFormChange = (
-    event: ChangeEvent<HTMLInputElement>
+    event: ChangeEvent<HTMLInputElement>,
   ) => {
     setUserAuthForm((prev) => ({
       ...prev,
@@ -660,7 +660,7 @@ const Navigation = () => {
     }));
   };
   const handleUserAuthFormSubmit = async (
-    event: FormEvent
+    event: FormEvent,
   ) => {
     event.preventDefault();
 
@@ -703,7 +703,7 @@ const Navigation = () => {
           headers,
           body: JSON.stringify(payload),
         }),
-        { revalidate: true }
+        { revalidate: true },
       );
       toast.success("Changes saved successfully.");
       closeUserAuthForm();
@@ -729,7 +729,7 @@ const Navigation = () => {
   return (
     <>
       {/* Header (seach bar, menu, connection status) */}
-      <div className="p-3 pb-0 border-b border-b-neutral-300 dark:border-b-neutral-500 shadow">
+      <div className="border-b border-b-neutral-300 p-3 pb-0 shadow dark:border-b-neutral-500">
         {/* TODO - fix the sizings */}
         <header className="relative flex justify-between pb-3">
           {/* The menu */}
@@ -738,7 +738,7 @@ const Navigation = () => {
               title="Click to go back to chats"
               type="button"
               onClick={closeArchviedChats}
-              className="text-lg p-2 pl-0 mr-8"
+              className="mr-8 p-2 pl-0 text-lg"
             >
               <VscArrowLeft />
             </button>
@@ -747,23 +747,23 @@ const Navigation = () => {
               onClick={toggleMenu}
               title="Open menu"
               type="button"
-              className="text-lg p-2 pl-0 mr-8"
+              className="mr-8 p-2 pl-0 text-lg"
             >
               <VscMenu />
             </button>
           )}
           {openMenu && <Overlay handleClick={toggleMenu} />}
           <nav
-            className={`fixed left-0 inset-y-0 z-40 flex flex-col transition-transform duration-200 w-2/3 sm:w-64 md:w-72 lg:w-80 xl:w-96 bg-white dark:bg-neutral-800 ${
+            className={`fixed inset-y-0 left-0 z-40 flex w-2/3 flex-col bg-white transition-transform duration-200 dark:bg-neutral-800 sm:w-64 md:w-72 lg:w-80 xl:w-96 ${
               openMenu
                 ? "translate-x-0"
                 : "-translate-x-full"
             } `}
           >
             {/* Top part */}
-            <div className="border-b border-b-neutral-300 dark:border-neutral-b-500 p-4 sm:p-6 pb-2">
+            <div className="dark:border-neutral-b-500 border-b border-b-neutral-300 p-4 pb-2 sm:p-6">
               <div className=" flex justify-between">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 text-2xl">
+                <div className="h-12 w-12 text-2xl sm:h-14 sm:w-14">
                   <ProfilePicture
                     user={{
                       bgColor: user.bgColor,
@@ -777,7 +777,7 @@ const Navigation = () => {
                   title={`Click to switch to ${
                     theme === "dark" ? "light" : "dark"
                   } theme`}
-                  className="self-start text-xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-neutral-700"
+                  className="self-start rounded-full p-2 text-xl hover:bg-gray-200 dark:hover:bg-neutral-700"
                   onClick={changeTheme}
                 >
                   {theme === "dark" ? (
@@ -793,7 +793,7 @@ const Navigation = () => {
               <p className="opacity-70">{user.email}</p>
             </div>
             {/* Links and buttons */}
-            <div className="flex-1 flex flex-col justify-between">
+            <div className="flex flex-1 flex-col justify-between">
               {/* Menu buttons */}
               <div>
                 <button
@@ -878,10 +878,10 @@ const Navigation = () => {
             </div>
           </nav>
           {/* Connection status and search bar toggle*/}
-          <div className="flex-1 w-full flex justify-between">
+          <div className="flex w-full flex-1 justify-between">
             <Link
               to="/"
-              className="text-2xl select-none tracking-tight font-semibold"
+              className="select-none text-2xl font-semibold tracking-tight"
             >
               {authError ? (
                 <span title="There was a connection error, please refresh the page">
@@ -916,7 +916,7 @@ const Navigation = () => {
           </div>
           {/* Search bar */}
           {openSearch && (
-            <form className="absolute z-10 left-0 bg-gray-200 dark:bg-neutral-700 rounded-md overflow-hidden w-full">
+            <form className="absolute left-0 z-10 w-full overflow-hidden rounded-md bg-gray-200 dark:bg-neutral-700">
               <div>
                 <label
                   htmlFor="user-search"
@@ -926,7 +926,7 @@ const Navigation = () => {
                 </label>
                 <div className="flex h-8 pr-1">
                   <input
-                    className="w-full pl-4 pr-6 bg-transparent focus:outline-none "
+                    className="w-full bg-transparent pl-4 pr-6 focus:outline-none "
                     type="text"
                     name="search"
                     id="user-search"
@@ -958,15 +958,15 @@ const Navigation = () => {
                 <button
                   title="Click to change the background color"
                   type="button"
-                  className="group absolute left-1/2 -translate-x-1/2 top-0 w-24 h-24 peer z-[41] rounded-full"
+                  className="group peer absolute left-1/2 top-0 z-[41] h-24 w-24 -translate-x-1/2 rounded-full"
                 >
-                  <div className="invisible absolute left-1/2 -translate-x-1/2 top-24 w-2 h-2 rotate-45 bg-white dark:bg-neutral-900 border dark:border-neutral-600 border-r-0 border-b-0 z-[51] group-focus-within:visible group-active:visible cursor-default" />
-                  <div className="invisible absolute left-1/2 -translate-x-1/2 top-[6.25rem] w-52 bg-white dark:bg-neutral-900 shadow-md rounded-lg border dark:border-neutral-600 py-2 z-50 group-focus-within:visible group-active:visible">
-                    <div className="grid grid-cols-3 justify-items-center text-xl cursor-default">
+                  <div className="invisible absolute left-1/2 top-24 z-[51] h-2 w-2 -translate-x-1/2 rotate-45 cursor-default border border-r-0 border-b-0 bg-white group-focus-within:visible group-active:visible dark:border-neutral-600 dark:bg-neutral-900" />
+                  <div className="invisible absolute left-1/2 top-[6.25rem] z-50 w-52 -translate-x-1/2 rounded-lg border bg-white py-2 shadow-md group-focus-within:visible group-active:visible dark:border-neutral-600 dark:bg-neutral-900">
+                    <div className="grid cursor-default grid-cols-3 justify-items-center text-xl">
                       {bgColors.map((color, index) => (
                         <div
                           key={index}
-                          className="relative h-12 w-12 m-1 hover:cursor-pointer hover:opacity-80"
+                          className="relative m-1 h-12 w-12 hover:cursor-pointer hover:opacity-80"
                           title={
                             color === userInfoForm.bgColor
                               ? "Currently selected"
@@ -990,7 +990,7 @@ const Navigation = () => {
                           />
                           {color ===
                             userInfoForm.bgColor && (
-                            <div className="absolute top-0 right-0 rounded-full bg-blue-600 text-white w-fit p-[2px] text-xs">
+                            <div className="absolute top-0 right-0 w-fit rounded-full bg-blue-600 p-[2px] text-xs text-white">
                               <VscCheck />
                             </div>
                           )}
@@ -1000,7 +1000,7 @@ const Navigation = () => {
                   </div>
                 </button>
                 {/* Preview */}
-                <div className="relative w-24 h-24 text-5xl mx-auto peer-hover:opacity-80">
+                <div className="relative mx-auto h-24 w-24 text-5xl peer-hover:opacity-80">
                   <ProfilePicture
                     user={{
                       displayName:
@@ -1012,7 +1012,7 @@ const Navigation = () => {
                         userInfoForm.profilePicture,
                     }}
                   />
-                  <div className="absolute bottom-1 right-1 rounded-full bg-white dark:bg-neutral-900 p-1 text-base">
+                  <div className="absolute bottom-1 right-1 rounded-full bg-white p-1 text-base dark:bg-neutral-900">
                     <VscEdit />
                   </div>
                 </div>
@@ -1249,19 +1249,19 @@ const Navigation = () => {
                   <LoadingSpinner />
                 </div>
               ) : (
-                <div className="py-2 space-y-2">
+                <div className="space-y-2 py-2">
                   <div>
                     <h2 className="text-lg font-medium text-blue-500 dark:text-blue-400">
                       Current session
                     </h2>
                     <div>
-                      <p className="pb-1 px-2">
+                      <p className="px-2 pb-1">
                         Created at:{" "}
                         <span>
                           {new Date(
                             activeSessions[
                               currentSessionIndex!
-                            ].createdAt
+                            ].createdAt,
                           ).toLocaleString("default", {
                             year: "numeric",
                             month: "long",
@@ -1275,7 +1275,7 @@ const Navigation = () => {
                         <button
                           type="button"
                           title="Click to terminate all other sessions except this one"
-                          className="flex items-center space-x-2 w-full h-9 px-2 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700 text-red-600 dark:text-red-500"
+                          className="flex h-9 w-full items-center space-x-2 rounded-md px-2 text-red-600 hover:bg-gray-200 dark:text-red-500 dark:hover:bg-neutral-700"
                           onClick={() =>
                             handleSessionTermination(-1)
                           }
@@ -1286,7 +1286,7 @@ const Navigation = () => {
                           </span>
                         </button>
                       ) : (
-                        <p className="p-2 font-medium hover:bg-gray-200 dark:hover:bg-neutral-700 rounded-md">
+                        <p className="rounded-md p-2 font-medium hover:bg-gray-200 dark:hover:bg-neutral-700">
                           This is the only active session
                         </p>
                       )}
@@ -1304,7 +1304,7 @@ const Navigation = () => {
                               currentSessionIndex && (
                               <div
                                 key={session.id}
-                                className="flex justify-between items-center rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700 pl-2 py-[2px]"
+                                className="flex items-center justify-between rounded-md py-[2px] pl-2 hover:bg-gray-200 dark:hover:bg-neutral-700"
                               >
                                 <div>
                                   <p>
@@ -1313,14 +1313,14 @@ const Navigation = () => {
                                       {session.isOnline
                                         ? " Online"
                                         : ` Last online ${new Date(
-                                            session.lastOnline!
+                                            session.lastOnline!,
                                           ).toLocaleDateString(
                                             "default",
                                             {
                                               month: "long",
                                               day: "2-digit",
                                               year: "numeric",
-                                            }
+                                            },
                                           )}`}
                                     </span>
                                   </p>
@@ -1328,7 +1328,7 @@ const Navigation = () => {
                                     Created at:{" "}
                                     <span className="block pl-1 sm:inline sm:p-0">
                                       {new Date(
-                                        session.createdAt
+                                        session.createdAt,
                                       ).toLocaleString(
                                         "default",
                                         {
@@ -1337,7 +1337,7 @@ const Navigation = () => {
                                           day: "2-digit",
                                           hour: "2-digit",
                                           minute: "2-digit",
-                                        }
+                                        },
                                       )}
                                     </span>
                                   </p>
@@ -1345,17 +1345,17 @@ const Navigation = () => {
                                 <button
                                   type="button"
                                   title="Click to terminate this session"
-                                  className="p-4 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700 hover:text-red-600 dark:hover:text-red-500"
+                                  className="rounded-md p-4 hover:bg-gray-200 hover:text-red-600 dark:hover:bg-neutral-700 dark:hover:text-red-500"
                                   onClick={() =>
                                     handleSessionTermination(
-                                      index
+                                      index,
                                     )
                                   }
                                 >
                                   <AiOutlineStop />
                                 </button>
                               </div>
-                            )
+                            ),
                         )}
                       </div>
                     </div>
@@ -1371,7 +1371,7 @@ const Navigation = () => {
         searchInput.length >= 3 ? (
           <UserCardsContainer users={searchResult} />
         ) : (
-          <div className="flex justify-center items-center text-center text-xl p-12 sm:p-2 h-full select-none">
+          <div className="flex h-full select-none items-center justify-center p-12 text-center text-xl sm:p-2">
             <p>
               Search by name, username, id or email address
             </p>
@@ -1385,7 +1385,7 @@ const Navigation = () => {
         chats.length > 0 ? (
           <ChatCardsContainer chats={chats} />
         ) : (
-          <div className="flex flex-col justify-center items-center h-full select-none space-y-4 p-12 sm:px-4 text-center">
+          <div className="flex h-full select-none flex-col items-center justify-center space-y-4 p-12 text-center sm:px-4">
             <p className="text-2xl">
               You haven't started a converstion yet.
             </p>
@@ -1398,7 +1398,7 @@ const Navigation = () => {
               title="Start searching for users"
               type="button"
               onClick={toggleSearch}
-              className="border rounded-md px-2 py-1 hover:bg-gray-200 dark:hover:bg-neutral-900"
+              className="rounded-md border px-2 py-1 hover:bg-gray-200 dark:hover:bg-neutral-900"
             >
               Search now
             </button>
@@ -1407,13 +1407,13 @@ const Navigation = () => {
       ) : archivedChats.length > 0 ? (
         <ChatCardsContainer chats={archivedChats} />
       ) : (
-        <div className="flex flex-col justify-center items-center h-full select-none space-y-4 p-12 sm:px-4 text-center">
+        <div className="flex h-full select-none flex-col items-center justify-center space-y-4 p-12 text-center sm:px-4">
           <p className="text-2xl">Archive is empty.</p>
           <button
             title="Back to chats"
             type="button"
             onClick={closeArchviedChats}
-            className="border rounded-md px-2 py-1 hover:bg-gray-200 dark:hover:bg-neutral-900"
+            className="rounded-md border px-2 py-1 hover:bg-gray-200 dark:hover:bg-neutral-900"
           >
             Go back to chats
           </button>

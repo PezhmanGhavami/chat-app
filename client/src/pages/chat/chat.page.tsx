@@ -56,14 +56,14 @@ interface IMessage {
 
 const showMessageDate = (
   messages: IMessage[],
-  index: number
+  index: number,
 ) => {
   if (messages.length - 1 === index) return true;
   const currentDate = new Date(messages[index].createdAt);
   const nextDate = new Date(messages[index + 1].createdAt);
   if (
     Math.floor(
-      (nextDate.getTime() - currentDate.getTime()) / 1000
+      (nextDate.getTime() - currentDate.getTime()) / 1000,
     ) > 90
   ) {
     return true;
@@ -83,7 +83,7 @@ const Message = ({
   showTime: boolean;
 }) => {
   const messageTime = new Date(
-    message.createdAt
+    message.createdAt,
   ).toLocaleTimeString("default", {
     hour: "numeric",
     minute: "numeric",
@@ -92,12 +92,12 @@ const Message = ({
   return (
     <div>
       <div
-        className={`w-fit max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl mt-[2px] py-2 px-4 rounded-2xl break-words ${
+        className={`mt-[2px] w-fit max-w-xs break-words rounded-2xl py-2 px-4 sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl ${
           isOwn
-            ? `bg-blue-600 text-white ml-auto ${
+            ? `ml-auto bg-blue-600 text-white ${
                 isLast || showTime ? "rounded-br-sm" : ""
               }`
-            : `bg-gray-200 dark:bg-neutral-600 mr-auto ${
+            : `mr-auto bg-gray-200 dark:bg-neutral-600 ${
                 isLast || showTime ? "rounded-bl-sm" : ""
               }`
         }`}
@@ -107,7 +107,7 @@ const Message = ({
       </div>
       {(isLast || showTime) && (
         <p
-          className={`block text-xs pt-1 select-none opacity-70 mb-2 ${
+          className={`mb-2 block select-none pt-1 text-xs opacity-70 ${
             isOwn ? "text-right" : "text-left"
           }`}
         >
@@ -129,7 +129,7 @@ const Message = ({
 
 const isTheSameDay = (
   currentDateUnformatted: Date,
-  previousDateUnformatted: Date
+  previousDateUnformatted: Date,
 ) => {
   const currentDate = new Date(currentDateUnformatted);
   const previousDate = new Date(previousDateUnformatted);
@@ -145,7 +145,7 @@ const isLast = (messages: IMessage[], index: number) => {
   if (
     !isTheSameDay(
       messages[index].createdAt,
-      messages[index + 1].createdAt
+      messages[index + 1].createdAt,
     )
   ) {
     return true;
@@ -185,10 +185,10 @@ function Chat() {
     useState(false);
 
   const messagesListEnd = useRef<null | HTMLDivElement>(
-    null
+    null,
   );
   const unreadMessages = useRef<null | HTMLDivElement>(
-    null
+    null,
   );
   const messagesListContainer =
     useRef<null | HTMLDivElement>(null);
@@ -196,7 +196,7 @@ function Chat() {
   const { user: currentUser } = useUser();
 
   const { socket, isConnected } = useContext(
-    WebSocketContext
+    WebSocketContext,
   );
 
   const params = useParams();
@@ -219,7 +219,7 @@ function Chat() {
         const index = (messages as IMessage[]).findIndex(
           (message) =>
             message.senderId === currentRecipientUser?.id &&
-            !message.recipients[0].isRead
+            !message.recipients[0].isRead,
         );
         if (index === -1) {
           setScrollbarAtEnd(true);
@@ -227,7 +227,7 @@ function Chat() {
         if (messages.length < 50) {
           setEndOfMessages(true);
         }
-      }
+      },
     );
     // New message
     socket.on(
@@ -243,7 +243,7 @@ function Chat() {
           });
           setAllToRead();
         }
-      }
+      },
     );
     // Read all handler
     socket.on(`chat-${params.chatId}-read-all`, () => {
@@ -257,7 +257,7 @@ function Chat() {
                 message.recipients[0].recipientId,
             },
           ],
-        }))
+        })),
       );
     });
     // Message loader (Loading older messages)
@@ -277,7 +277,7 @@ function Chat() {
         setLastUpdateRequest(Date.now());
         setIsLoadingMoreMessages(false);
         setEndOfMessages(endOfMessages);
-      }
+      },
     );
     // Error handler
     socket.on(
@@ -285,7 +285,7 @@ function Chat() {
       ({ status, errorMessasge }) => {
         toast.error(status + " - " + errorMessasge);
         navigate("/");
-      }
+      },
     );
     // Recipient status change
     socket.on(
@@ -295,7 +295,7 @@ function Chat() {
           ...prev!,
           isOnline,
         }));
-      }
+      },
     );
 
     return () => {
@@ -305,7 +305,7 @@ function Chat() {
       socket.off(`chat-${params.chatId}-messages-loader`);
       socket.off(`chat-${params.chatId}-read-all`);
       socket.off(
-        `chat-${params.chatId}-recipient-status-change`
+        `chat-${params.chatId}-recipient-status-change`,
       );
       socket.emit("left-chat", { chatId: params.chatId });
     };
@@ -318,7 +318,7 @@ function Chat() {
       `chat-${params.chatId}-delivered`,
       ({ tempId, actualId }) => {
         const messageIndex = messagesList?.findIndex(
-          (message) => message.id === tempId
+          (message) => message.id === tempId,
         );
         if (
           messageIndex !== undefined &&
@@ -329,7 +329,7 @@ function Chat() {
           delete newArr[messageIndex].isLocal;
           setMessagesList(newArr);
         }
-      }
+      },
     );
     return () => {
       socket.off(`chat-${params.chatId}-delivered`);
@@ -337,12 +337,12 @@ function Chat() {
   }, [socket, messagesList]);
 
   const handleChange = (
-    event: ChangeEvent<HTMLTextAreaElement>
+    event: ChangeEvent<HTMLTextAreaElement>,
   ) => {
     setMessage(event.target.value);
   };
   const handleSubmit = (
-    event: FormEvent<HTMLFormElement>
+    event: FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
     sendMessage();
@@ -434,7 +434,7 @@ function Chat() {
       const index = messagesList.findIndex(
         (message) =>
           message.senderId === currentRecipientUser?.id &&
-          !message.recipients[0].isRead
+          !message.recipients[0].isRead,
       );
       setStartOfUnread(index !== -1 ? index : null);
     }
@@ -468,7 +468,7 @@ function Chat() {
   ]);
 
   const handleScroll: UIEventHandler<HTMLDivElement> = (
-    event
+    event,
   ) => {
     const clientHeight = event.currentTarget.clientHeight;
     const scrollLeftToTop = event.currentTarget.scrollTop;
@@ -477,7 +477,7 @@ function Chat() {
     const sum = clientHeight + scrollLeftToTop;
     setScrollbarAtEnd(sum === totalScrollHeight);
     setShowGoToBottom(
-      totalScrollHeight - sum > clientHeight / 2
+      totalScrollHeight - sum > clientHeight / 2,
     );
     setScrollbarAtTop(scrollLeftToTop === 0);
   };
@@ -491,7 +491,7 @@ function Chat() {
         messagesListContainer.current.scrollHeight;
 
       setThereIsNoScrollbar(
-        clientHeight === totalScrollHeight
+        clientHeight === totalScrollHeight,
       );
     }
   }, [
@@ -528,7 +528,7 @@ function Chat() {
     event.preventDefault();
     if (!socket || !currentRecipientUser)
       return toast.error(
-        "Connection lost.\n please retry after connection is restablished."
+        "Connection lost.\n please retry after connection is restablished.",
       );
 
     socket.emit("delete-chat", {
@@ -546,12 +546,12 @@ function Chat() {
   };
 
   const archiveChatEmitter = (
-    event: MouseEvent<HTMLAnchorElement>
+    event: MouseEvent<HTMLAnchorElement>,
   ) => {
     event.preventDefault();
     if (!socket || !currentRecipientUser)
       return toast.error(
-        "Connection lost.\n please retry after connection is restablished."
+        "Connection lost.\n please retry after connection is restablished.",
       );
 
     socket.emit("archive-chat", {
@@ -567,28 +567,28 @@ function Chat() {
     !currentUser
   ) {
     return (
-      <div className="text-3xl bg-white dark:bg-neutral-900 h-full">
+      <div className="h-full bg-white text-3xl dark:bg-neutral-900">
         <LoadingSpinner />
       </div>
     );
   }
 
   return (
-    <div className="relative overflow-x-hidden flex flex-col justify-between h-full bg-white dark:bg-neutral-900">
+    <div className="relative flex h-full flex-col justify-between overflow-x-hidden bg-white dark:bg-neutral-900">
       {/* Go to bottom button */}
       {showGoToBottom && (
         <button
           type="button"
           title="Click to go to bottom"
           onClick={scrollToBottom}
-          className="absolute right-8 bottom-24 bg-white hover:bg-gray-200 dark:bg-neutral-600 dark:hover:bg-neutral-700 rounded-full p-3 border-2 dark:border-0 text-2xl z-20"
+          className="absolute right-8 bottom-24 z-20 rounded-full border-2 bg-white p-3 text-2xl hover:bg-gray-200 dark:border-0 dark:bg-neutral-600 dark:hover:bg-neutral-700"
         >
           <VscArrowDown />
         </button>
       )}
       {/* Header */}
-      <div className="p-3 pr-1 bg-white dark:bg-neutral-800 border-b border-neutral-300 dark:border-neutral-500 shadow">
-        <header className="flex justify-between items-center text-lg">
+      <div className="border-b border-neutral-300 bg-white p-3 pr-1 shadow dark:border-neutral-500 dark:bg-neutral-800">
+        <header className="flex items-center justify-between text-lg">
           {/* Back */}
           <Link
             to={"/"}
@@ -609,19 +609,19 @@ function Chat() {
           <button
             title="Chat options"
             type="button"
-            className="relative rounded-full focus:bg-gray-200 dark:focus:bg-neutral-700 group p-2 "
+            className="group relative rounded-full p-2 focus:bg-gray-200 dark:focus:bg-neutral-700 "
           >
-            <div className="w-4 h-4 space-y-[3px] flex flex-col justify-center items-center">
-              <div className="w-[3px] h-[3px] rounded-full bg-neutral-900 dark:bg-white" />
-              <div className="w-[3px] h-[3px] rounded-full bg-neutral-900 dark:bg-white" />
-              <div className="w-[3px] h-[3px] rounded-full bg-neutral-900 dark:bg-white" />
+            <div className="flex h-4 w-4 flex-col items-center justify-center space-y-[3px]">
+              <div className="h-[3px] w-[3px] rounded-full bg-neutral-900 dark:bg-white" />
+              <div className="h-[3px] w-[3px] rounded-full bg-neutral-900 dark:bg-white" />
+              <div className="h-[3px] w-[3px] rounded-full bg-neutral-900 dark:bg-white" />
             </div>
             {/* Content */}
-            <div className="invisible absolute top-9 right-0 text-lg sm:text-base whitespace-nowrap flex flex-col bg-white dark:bg-neutral-800 shadow-md rounded-lg border dark:border-neutral-600 py-2 z-20 group-focus-within:visible group-active:visible">
+            <div className="invisible absolute top-9 right-0 z-20 flex flex-col whitespace-nowrap rounded-lg border bg-white py-2 text-lg shadow-md group-focus-within:visible group-active:visible dark:border-neutral-600 dark:bg-neutral-800 sm:text-base">
               <a
                 title="Click to delete chat"
                 onClick={archiveChatEmitter}
-                className="px-5 py-2 sm:px-2 sm:py-1 hover:bg-gray-200 dark:hover:bg-neutral-700 space-x-1 flex items-center"
+                className="flex items-center space-x-1 px-5 py-2 hover:bg-gray-200 dark:hover:bg-neutral-700 sm:px-2 sm:py-1"
               >
                 <VscArchive />
                 <span>
@@ -633,7 +633,7 @@ function Chat() {
               <a
                 title="Click to delete chat"
                 onClick={toggleChatDeleteModal}
-                className="px-5 py-2 sm:px-2 sm:py-1 text-red-600 dark:text-red-500 hover:bg-gray-200 dark:hover:bg-neutral-700 space-x-1 flex items-center"
+                className="flex items-center space-x-1 px-5 py-2 text-red-600 hover:bg-gray-200 dark:text-red-500 dark:hover:bg-neutral-700 sm:px-2 sm:py-1"
               >
                 <VscTrash />
                 <span>Delete chat</span>
@@ -669,7 +669,7 @@ function Chat() {
             {messagesList.length === 0 && (
               <Pill
                 text={new Date(
-                  currentRecipientUser.chatCreated
+                  currentRecipientUser.chatCreated,
                 ).toLocaleDateString("default", {
                   weekday: "short",
                   day: "2-digit",
@@ -688,12 +688,12 @@ function Chat() {
             {(index === 0 ||
               !isTheSameDay(
                 message.createdAt,
-                messagesList[index - 1].createdAt
+                messagesList[index - 1].createdAt,
               )) && (
               <div className="text-xs font-medium">
                 <Pill
                   text={new Date(
-                    message.createdAt
+                    message.createdAt,
                   ).toLocaleDateString("default", {
                     weekday: "short",
                     day: "2-digit",
@@ -708,7 +708,7 @@ function Chat() {
               <div
                 ref={unreadMessages}
                 id="unread-messages"
-                className="w-full text-center my-2 bg-gray-100 dark:bg-neutral-800 select-none"
+                className="my-2 w-full select-none bg-gray-100 text-center dark:bg-neutral-800"
               >
                 <p>Unread Messages &#8595;</p>
               </div>
@@ -734,13 +734,13 @@ function Chat() {
       {/* Text input */}
       <form
         onSubmit={handleSubmit}
-        className="flex bg-white dark:bg-neutral-800 border-t border-t-neutral-300 dark:border-t-neutral-500 overflow-hidden transition-all duration-200"
+        className="flex overflow-hidden border-t border-t-neutral-300 bg-white transition-all duration-200 dark:border-t-neutral-500 dark:bg-neutral-800"
       >
         <label htmlFor="message" className="sr-only">
           Message
         </label>
         <textarea
-          className="bg-transparent w-full h-12 focus-within:h-28 transition-all duration-200 px-5 py-3 outline-none focus:outline-none resize-none"
+          className="h-12 w-full resize-none bg-transparent px-5 py-3 outline-none transition-all duration-200 focus-within:h-28 focus:outline-none"
           name="message"
           id="message"
           placeholder="Write a message"
@@ -760,9 +760,9 @@ function Chat() {
         <button
           type="submit"
           title="Send message"
-          className={`p-2 mr-2 mb-2 rounded-full self-end text-lg transition-all duration-200${
+          className={`mr-2 mb-2 self-end rounded-full p-2 text-lg transition-all duration-200${
             message.length > 0
-              ? " bg-blue-600 hover:bg-blue-700 text-white"
+              ? " bg-blue-600 text-white hover:bg-blue-700"
               : " text-blue-600 dark:text-blue-500"
           }`}
         >
