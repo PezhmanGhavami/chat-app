@@ -21,3 +21,5 @@
 - [x] Toast a link to the repo
 - [x] Style react toastify
 - [] Fix browser autofill style change
+- [] Chat listing sort modes (default newest top, custom)
+- [] Drag and drop sort
