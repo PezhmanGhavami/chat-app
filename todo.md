@@ -23,3 +23,4 @@
 - [] Fix browser autofill style change
 - [] Chat listing sort modes (default newest top, custom)
 - [] Drag and drop sort
+- [x] Add .env.example
