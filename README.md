@@ -1,6 +1,6 @@
 A prototype chat application made to be a playground for trying out different kinds of tech in a more App like environment with real-time communications.
 
-You can checkout the live version [here](https://chatapp.pejmanghavami.com/)
+You can checkout the live version [here](https://chatapp.pezhmanghavami.com/)
 
 To run locally:
 
