@@ -92,7 +92,7 @@ const Message = ({
   return (
     <div>
       <div
-        className={`mt-[2px] w-fit max-w-xs break-words rounded-2xl py-2 px-4 sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl ${
+        className={`mt-[2px] w-fit max-w-xs break-words rounded-2xl px-4 py-2 sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl ${
           isOwn
             ? `ml-auto bg-blue-600 text-white ${
                 isLast || showTime ? "rounded-br-sm" : ""
@@ -581,7 +581,7 @@ function Chat() {
           type="button"
           title="Click to go to bottom"
           onClick={scrollToBottom}
-          className="absolute right-8 bottom-24 z-20 rounded-full border-2 bg-white p-3 text-2xl hover:bg-gray-200 dark:border-0 dark:bg-neutral-600 dark:hover:bg-neutral-700"
+          className="absolute bottom-24 right-8 z-20 rounded-full border-2 bg-white p-3 text-2xl hover:bg-gray-200 dark:border-0 dark:bg-neutral-600 dark:hover:bg-neutral-700"
         >
           <VscArrowDown />
         </button>
@@ -617,7 +617,7 @@ function Chat() {
               <div className="h-[3px] w-[3px] rounded-full bg-neutral-900 dark:bg-white" />
             </div>
             {/* Content */}
-            <div className="invisible absolute top-9 right-0 z-20 flex flex-col whitespace-nowrap rounded-lg border bg-white py-2 text-lg shadow-md group-focus-within:visible group-active:visible dark:border-neutral-600 dark:bg-neutral-800 sm:text-base">
+            <div className="invisible absolute right-0 top-9 z-20 flex flex-col whitespace-nowrap rounded-lg border bg-white py-2 text-lg shadow-md group-focus-within:visible group-active:visible dark:border-neutral-600 dark:bg-neutral-800 sm:text-base">
               <a
                 title="Click to delete chat"
                 onClick={archiveChatEmitter}
@@ -760,7 +760,7 @@ function Chat() {
         <button
           type="submit"
           title="Send message"
-          className={`mr-2 mb-2 self-end rounded-full p-2 text-lg transition-all duration-200${
+          className={`mb-2 mr-2 self-end rounded-full p-2 text-lg transition-all duration-200${
             message.length > 0
               ? " bg-blue-600 text-white hover:bg-blue-700"
               : " text-blue-600 dark:text-blue-500"

@@ -960,7 +960,7 @@ const Navigation = () => {
                   type="button"
                   className="group peer absolute left-1/2 top-0 z-[41] h-24 w-24 -translate-x-1/2 rounded-full"
                 >
-                  <div className="invisible absolute left-1/2 top-24 z-[51] h-2 w-2 -translate-x-1/2 rotate-45 cursor-default border border-r-0 border-b-0 bg-white group-focus-within:visible group-active:visible dark:border-neutral-600 dark:bg-neutral-900" />
+                  <div className="invisible absolute left-1/2 top-24 z-[51] h-2 w-2 -translate-x-1/2 rotate-45 cursor-default border border-b-0 border-r-0 bg-white group-focus-within:visible group-active:visible dark:border-neutral-600 dark:bg-neutral-900" />
                   <div className="invisible absolute left-1/2 top-[6.25rem] z-50 w-52 -translate-x-1/2 rounded-lg border bg-white py-2 shadow-md group-focus-within:visible group-active:visible dark:border-neutral-600 dark:bg-neutral-900">
                     <div className="grid cursor-default grid-cols-3 justify-items-center text-xl">
                       {bgColors.map((color, index) => (
@@ -990,7 +990,7 @@ const Navigation = () => {
                           />
                           {color ===
                             userInfoForm.bgColor && (
-                            <div className="absolute top-0 right-0 w-fit rounded-full bg-blue-600 p-[2px] text-xs text-white">
+                            <div className="absolute right-0 top-0 w-fit rounded-full bg-blue-600 p-[2px] text-xs text-white">
                               <VscCheck />
                             </div>
                           )}

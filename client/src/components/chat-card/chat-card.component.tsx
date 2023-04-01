@@ -38,7 +38,7 @@ const ChatCard = ({ chat }: { chat: IChat }) => {
       className="block border-b border-b-gray-200 last-of-type:border-0 dark:border-b-neutral-700"
       to={"/chat/" + chat.id}
     >
-      <div className="flex select-none py-2 px-3 hover:bg-gray-200 dark:hover:bg-neutral-700">
+      <div className="flex select-none px-3 py-2 hover:bg-gray-200 dark:hover:bg-neutral-700">
         {/* Profile picture */}
         <div className="h-12 w-12 flex-none text-2xl">
           <ProfilePicture

@@ -24,7 +24,7 @@ const AuthLayout = () => {
   return (
     <div className="flex h-screen w-screen flex-col justify-between">
       <div>
-        <h1 className="pt-28 pb-9 text-center text-6xl tracking-tight">
+        <h1 className="pb-9 pt-28 text-center text-6xl tracking-tight">
           Chat App
         </h1>
         <main>

@@ -17,7 +17,7 @@ const Modal = ({
         <button
           type="button"
           title="Close"
-          className="absolute top-0 right-0 self-end p-3"
+          className="absolute right-0 top-0 self-end p-3"
           onClick={closeModal}
         >
           <VscClose className="h-6 w-6 hover:opacity-75" />
