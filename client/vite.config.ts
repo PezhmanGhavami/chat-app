@@ -14,7 +14,7 @@ export default defineConfig({
         short_name: "Chat App",
         description:
           "A prototype chat application made for educational purposes",
-        theme_color: "#ffffff",
+        theme_color: "#334155",
         start_url: "/",
         icons: [
           {

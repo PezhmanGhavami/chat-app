@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-white text-neutral-900 dark:bg-neutral-900 dark:text-white;
-}
-
 .Toastify__toast {
   @apply bg-neutral-100 dark:bg-zinc-800;
 }
