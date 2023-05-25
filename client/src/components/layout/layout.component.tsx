@@ -14,14 +14,10 @@ const Layout = () => {
         </div>
         <main
           className={`sm-w-full fixed inset-0 sm:static sm:flex-1 sm:translate-x-0 ${
-            params.chatId
-              ? "z-50 translate-x-0 sm:z-0"
-              : "translate-x-full"
+            params.chatId ? "z-50 translate-x-0 sm:z-0" : "translate-x-full"
           }`}
         >
-          <Outlet
-            key={params.chatId ? params.chatId : "no-chat"}
-          />
+          <Outlet key={params.chatId ? params.chatId : "no-chat"} />
         </main>
       </div>
     </WebSocketProvider>

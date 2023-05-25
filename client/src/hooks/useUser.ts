@@ -18,19 +18,13 @@ interface IUser {
 const redirectRoutes = ["/auth/signin", "/auth/signup"];
 
 export default function useUser() {
-  const { data, mutate } = useSWR<IUser>(
-    "/api/auth",
-    fetcher,
-  );
+  const { data, mutate } = useSWR<IUser>("/api/auth", fetcher);
 
   const location = useLocation();
   let navigate = useNavigate();
 
   useEffect(() => {
-    if (
-      data?.isLoggedIn &&
-      redirectRoutes.includes(location.pathname)
-    ) {
+    if (data?.isLoggedIn && redirectRoutes.includes(location.pathname)) {
       navigate("/", { replace: true });
     }
   }, [data]);

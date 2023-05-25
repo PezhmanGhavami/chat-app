@@ -31,15 +31,11 @@ const UserModal = ({
   user: IUser;
   closeModal: (event: MouseEvent) => void;
 }) => {
-  const { socket, isConnected } = useContext(
-    WebSocketContext,
-  );
+  const { socket, isConnected } = useContext(WebSocketContext);
 
   const handleClick = () => {
     if (!socket || !isConnected) {
-      return toast.error(
-        "Connection lost\nReconnecting...",
-      );
+      return toast.error("Connection lost\nReconnecting...");
     }
     socket.emit("create-chat", {
       recipientId: user.id,
@@ -57,9 +53,7 @@ const UserModal = ({
           <div>
             <p className="leading-4">{user.displayName}</p>
             {user.username && (
-              <p className="text-xs opacity-80">
-                @{user.username}
-              </p>
+              <p className="text-xs opacity-80">@{user.username}</p>
             )}
           </div>
         </div>
@@ -75,11 +69,7 @@ const UserModal = ({
   );
 };
 
-const UserCard = ({
-  user,
-  isInChat,
-  isReconnecting,
-}: IUserCard) => {
+const UserCard = ({ user, isInChat, isReconnecting }: IUserCard) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const closeModal = (event: MouseEvent) => {
@@ -104,11 +94,7 @@ const UserCard = ({
       {/* Display name */}
       <div className="pl-2">
         <h3
-          className={`${
-            isInChat
-              ? "text-base font-semibold leading-3"
-              : ""
-          }`}
+          className={`${isInChat ? "text-base font-semibold leading-3" : ""}`}
         >
           {user.displayName}
         </h3>
@@ -131,9 +117,7 @@ const UserCard = ({
         )}
       </div>
 
-      {modalIsOpen && (
-        <UserModal user={user} closeModal={closeModal} />
-      )}
+      {modalIsOpen && <UserModal user={user} closeModal={closeModal} />}
     </div>
   );
 };

@@ -29,12 +29,9 @@ const Signup = () => {
 
   const { mutateUser } = useUser();
 
-  const { email, displayName, password, confirmPassword } =
-    formData;
+  const { email, displayName, password, confirmPassword } = formData;
 
-  const handleChange = (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
       [event.target.name]: event.target.value,
@@ -56,9 +53,7 @@ const Signup = () => {
     if (email === "" || !email || !emailRegex.test(email)) {
       formIsValid = false;
       emailStatus =
-        email === "" || !email
-          ? inputStatus.EMPTY
-          : inputStatus.INVALID;
+        email === "" || !email ? inputStatus.EMPTY : inputStatus.INVALID;
       onSubmit &&
         toast.error(
           emailStatus === inputStatus.EMPTY
@@ -88,8 +83,7 @@ const Signup = () => {
     if (password === "" || !password) {
       formIsValid = false;
       passwordStatus = inputStatus.EMPTY;
-      onSubmit &&
-        toast.error("You should provide a password.");
+      onSubmit && toast.error("You should provide a password.");
     }
 
     if (
@@ -99,9 +93,7 @@ const Signup = () => {
     ) {
       formIsValid = false;
       confirmPasswordStatus =
-        password !== confirmPassword
-          ? inputStatus.INVALID
-          : inputStatus.EMPTY;
+        password !== confirmPassword ? inputStatus.INVALID : inputStatus.EMPTY;
 
       onSubmit &&
         toast.error(
@@ -120,9 +112,7 @@ const Signup = () => {
     };
   };
 
-  const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>,
-  ) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!validateForm(true).formIsValid) {
@@ -164,16 +154,10 @@ const Signup = () => {
   return (
     <div className={formStyles.formContainer}>
       <h2 className={formStyles.h2}>Sign up to Chat App</h2>
-      <form
-        onSubmit={handleSubmit}
-        className={formStyles.form}
-      >
+      <form onSubmit={handleSubmit} className={formStyles.form}>
         <div className={formStyles.inputsContainer}>
           <div className={formStyles.inputContainer}>
-            <label
-              className={formStyles.label}
-              htmlFor="signup-email"
-            >
+            <label className={formStyles.label} htmlFor="signup-email">
               Email address
             </label>
             <input
@@ -188,10 +172,7 @@ const Signup = () => {
             />
           </div>
           <div className={formStyles.inputContainer}>
-            <label
-              className={formStyles.label}
-              htmlFor="signup-display-name"
-            >
+            <label className={formStyles.label} htmlFor="signup-display-name">
               Display name
             </label>
             <input
@@ -205,10 +186,7 @@ const Signup = () => {
             />
           </div>
           <div className={formStyles.inputContainer}>
-            <label
-              className={formStyles.label}
-              htmlFor="signup-password"
-            >
+            <label className={formStyles.label} htmlFor="signup-password">
               Password
             </label>
             <input
@@ -239,18 +217,10 @@ const Signup = () => {
             />
           </div>
         </div>
-        <button
-          className={formStyles.submitButton}
-          type="submit"
-          tabIndex={5}
-        >
+        <button className={formStyles.submitButton} type="submit" tabIndex={5}>
           {isLoading ? <LoadingSpinner /> : "Sign up"}
         </button>
-        <Link
-          to={"/auth/signin"}
-          tabIndex={6}
-          className={formStyles.link}
-        >
+        <Link to={"/auth/signin"} tabIndex={6} className={formStyles.link}>
           <span>or sign in to your account</span>
         </Link>
       </form>

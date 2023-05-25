@@ -53,9 +53,7 @@ const ChatCard = ({ chat }: { chat: IChat }) => {
         <div className="w-full pl-3">
           {/* Title and last message time */}
           <div className="flex justify-between ">
-            <h3 className="font-semibold">
-              {chat.displayName}
-            </h3>
+            <h3 className="font-semibold">{chat.displayName}</h3>
             <span className="text-xs opacity-70">
               {dateFormatter(lastMessageDate)}
             </span>

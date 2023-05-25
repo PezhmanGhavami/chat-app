@@ -1,0 +1,8 @@
+# Block all crawlers for / and /chat
+User-agent: *
+Disallow: /
+Disallow: /chat
+
+# Allow  /auth, which is the landing page for people not logged in
+User-agent: *
+Allow: /auth

@@ -46,16 +46,12 @@ const AuthLayout = () => {
           {theme === "dark" ? (
             <>
               <BsSunFill />
-              <span className="text-sm">
-                Switch to light mode
-              </span>
+              <span className="text-sm">Switch to light mode</span>
             </>
           ) : (
             <>
               <BsMoonFill />
-              <span className="text-sm">
-                Switch to dark mode
-              </span>
+              <span className="text-sm">Switch to dark mode</span>
             </>
           )}
         </button>

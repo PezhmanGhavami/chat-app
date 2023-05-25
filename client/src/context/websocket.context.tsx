@@ -1,9 +1,4 @@
-import {
-  useState,
-  useEffect,
-  createContext,
-  ReactNode,
-} from "react";
+import { useState, useEffect, createContext, ReactNode } from "react";
 import io, { Socket } from "socket.io-client";
 
 import useUser from "../hooks/useUser";
@@ -23,11 +18,7 @@ const WebSocketContextInit: IWebSocketContext = {
 export const WebSocketContext =
   createContext<IWebSocketContext>(WebSocketContextInit);
 
-const WebSocketProvider = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
+const WebSocketProvider = ({ children }: { children: ReactNode }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const { user } = useUser();

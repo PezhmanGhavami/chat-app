@@ -60,9 +60,7 @@ const Signin = () => {
 
   const { usernameOrEmail, password } = formData;
 
-  const handleChange = (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
       [event.target.name]: event.target.value,
@@ -101,8 +99,7 @@ const Signin = () => {
     if (password === "" || !password) {
       formIsValid = false;
       passwordStatus = inputStatus.EMPTY;
-      onSubmit &&
-        toast.error("You should provide a password.");
+      onSubmit && toast.error("You should provide a password.");
     }
 
     return {
@@ -112,9 +109,7 @@ const Signin = () => {
     };
   };
 
-  const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>,
-  ) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!validateForm(true).formIsValid) {
@@ -154,10 +149,7 @@ const Signin = () => {
   return (
     <div className={formStyles.formContainer}>
       <h2 className={formStyles.h2}>Sign in to Chat App</h2>
-      <form
-        onSubmit={handleSubmit}
-        className={formStyles.form}
-      >
+      <form onSubmit={handleSubmit} className={formStyles.form}>
         <div className={formStyles.inputsContainer}>
           <div className={formStyles.inputContainer}>
             <label
@@ -178,10 +170,7 @@ const Signin = () => {
             />
           </div>
           <div className={formStyles.inputContainer}>
-            <label
-              className={formStyles.label}
-              htmlFor="signin-password"
-            >
+            <label className={formStyles.label} htmlFor="signin-password">
               Password
             </label>
             <input
@@ -195,18 +184,10 @@ const Signin = () => {
             />
           </div>
         </div>
-        <button
-          className={formStyles.submitButton}
-          type="submit"
-          tabIndex={3}
-        >
+        <button className={formStyles.submitButton} type="submit" tabIndex={3}>
           {isLoading ? <LoadingSpinner /> : "Sign in"}
         </button>
-        <Link
-          to={"/auth/signup"}
-          tabIndex={4}
-          className={formStyles.link}
-        >
+        <Link to={"/auth/signup"} tabIndex={4} className={formStyles.link}>
           <span>or create a new account</span>
         </Link>
       </form>

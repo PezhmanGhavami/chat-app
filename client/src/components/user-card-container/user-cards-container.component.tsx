@@ -1,14 +1,10 @@
-import UserCard, {
-  IUser,
-} from "../user-card/user-card.component";
+import UserCard, { IUser } from "../user-card/user-card.component";
 
 interface IUserCardsContainer {
   users: null | IUser[];
 }
 
-const UserCardsContainer = ({
-  users,
-}: IUserCardsContainer) => {
+const UserCardsContainer = ({ users }: IUserCardsContainer) => {
   if (!users || users?.length === 0) {
     return (
       <div className="flex h-full select-none items-center justify-center p-12 text-center text-xl sm:p-2">

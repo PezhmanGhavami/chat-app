@@ -8,11 +8,7 @@ import {
   useContext,
   UIEventHandler,
 } from "react";
-import {
-  Link,
-  useParams,
-  useNavigate,
-} from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
   VscArrowLeft,
@@ -54,18 +50,11 @@ interface IMessage {
   }[];
 }
 
-const showMessageDate = (
-  messages: IMessage[],
-  index: number,
-) => {
+const showMessageDate = (messages: IMessage[], index: number) => {
   if (messages.length - 1 === index) return true;
   const currentDate = new Date(messages[index].createdAt);
   const nextDate = new Date(messages[index + 1].createdAt);
-  if (
-    Math.floor(
-      (nextDate.getTime() - currentDate.getTime()) / 1000,
-    ) > 90
-  ) {
+  if (Math.floor((nextDate.getTime() - currentDate.getTime()) / 1000) > 90) {
     return true;
   }
   return false;
@@ -82,12 +71,13 @@ const Message = ({
   isLast: boolean;
   showTime: boolean;
 }) => {
-  const messageTime = new Date(
-    message.createdAt,
-  ).toLocaleTimeString("default", {
-    hour: "numeric",
-    minute: "numeric",
-  });
+  const messageTime = new Date(message.createdAt).toLocaleTimeString(
+    "default",
+    {
+      hour: "numeric",
+      minute: "numeric",
+    },
+  );
 
   return (
     <div>
@@ -142,12 +132,7 @@ const isTheSameDay = (
 
 const isLast = (messages: IMessage[], index: number) => {
   if (messages.length - 1 === index) return true;
-  if (
-    !isTheSameDay(
-      messages[index].createdAt,
-      messages[index + 1].createdAt,
-    )
-  ) {
+  if (!isTheSameDay(messages[index].createdAt, messages[index + 1].createdAt)) {
     return true;
   }
   const currentMessage = messages[index];
@@ -161,43 +146,25 @@ const isLast = (messages: IMessage[], index: number) => {
 function Chat() {
   const [currentRecipientUser, setCurrentRecipientUser] =
     useState<IChatUser | null>(null);
-  const [messagesList, setMessagesList] = useState<
-    IMessage[] | null
-  >(null);
+  const [messagesList, setMessagesList] = useState<IMessage[] | null>(null);
   const [message, setMessage] = useState("");
-  const [startOfUnread, setStartOfUnread] = useState<
-    null | number
-  >(null);
-  const [scrollbarAtEnd, setScrollbarAtEnd] =
-    useState(false);
-  const [showGoToBottom, setShowGoToBottom] =
-    useState(false);
-  const [thereIsNoScrollbar, setThereIsNoScrollbar] =
-    useState(false);
-  const [scrollbarAtTop, setScrollbarAtTop] =
-    useState(false);
-  const [isLoadingMoreMessages, setIsLoadingMoreMessages] =
-    useState(false);
+  const [startOfUnread, setStartOfUnread] = useState<null | number>(null);
+  const [scrollbarAtEnd, setScrollbarAtEnd] = useState(false);
+  const [showGoToBottom, setShowGoToBottom] = useState(false);
+  const [thereIsNoScrollbar, setThereIsNoScrollbar] = useState(false);
+  const [scrollbarAtTop, setScrollbarAtTop] = useState(false);
+  const [isLoadingMoreMessages, setIsLoadingMoreMessages] = useState(false);
   const [endOfMessages, setEndOfMessages] = useState(false);
-  const [lastUpdateRequest, setLastUpdateRequest] =
-    useState(0);
-  const [openChatDeleteModal, setOpenChatDeleteModal] =
-    useState(false);
+  const [lastUpdateRequest, setLastUpdateRequest] = useState(0);
+  const [openChatDeleteModal, setOpenChatDeleteModal] = useState(false);
 
-  const messagesListEnd = useRef<null | HTMLDivElement>(
-    null,
-  );
-  const unreadMessages = useRef<null | HTMLDivElement>(
-    null,
-  );
-  const messagesListContainer =
-    useRef<null | HTMLDivElement>(null);
+  const messagesListEnd = useRef<null | HTMLDivElement>(null);
+  const unreadMessages = useRef<null | HTMLDivElement>(null);
+  const messagesListContainer = useRef<null | HTMLDivElement>(null);
 
   const { user: currentUser } = useUser();
 
-  const { socket, isConnected } = useContext(
-    WebSocketContext,
-  );
+  const { socket, isConnected } = useContext(WebSocketContext);
 
   const params = useParams();
   const navigate = useNavigate();
@@ -210,41 +177,32 @@ function Chat() {
 
     socket.emit("joined-chat", { chatId: params.chatId });
     // Init
-    socket.on(
-      `chat-${params.chatId}-init`,
-      ({ recipientUser, messages }) => {
-        setCurrentRecipientUser(recipientUser);
-        setMessagesList(messages.reverse());
+    socket.on(`chat-${params.chatId}-init`, ({ recipientUser, messages }) => {
+      setCurrentRecipientUser(recipientUser);
+      setMessagesList(messages.reverse());
 
-        const index = (messages as IMessage[]).findIndex(
-          (message) =>
-            message.senderId === currentRecipientUser?.id &&
-            !message.recipients[0].isRead,
-        );
-        if (index === -1) {
-          setScrollbarAtEnd(true);
-        }
-        if (messages.length < 50) {
-          setEndOfMessages(true);
-        }
-      },
-    );
+      const index = (messages as IMessage[]).findIndex(
+        (message) =>
+          message.senderId === currentRecipientUser?.id &&
+          !message.recipients[0].isRead,
+      );
+      if (index === -1) {
+        setScrollbarAtEnd(true);
+      }
+      if (messages.length < 50) {
+        setEndOfMessages(true);
+      }
+    });
     // New message
-    socket.on(
-      `chat-${params.chatId}-new-message`,
-      ({ message }) => {
-        setMessagesList((prev) => [
-          ...(prev as IMessage[]),
-          message,
-        ]);
-        if (message.recipientId === currentUser?.userID) {
-          socket.emit("read-messages", {
-            chatId: params.chatId,
-          });
-          setAllToRead();
-        }
-      },
-    );
+    socket.on(`chat-${params.chatId}-new-message`, ({ message }) => {
+      setMessagesList((prev) => [...(prev as IMessage[]), message]);
+      if (message.recipientId === currentUser?.userID) {
+        socket.emit("read-messages", {
+          chatId: params.chatId,
+        });
+        setAllToRead();
+      }
+    });
     // Read all handler
     socket.on(`chat-${params.chatId}-read-all`, () => {
       setMessagesList((prev) =>
@@ -253,8 +211,7 @@ function Chat() {
           recipients: [
             {
               isRead: true,
-              recipientId:
-                message.recipients[0].recipientId,
+              recipientId: message.recipients[0].recipientId,
             },
           ],
         })),
@@ -270,8 +227,7 @@ function Chat() {
           return [...messages, ...prev!];
         });
 
-        const lastEelementBeforeUpdate =
-          document.getElementById(lastMessageId);
+        const lastEelementBeforeUpdate = document.getElementById(lastMessageId);
         lastEelementBeforeUpdate?.scrollIntoView();
 
         setLastUpdateRequest(Date.now());
@@ -280,13 +236,10 @@ function Chat() {
       },
     );
     // Error handler
-    socket.on(
-      `chat-${params.chatId}-error`,
-      ({ status, errorMessasge }) => {
-        toast.error(status + " - " + errorMessasge);
-        navigate("/");
-      },
-    );
+    socket.on(`chat-${params.chatId}-error`, ({ status, errorMessasge }) => {
+      toast.error(status + " - " + errorMessasge);
+      navigate("/");
+    });
     // Recipient status change
     socket.on(
       `chat-${params.chatId}-recipient-status-change`,
@@ -304,9 +257,7 @@ function Chat() {
       socket.off(`chat-${params.chatId}-new-message`);
       socket.off(`chat-${params.chatId}-messages-loader`);
       socket.off(`chat-${params.chatId}-read-all`);
-      socket.off(
-        `chat-${params.chatId}-recipient-status-change`,
-      );
+      socket.off(`chat-${params.chatId}-recipient-status-change`);
       socket.emit("left-chat", { chatId: params.chatId });
     };
   }, [socket, params.chatId, isConnected]);
@@ -314,36 +265,26 @@ function Chat() {
   // Delivered useEffect
   useEffect(() => {
     if (!messagesList || !socket) return;
-    socket.on(
-      `chat-${params.chatId}-delivered`,
-      ({ tempId, actualId }) => {
-        const messageIndex = messagesList?.findIndex(
-          (message) => message.id === tempId,
-        );
-        if (
-          messageIndex !== undefined &&
-          messageIndex !== -1
-        ) {
-          const newArr = [...(messagesList as IMessage[])];
-          newArr[messageIndex].id = actualId;
-          delete newArr[messageIndex].isLocal;
-          setMessagesList(newArr);
-        }
-      },
-    );
+    socket.on(`chat-${params.chatId}-delivered`, ({ tempId, actualId }) => {
+      const messageIndex = messagesList?.findIndex(
+        (message) => message.id === tempId,
+      );
+      if (messageIndex !== undefined && messageIndex !== -1) {
+        const newArr = [...(messagesList as IMessage[])];
+        newArr[messageIndex].id = actualId;
+        delete newArr[messageIndex].isLocal;
+        setMessagesList(newArr);
+      }
+    });
     return () => {
       socket.off(`chat-${params.chatId}-delivered`);
     };
   }, [socket, messagesList]);
 
-  const handleChange = (
-    event: ChangeEvent<HTMLTextAreaElement>,
-  ) => {
+  const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(event.target.value);
   };
-  const handleSubmit = (
-    event: FormEvent<HTMLFormElement>,
-  ) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     sendMessage();
   };
@@ -351,8 +292,7 @@ function Chat() {
     if (!socket || !currentRecipientUser)
       return toast.error("Connection lost...");
 
-    if (message.length === 0)
-      return toast.error("Can't send empty message");
+    if (message.length === 0) return toast.error("Can't send empty message");
 
     const tempId = Date.now().toString();
 
@@ -379,10 +319,7 @@ function Chat() {
       updatedAt: new Date(Date.now()),
     };
 
-    setMessagesList((prev) => [
-      ...(prev as IMessage[]),
-      newMessage,
-    ]);
+    setMessagesList((prev) => [...(prev as IMessage[]), newMessage]);
 
     setAllToRead();
     setMessage("");
@@ -418,8 +355,7 @@ function Chat() {
             recipients: [
               {
                 isRead: true,
-                recipientId:
-                  message.recipients[0].recipientId,
+                recipientId: message.recipients[0].recipientId,
               },
             ],
           };
@@ -460,39 +396,25 @@ function Chat() {
         messagesListEnd.current?.scrollIntoView();
       }
     }
-  }, [
-    scrollbarAtEnd,
-    thereIsNoScrollbar,
-    messagesList,
-    startOfUnread,
-  ]);
+  }, [scrollbarAtEnd, thereIsNoScrollbar, messagesList, startOfUnread]);
 
-  const handleScroll: UIEventHandler<HTMLDivElement> = (
-    event,
-  ) => {
+  const handleScroll: UIEventHandler<HTMLDivElement> = (event) => {
     const clientHeight = event.currentTarget.clientHeight;
     const scrollLeftToTop = event.currentTarget.scrollTop;
-    const totalScrollHeight =
-      event.currentTarget.scrollHeight;
+    const totalScrollHeight = event.currentTarget.scrollHeight;
     const sum = clientHeight + scrollLeftToTop;
     setScrollbarAtEnd(sum === totalScrollHeight);
-    setShowGoToBottom(
-      totalScrollHeight - sum > clientHeight / 2,
-    );
+    setShowGoToBottom(totalScrollHeight - sum > clientHeight / 2);
     setScrollbarAtTop(scrollLeftToTop === 0);
   };
 
   // no scrollbar useEffect
   useEffect(() => {
     if (messagesListContainer.current) {
-      const clientHeight =
-        messagesListContainer.current.clientHeight;
-      const totalScrollHeight =
-        messagesListContainer.current.scrollHeight;
+      const clientHeight = messagesListContainer.current.clientHeight;
+      const totalScrollHeight = messagesListContainer.current.scrollHeight;
 
-      setThereIsNoScrollbar(
-        clientHeight === totalScrollHeight,
-      );
+      setThereIsNoScrollbar(clientHeight === totalScrollHeight);
     }
   }, [
     messagesListContainer.current,
@@ -501,8 +423,7 @@ function Chat() {
 
   // Load more messages useEffect
   useEffect(() => {
-    if (!messagesList || !socket || !currentRecipientUser)
-      return;
+    if (!messagesList || !socket || !currentRecipientUser) return;
     const currentTime = Date.now();
     if (
       scrollbarAtTop &&
@@ -545,9 +466,7 @@ function Chat() {
     setOpenChatDeleteModal(false);
   };
 
-  const archiveChatEmitter = (
-    event: MouseEvent<HTMLAnchorElement>,
-  ) => {
+  const archiveChatEmitter = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     if (!socket || !currentRecipientUser)
       return toast.error(
@@ -561,11 +480,7 @@ function Chat() {
     navigate("/");
   };
 
-  if (
-    !messagesList ||
-    !currentRecipientUser ||
-    !currentUser
-  ) {
+  if (!messagesList || !currentRecipientUser || !currentUser) {
     return (
       <div className="h-full bg-white text-3xl dark:bg-neutral-900">
         <LoadingSpinner />
@@ -590,11 +505,7 @@ function Chat() {
       <div className="border-b border-neutral-300 bg-white p-3 pr-1 shadow dark:border-neutral-500 dark:bg-neutral-800">
         <header className="flex items-center justify-between text-lg">
           {/* Back */}
-          <Link
-            to={"/"}
-            title="Close chat"
-            className="p-2 pl-0"
-          >
+          <Link to={"/"} title="Close chat" className="p-2 pl-0">
             <VscArrowLeft />
           </Link>
           {/* User info */}
@@ -692,14 +603,15 @@ function Chat() {
               )) && (
               <div className="text-xs font-medium">
                 <Pill
-                  text={new Date(
-                    message.createdAt,
-                  ).toLocaleDateString("default", {
-                    weekday: "short",
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric",
-                  })}
+                  text={new Date(message.createdAt).toLocaleDateString(
+                    "default",
+                    {
+                      weekday: "short",
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    },
+                  )}
                 />
               </div>
             )}
@@ -719,10 +631,7 @@ function Chat() {
                 message={message}
                 isLast={isLast(messages, index)}
                 showTime={showMessageDate(messages, index)}
-                isOwn={
-                  message.senderId !==
-                  currentRecipientUser.id
-                }
+                isOwn={message.senderId !== currentRecipientUser.id}
               />
             </div>
           </div>
@@ -747,10 +656,7 @@ function Chat() {
           autoComplete="off"
           value={message}
           onKeyDown={(event) => {
-            if (
-              event.nativeEvent.code === "Enter" &&
-              !event.shiftKey
-            ) {
+            if (event.nativeEvent.code === "Enter" && !event.shiftKey) {
               event.preventDefault();
               sendMessage();
             }

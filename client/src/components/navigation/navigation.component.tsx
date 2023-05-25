@@ -1,10 +1,4 @@
-import {
-  ChangeEvent,
-  FormEvent,
-  useState,
-  useContext,
-  useEffect,
-} from "react";
+import { ChangeEvent, FormEvent, useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   VscSearch,
@@ -18,11 +12,7 @@ import {
   VscCheck,
   VscLock,
 } from "react-icons/vsc";
-import {
-  BsPeople,
-  BsSunFill,
-  BsMoonFill,
-} from "react-icons/bs";
+import { BsPeople, BsSunFill, BsMoonFill } from "react-icons/bs";
 import { MdDevices } from "react-icons/md";
 import { AiOutlineStop } from "react-icons/ai";
 import { IoHandLeftOutline } from "react-icons/io5";
@@ -46,10 +36,8 @@ import { IChat } from "../chat-card/chat-card.component";
 import { IUser } from "../user-card/user-card.component";
 
 const navStyles = {
-  button:
-    "w-full px-4 sm:px-6 hover:bg-gray-200 dark:hover:bg-neutral-700 ",
-  buttonDescription:
-    "h-12 text-lg flex items-center space-x-2 ",
+  button: "w-full px-4 sm:px-6 hover:bg-gray-200 dark:hover:bg-neutral-700 ",
+  buttonDescription: "h-12 text-lg flex items-center space-x-2 ",
 };
 
 const bgColors = [
@@ -106,34 +94,22 @@ interface ISession {
 const Navigation = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
-  const [openUserInfoForm, setOpenUserInfoForm] =
-    useState(false);
-  const [openUserAuthForm, setOpenUserAuthForm] =
-    useState(false);
-  const [openSessionManager, setOpenSessionManager] =
-    useState(false);
+  const [openUserInfoForm, setOpenUserInfoForm] = useState(false);
+  const [openUserAuthForm, setOpenUserAuthForm] = useState(false);
+  const [openSessionManager, setOpenSessionManager] = useState(false);
   const [formIsLoading, setFormIsLoading] = useState(false);
   const [chats, setChats] = useState<null | IChat[]>(null);
-  const [archivedChats, setArchivedChats] = useState<
-    null | IChat[]
-  >(null);
+  const [archivedChats, setArchivedChats] = useState<null | IChat[]>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [searchInput, setSearchInput] = useState("");
-  const [searchResult, setSearchResult] = useState<
-    null | IUser[]
-  >(null);
+  const [searchResult, setSearchResult] = useState<null | IUser[]>(null);
   const [authError, setAuthError] = useState(false);
-  const [activeSessions, setActiveSessions] = useState<
-    null | ISession[]
-  >(null);
-  const [currentSessionIndex, setCurrentSessionIndex] =
-    useState<null | number>(null);
-  const [userInfoForm, setUserInfoForm] = useState(
-    userInfoFormDefault,
+  const [activeSessions, setActiveSessions] = useState<null | ISession[]>(null);
+  const [currentSessionIndex, setCurrentSessionIndex] = useState<null | number>(
+    null,
   );
-  const [userAuthForm, setUserAuthForm] = useState(
-    userAuthFormDefault,
-  );
+  const [userInfoForm, setUserInfoForm] = useState(userInfoFormDefault);
+  const [userAuthForm, setUserAuthForm] = useState(userAuthFormDefault);
 
   const { user, mutateUser } = useUser();
   const { socket, isConnected, updateIsConnected } =
@@ -166,9 +142,7 @@ const Navigation = () => {
       toast.error(status + " - " + errorMessage);
       setAuthError(true);
       if (status === 401) {
-        globalThis.document
-          .getElementById("the-signout-button")
-          ?.click();
+        globalThis.document.getElementById("the-signout-button")?.click();
       }
     });
     socket.on("disconnect", () => {
@@ -200,16 +174,8 @@ const Navigation = () => {
     // chats list update
     socket.on(
       "chats-list-update",
-      ({
-        chatId,
-        lastMessage,
-        lastMessageDate,
-        unreadCount,
-        readAll,
-      }) => {
-        const targetChatIndex = chats.findIndex(
-          (chat) => chat.id === chatId,
-        );
+      ({ chatId, lastMessage, lastMessageDate, unreadCount, readAll }) => {
+        const targetChatIndex = chats.findIndex((chat) => chat.id === chatId);
         if (chatId !== -1) {
           if (readAll) {
             setChats((prev) => {
@@ -260,31 +226,18 @@ const Navigation = () => {
     );
     // Chat deleted
     socket.on("chat-deleted", ({ chatId }) => {
-      setChats((prev) =>
-        prev!.filter((chat) => chat.id !== chatId),
-      );
+      setChats((prev) => prev!.filter((chat) => chat.id !== chatId));
     });
 
     socket.on("archive-change", ({ chatId, archive }) => {
       if (archive) {
-        const newArchived = chats.find(
-          (chat) => chat.id === chatId,
-        );
-        setChats((prev) =>
-          prev!.filter((chat) => chat.id !== chatId),
-        );
-        setArchivedChats((prev) => [
-          newArchived!,
-          ...prev!,
-        ]);
+        const newArchived = chats.find((chat) => chat.id === chatId);
+        setChats((prev) => prev!.filter((chat) => chat.id !== chatId));
+        setArchivedChats((prev) => [newArchived!, ...prev!]);
       } else {
-        const newUnarchived = archivedChats.find(
-          (chat) => chat.id === chatId,
-        );
+        const newUnarchived = archivedChats.find((chat) => chat.id === chatId);
         setChats((prev) => [newUnarchived!, ...prev!]);
-        setArchivedChats((prev) =>
-          prev!.filter((chat) => chat.id !== chatId),
-        );
+        setArchivedChats((prev) => prev!.filter((chat) => chat.id !== chatId));
       }
     });
 
@@ -330,16 +283,10 @@ const Navigation = () => {
       }
     };
 
-    globalThis.addEventListener(
-      "keyup",
-      escapeEventFunction,
-    );
+    globalThis.addEventListener("keyup", escapeEventFunction);
 
     return () => {
-      globalThis.removeEventListener(
-        "keyup",
-        escapeEventFunction,
-      );
+      globalThis.removeEventListener("keyup", escapeEventFunction);
     };
   }, [openSearch]);
 
@@ -423,9 +370,7 @@ const Navigation = () => {
         .then((res) => {
           toast.success(res.message);
           setActiveSessions((prev) =>
-            prev!.filter(
-              (session) => session.id === user?.sessionId,
-            ),
+            prev!.filter((session) => session.id === user?.sessionId),
           );
           setCurrentSessionIndex(0);
           socket?.emit("session-terminated", {
@@ -436,20 +381,15 @@ const Navigation = () => {
           if (error instanceof Error) {
             toast.error(error.message);
           } else {
-            toast.error(
-              "Couldn't terminate other sessions.",
-            );
+            toast.error("Couldn't terminate other sessions.");
           }
         });
     }
 
     const selectedSession = activeSessions![index];
-    return fetcher(
-      `/api/auth/sessions/${selectedSession.id}`,
-      {
-        method: "DELETE",
-      },
-    )
+    return fetcher(`/api/auth/sessions/${selectedSession.id}`, {
+      method: "DELETE",
+    })
       .then((res) => {
         console.log(res);
         toast.success(res.message);
@@ -478,9 +418,7 @@ const Navigation = () => {
       });
   };
 
-  const handleSearchChange = (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchInput(event.target.value);
 
     if (event.target.value.length >= 3) {
@@ -496,8 +434,7 @@ const Navigation = () => {
       const displayNameRegex = /^(?!.{21,})\w+( *?\w)+$/;
 
       if (
-        (userInfoForm.username !== "" ||
-          userInfoForm.username) &&
+        (userInfoForm.username !== "" || userInfoForm.username) &&
         !usernameRegex.test(userInfoForm.username)
       ) {
         formIsValid = false;
@@ -514,8 +451,7 @@ const Navigation = () => {
         formIsValid = false;
 
         toast.error(
-          userInfoForm.displayName === "" ||
-            !userInfoForm.displayName
+          userInfoForm.displayName === "" || !userInfoForm.displayName
             ? "You should provide a name"
             : "Invalid name.\nName should be less than 20 characters.Only alphanumeric characters and space is allowed.",
         );
@@ -550,21 +486,17 @@ const Navigation = () => {
       ) {
         formIsValid = false;
 
-        toast.error(
-          "Your new password should be at least 6 characters.",
-        );
+        toast.error("Your new password should be at least 6 characters.");
       }
 
       if (
         userAuthForm.newPassword !== "" &&
         (userAuthForm.newPasswordConfirmation === "" ||
-          userAuthForm.newPasswordConfirmation !==
-            userAuthForm.newPassword)
+          userAuthForm.newPasswordConfirmation !== userAuthForm.newPassword)
       ) {
         formIsValid = false;
         toast.error(
-          userAuthForm.newPasswordConfirmation !==
-            userAuthForm.newPassword
+          userAuthForm.newPasswordConfirmation !== userAuthForm.newPassword
             ? "Passwords should match."
             : "Please confirm your password before you continue.",
         );
@@ -574,9 +506,7 @@ const Navigation = () => {
     return formIsValid;
   };
 
-  const handleUserInfoFormChange = (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleUserInfoFormChange = (event: ChangeEvent<HTMLInputElement>) => {
     setUserInfoForm((prev) => ({
       ...prev,
       [event.target.name]: event.target.value,
@@ -587,13 +517,9 @@ const Navigation = () => {
       ...prev,
       bgColor: selectedColor,
     }));
-    (
-      globalThis.document.activeElement as HTMLElement
-    ).blur();
+    (globalThis.document.activeElement as HTMLElement).blur();
   };
-  const handleUserInfoFormSubmit = async (
-    event: FormEvent,
-  ) => {
+  const handleUserInfoFormSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
     if (!validateForm("info")) return;
@@ -651,25 +577,18 @@ const Navigation = () => {
     }
   };
 
-  const handleUserAuthFormChange = (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleUserAuthFormChange = (event: ChangeEvent<HTMLInputElement>) => {
     setUserAuthForm((prev) => ({
       ...prev,
       [event.target.name]: event.target.value,
     }));
   };
-  const handleUserAuthFormSubmit = async (
-    event: FormEvent,
-  ) => {
+  const handleUserAuthFormSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
     if (!validateForm("auth")) return;
 
-    if (
-      userAuthForm.email === user?.email &&
-      userAuthForm.newPassword === ""
-    ) {
+    if (userAuthForm.email === user?.email && userAuthForm.newPassword === "") {
       toast.info("Nothing to update.");
       return;
     }
@@ -688,8 +607,7 @@ const Navigation = () => {
     }
     if (userAuthForm.newPassword !== "") {
       payload.newPassword = userAuthForm.newPassword;
-      payload.newPasswordConfirmation =
-        userAuthForm.newPasswordConfirmation;
+      payload.newPasswordConfirmation = userAuthForm.newPasswordConfirmation;
     }
 
     const headers = new Headers({
@@ -755,9 +673,7 @@ const Navigation = () => {
           {openMenu && <Overlay handleClick={toggleMenu} />}
           <nav
             className={`fixed inset-y-0 left-0 z-40 flex w-2/3 flex-col bg-white transition-transform duration-200 dark:bg-neutral-800 sm:w-64 md:w-72 lg:w-80 xl:w-96 ${
-              openMenu
-                ? "translate-x-0"
-                : "-translate-x-full"
+              openMenu ? "translate-x-0" : "-translate-x-full"
             } `}
           >
             {/* Top part */}
@@ -780,16 +696,10 @@ const Navigation = () => {
                   className="self-start rounded-full p-2 text-xl hover:bg-gray-200 dark:hover:bg-neutral-700"
                   onClick={changeTheme}
                 >
-                  {theme === "dark" ? (
-                    <BsSunFill />
-                  ) : (
-                    <BsMoonFill />
-                  )}
+                  {theme === "dark" ? <BsSunFill /> : <BsMoonFill />}
                 </button>
               </div>
-              <p className="pt-4 font-medium">
-                {user.displayName}
-              </p>
+              <p className="pt-4 font-medium">{user.displayName}</p>
               <p className="opacity-70">{user.email}</p>
             </div>
             {/* Links and buttons */}
@@ -799,10 +709,7 @@ const Navigation = () => {
                 <button
                   type="button"
                   title="Click to show the archived chats"
-                  className={
-                    navStyles.button +
-                    navStyles.buttonDescription
-                  }
+                  className={navStyles.button + navStyles.buttonDescription}
                   onClick={toggleArchivedChats}
                 >
                   <VscArchive />
@@ -811,10 +718,7 @@ const Navigation = () => {
                 <button
                   type="button"
                   title="Click to edit your profile"
-                  className={
-                    navStyles.button +
-                    navStyles.buttonDescription
-                  }
+                  className={navStyles.button + navStyles.buttonDescription}
                   onClick={toggleUserInfoForm}
                 >
                   <VscAccount />
@@ -823,10 +727,7 @@ const Navigation = () => {
                 <button
                   type="button"
                   title="Click to change your credentials"
-                  className={
-                    navStyles.button +
-                    navStyles.buttonDescription
-                  }
+                  className={navStyles.button + navStyles.buttonDescription}
                   onClick={toggleUserAuthForm}
                 >
                   <VscLock />
@@ -850,10 +751,7 @@ const Navigation = () => {
                 <button
                   type="button"
                   title="Click to see and terminate active sessions"
-                  className={
-                    navStyles.button +
-                    navStyles.buttonDescription
-                  }
+                  className={navStyles.button + navStyles.buttonDescription}
                   onClick={toggleSessionManager}
                 >
                   <MdDevices />
@@ -893,15 +791,10 @@ const Navigation = () => {
                     Archived chats
                   </span>
                 ) : (
-                  <span title="Click to go home - Connected">
-                    Chat app
-                  </span>
+                  <span title="Click to go home - Connected">Chat app</span>
                 )
               ) : (
-                <span
-                  title="Connecting..."
-                  className="animate-pulse"
-                >
+                <span title="Connecting..." className="animate-pulse">
                   Connecting...
                 </span>
               )}
@@ -918,10 +811,7 @@ const Navigation = () => {
           {openSearch && (
             <form className="absolute left-0 z-10 w-full overflow-hidden rounded-md bg-gray-200 dark:bg-neutral-700">
               <div>
-                <label
-                  htmlFor="user-search"
-                  className="sr-only"
-                >
+                <label htmlFor="user-search" className="sr-only">
                   Search
                 </label>
                 <div className="flex h-8 pr-1">
@@ -979,17 +869,14 @@ const Navigation = () => {
                           <ProfilePicture
                             user={{
                               displayName:
-                                userInfoForm.displayName
-                                  .length >= 1
+                                userInfoForm.displayName.length >= 1
                                   ? userInfoForm.displayName
                                   : user.displayName,
                               bgColor: color,
-                              profilePicture:
-                                userInfoForm.profilePicture,
+                              profilePicture: userInfoForm.profilePicture,
                             }}
                           />
-                          {color ===
-                            userInfoForm.bgColor && (
+                          {color === userInfoForm.bgColor && (
                             <div className="absolute right-0 top-0 w-fit rounded-full bg-blue-600 p-[2px] text-xs text-white">
                               <VscCheck />
                             </div>
@@ -1008,8 +895,7 @@ const Navigation = () => {
                           ? userInfoForm.displayName
                           : user.displayName,
                       bgColor: userInfoForm.bgColor,
-                      profilePicture:
-                        userInfoForm.profilePicture,
+                      profilePicture: userInfoForm.profilePicture,
                     }}
                   />
                   <div className="absolute bottom-1 right-1 rounded-full bg-white p-1 text-base dark:bg-neutral-900">
@@ -1033,19 +919,14 @@ const Navigation = () => {
               >
                 {/* TODO - handle image upload */}
                 <div className={formStyles.inputsContainer}>
-                  <div
-                    className={formStyles.inputContainer}
-                  >
+                  <div className={formStyles.inputContainer}>
                     <label
                       className={formStyles.label}
                       htmlFor="update-display-name"
                     >
                       Name{" "}
-                      {userInfoForm.displayName !==
-                        user.displayName && (
-                        <div className="float-right">
-                          {unsavedChangSpan}
-                        </div>
+                      {userInfoForm.displayName !== user.displayName && (
+                        <div className="float-right">{unsavedChangSpan}</div>
                       )}
                     </label>
                     <input
@@ -1057,19 +938,15 @@ const Navigation = () => {
                       className={formStyles.input}
                     />
                   </div>
-                  <div
-                    className={formStyles.inputContainer}
-                  >
+                  <div className={formStyles.inputContainer}>
                     <label
                       className={formStyles.label}
                       htmlFor="update-username"
                     >
                       Username{" "}
                       {(user.username &&
-                        userInfoForm.username !==
-                          user.username) ||
-                        (userInfoForm.username.length >=
-                          1 &&
+                        userInfoForm.username !== user.username) ||
+                        (userInfoForm.username.length >= 1 &&
                           user.username === null && (
                             <div className="float-right">
                               {unsavedChangSpan}
@@ -1091,11 +968,7 @@ const Navigation = () => {
                   title="Click to save info"
                   type="submit"
                 >
-                  {formIsLoading ? (
-                    <LoadingSpinner />
-                  ) : (
-                    "Save"
-                  )}
+                  {formIsLoading ? <LoadingSpinner /> : "Save"}
                 </button>
               </form>
             </Modal>
@@ -1103,17 +976,13 @@ const Navigation = () => {
           {/* User credentials update form */}
           {openUserAuthForm && (
             <Modal closeModal={closeUserAuthForm}>
-              <h2 className={formStyles.h2}>
-                Account security
-              </h2>
+              <h2 className={formStyles.h2}>Account security</h2>
               <form
                 onSubmit={handleUserAuthFormSubmit}
                 className="flex flex-col space-y-2"
               >
                 <div className={formStyles.inputsContainer}>
-                  <div
-                    className={formStyles.inputContainer}
-                  >
+                  <div className={formStyles.inputContainer}>
                     <label
                       className={formStyles.label}
                       htmlFor="confirm-password"
@@ -1134,19 +1003,11 @@ const Navigation = () => {
                       className={formStyles.input}
                     />
                   </div>
-                  <div
-                    className={formStyles.inputContainer}
-                  >
-                    <label
-                      className={formStyles.label}
-                      htmlFor="update-email"
-                    >
+                  <div className={formStyles.inputContainer}>
+                    <label className={formStyles.label} htmlFor="update-email">
                       Email address{" "}
-                      {userAuthForm.email !==
-                        user.email && (
-                        <div className="float-right">
-                          {unsavedChangSpan}
-                        </div>
+                      {userAuthForm.email !== user.email && (
+                        <div className="float-right">{unsavedChangSpan}</div>
                       )}
                     </label>
                     <input
@@ -1158,9 +1019,7 @@ const Navigation = () => {
                       className={formStyles.input}
                     />
                   </div>
-                  <div
-                    className={formStyles.inputContainer}
-                  >
+                  <div className={formStyles.inputContainer}>
                     <label
                       className={formStyles.label}
                       htmlFor="update-password"
@@ -1168,11 +1027,9 @@ const Navigation = () => {
                       New password{" "}
                       <div className="float-right">
                         {userAuthForm.newPassword !== "" &&
-                          (userAuthForm.newPassword.length <
-                          6 ? (
+                          (userAuthForm.newPassword.length < 6 ? (
                             <span className="text-sm text-red-600 dark:text-red-500">
-                              Needs to be at least 6
-                              characters
+                              Needs to be at least 6 characters
                             </span>
                           ) : userAuthForm.newPassword !==
                             userAuthForm.newPasswordConfirmation ? (
@@ -1193,9 +1050,7 @@ const Navigation = () => {
                       className={formStyles.input}
                     />
                   </div>
-                  <div
-                    className={formStyles.inputContainer}
-                  >
+                  <div className={formStyles.inputContainer}>
                     <label
                       className={formStyles.label}
                       htmlFor="update-password-confirmation"
@@ -1203,8 +1058,7 @@ const Navigation = () => {
                       Confirm password{" "}
                       <div className="float-right">
                         {userAuthForm.newPassword !== "" &&
-                          userAuthForm.newPasswordConfirmation !==
-                            "" &&
+                          userAuthForm.newPasswordConfirmation !== "" &&
                           (userAuthForm.newPassword !==
                           userAuthForm.newPasswordConfirmation ? (
                             <span className="text-sm text-red-600 dark:text-red-500">
@@ -1219,9 +1073,7 @@ const Navigation = () => {
                       type="password"
                       name="newPasswordConfirmation"
                       id="update-password-confirmation"
-                      value={
-                        userAuthForm.newPasswordConfirmation
-                      }
+                      value={userAuthForm.newPasswordConfirmation}
                       onChange={handleUserAuthFormChange}
                       className={formStyles.input}
                     />
@@ -1232,11 +1084,7 @@ const Navigation = () => {
                   title="Click to save credentials"
                   type="submit"
                 >
-                  {formIsLoading ? (
-                    <LoadingSpinner />
-                  ) : (
-                    "Save"
-                  )}
+                  {formIsLoading ? <LoadingSpinner /> : "Save"}
                 </button>
               </form>
             </Modal>
@@ -1259,9 +1107,7 @@ const Navigation = () => {
                         Created at:{" "}
                         <span>
                           {new Date(
-                            activeSessions[
-                              currentSessionIndex!
-                            ].createdAt,
+                            activeSessions[currentSessionIndex!].createdAt,
                           ).toLocaleString("default", {
                             year: "numeric",
                             month: "long",
@@ -1276,14 +1122,10 @@ const Navigation = () => {
                           type="button"
                           title="Click to terminate all other sessions except this one"
                           className="flex h-9 w-full items-center space-x-2 rounded-md px-2 text-red-600 hover:bg-gray-200 dark:text-red-500 dark:hover:bg-neutral-700"
-                          onClick={() =>
-                            handleSessionTermination(-1)
-                          }
+                          onClick={() => handleSessionTermination(-1)}
                         >
                           <IoHandLeftOutline />
-                          <span>
-                            Terminate all other sessions
-                          </span>
+                          <span>Terminate all other sessions</span>
                         </button>
                       ) : (
                         <p className="rounded-md p-2 font-medium hover:bg-gray-200 dark:hover:bg-neutral-700">
@@ -1300,8 +1142,7 @@ const Navigation = () => {
                       <div className="max-h-96 overflow-y-auto">
                         {activeSessions.map(
                           (session, index) =>
-                            index !==
-                              currentSessionIndex && (
+                            index !== currentSessionIndex && (
                               <div
                                 key={session.id}
                                 className="flex items-center justify-between rounded-md py-[2px] pl-2 hover:bg-gray-200 dark:hover:bg-neutral-700"
@@ -1314,14 +1155,11 @@ const Navigation = () => {
                                         ? " Online"
                                         : ` Last online ${new Date(
                                             session.lastOnline!,
-                                          ).toLocaleDateString(
-                                            "default",
-                                            {
-                                              month: "long",
-                                              day: "2-digit",
-                                              year: "numeric",
-                                            },
-                                          )}`}
+                                          ).toLocaleDateString("default", {
+                                            month: "long",
+                                            day: "2-digit",
+                                            year: "numeric",
+                                          })}`}
                                     </span>
                                   </p>
                                   <p>
@@ -1329,16 +1167,13 @@ const Navigation = () => {
                                     <span className="block pl-1 sm:inline sm:p-0">
                                       {new Date(
                                         session.createdAt,
-                                      ).toLocaleString(
-                                        "default",
-                                        {
-                                          year: "numeric",
-                                          month: "long",
-                                          day: "2-digit",
-                                          hour: "2-digit",
-                                          minute: "2-digit",
-                                        },
-                                      )}
+                                      ).toLocaleString("default", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "2-digit",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })}
                                     </span>
                                   </p>
                                 </div>
@@ -1347,9 +1182,7 @@ const Navigation = () => {
                                   title="Click to terminate this session"
                                   className="rounded-md p-4 hover:bg-gray-200 hover:text-red-600 dark:hover:bg-neutral-700 dark:hover:text-red-500"
                                   onClick={() =>
-                                    handleSessionTermination(
-                                      index,
-                                    )
+                                    handleSessionTermination(index)
                                   }
                                 >
                                   <AiOutlineStop />
@@ -1372,9 +1205,7 @@ const Navigation = () => {
           <UserCardsContainer users={searchResult} />
         ) : (
           <div className="flex h-full select-none items-center justify-center p-12 text-center text-xl sm:p-2">
-            <p>
-              Search by name, username, id or email address
-            </p>
+            <p>Search by name, username, id or email address</p>
           </div>
         )
       ) : !chats || !archivedChats ? (
@@ -1386,13 +1217,11 @@ const Navigation = () => {
           <ChatCardsContainer chats={chats} />
         ) : (
           <div className="flex h-full select-none flex-col items-center justify-center space-y-4 p-12 text-center sm:px-4">
-            <p className="text-2xl">
-              You haven't started a converstion yet.
-            </p>
+            <p className="text-2xl">You haven't started a converstion yet.</p>
             <p className="text-sm">
-              You can start chatting by searching for people
-              you know and begin a conversation with them;
-              after that, your chats will be listed here.
+              You can start chatting by searching for people you know and begin
+              a conversation with them; after that, your chats will be listed
+              here.
             </p>
             <button
               title="Start searching for users"

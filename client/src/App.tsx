@@ -16,8 +16,8 @@ const CustomToast = () => {
   return (
     <div>
       <p>
-        This is a prototype project made for educational
-        purposes. You can find the source code here:
+        This is a prototype project made for educational purposes. You can find
+        the source code here:
       </p>
       <a
         className="text-blue-600 hover:underline dark:text-blue-300"

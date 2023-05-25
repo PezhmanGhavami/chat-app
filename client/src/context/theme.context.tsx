@@ -1,9 +1,4 @@
-import {
-  useState,
-  useEffect,
-  createContext,
-  ReactNode,
-} from "react";
+import { useState, useEffect, createContext, ReactNode } from "react";
 
 export const ThemeContext = createContext({
   theme: "light",
@@ -11,40 +6,26 @@ export const ThemeContext = createContext({
 });
 
 const detectBrowserTheme = () => {
-  if (
-    globalThis.matchMedia("(prefers-color-scheme: dark)")
-      .matches
-  ) {
+  if (globalThis.matchMedia("(prefers-color-scheme: dark)").matches) {
     return "dark";
   }
   return "light";
 };
 
-const ThemeProvider = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
+const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState("");
 
   useEffect(() => {
-    const savedTheme =
-      globalThis.localStorage.getItem("theme");
-    const initialTheme = savedTheme
-      ? savedTheme
-      : detectBrowserTheme();
+    const savedTheme = globalThis.localStorage.getItem("theme");
+    const initialTheme = savedTheme ? savedTheme : detectBrowserTheme();
     setTheme(initialTheme);
   }, []);
 
   useEffect(() => {
     if (theme === "dark") {
-      globalThis.document.documentElement.classList.add(
-        "dark",
-      );
+      globalThis.document.documentElement.classList.add("dark");
     } else {
-      globalThis.document.documentElement.classList.remove(
-        "dark",
-      );
+      globalThis.document.documentElement.classList.remove("dark");
     }
   }, [theme]);
 
