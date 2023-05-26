@@ -2,14 +2,15 @@
 - [] Tests
   - [] e2e for client
   - [] Unit testing for server
-- [] Make it PWA compliant
+- [x] Make it PWA compliant
+  - [] Improve offline capabilities
+- [] Caching in the client
+  - [] Chats list
+  - [] 50 latest messages for each chat
 - [] Animations
   - [] Chat change animation (Close, Change)
   - [] Improve new message animation
   - [] Improve message loading animation and scroll jumping
-- [] Caching in the client
-  - [] Chats list
-  - [] 50 latest messages for each chat
 - [] Add redis as a cache layer to the server
 - [] Handle image uploads and sending images as a message
 - [] User profile image
