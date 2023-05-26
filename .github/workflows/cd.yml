@@ -30,6 +30,7 @@ jobs:
       - name: Setting up client env variables
         run: |
           touch ./client/.env
+          echo NODE_ENV=${{ secrets.NODE_ENV }} >> ./client/.env
           echo VITE_SOCKET_URL=${{ secrets.VITE_SOCKET_URL }} >> ./client/.env
       - name: Installing client dependencies
         run: npm ci --prefix ./client
