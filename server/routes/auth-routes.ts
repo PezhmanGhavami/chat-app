@@ -10,13 +10,7 @@ authRouter.post("/", authController.handleRegister);
 authRouter.post("/signin", authController.handleSignin);
 authRouter.get("/signout", authController.handleSignout);
 authRouter.get("/sessions", authController.getSessions);
-authRouter.delete(
-  "/sessions/:sessionId",
-  authController.terminateSession
-);
-authRouter.delete(
-  "/signout-all",
-  authController.signoutAll
-);
+authRouter.delete("/sessions/:sessionId", authController.terminateSession);
+authRouter.delete("/signout-all", authController.signoutAll);
 
 export default authRouter;

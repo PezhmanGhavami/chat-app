@@ -4,17 +4,14 @@ const errorHandler = (
   err: Error,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const statusCode = res.statusCode || 500;
   res.status(statusCode);
   res.json({
     status: "ERROR",
     message: err.message,
-    stack:
-      process.env.NODE_ENV === "production"
-        ? null
-        : err.stack,
+    stack: process.env.NODE_ENV === "production" ? null : err.stack,
   } as IApiMessage);
 };
 

@@ -8,7 +8,7 @@ import { IUserCard, IChatCard } from "./utils/types";
 const startSocketServer = (
   httpServer: Server,
   currentHost: string,
-  currentPort: number
+  currentPort: number,
 ) => {
   const io = new socketServer(httpServer, {
     cors: {
@@ -18,7 +18,7 @@ const startSocketServer = (
   });
 
   console.log(
-    `Socket.IO server started at http://${currentHost}:${currentPort}/ws`
+    `Socket.IO server started at http://${currentHost}:${currentPort}/ws`,
   );
 
   io.on("connection", async (socket) => {
@@ -28,12 +28,7 @@ const startSocketServer = (
     const socketWithTimeout = socket.timeout(1000 * 30);
 
     try {
-      if (
-        !sessionId ||
-        !id ||
-        sessionId === "" ||
-        id === ""
-      ) {
+      if (!sessionId || !id || sessionId === "" || id === "") {
         if (sessionId === "" || id === "") {
           socketWithTimeout.emit(`auth-error`, {
             status: 401,
@@ -49,12 +44,11 @@ const startSocketServer = (
         return socket.disconnect(true);
       }
 
-      const sessionIsAlreadyConnected =
-        await prisma.session.findUnique({
-          where: {
-            id: sessionId as string,
-          },
-        });
+      const sessionIsAlreadyConnected = await prisma.session.findUnique({
+        where: {
+          id: sessionId as string,
+        },
+      });
 
       if (
         sessionIsAlreadyConnected?.isOnline &&
@@ -67,8 +61,7 @@ const startSocketServer = (
         for (const foundSocket of foundSockets) {
           foundSocket.emit("auth-error", {
             status: 501,
-            errorMessage:
-              "Each session can only have one active connection.",
+            errorMessage: "Each session can only have one active connection.",
           });
           foundSocket.disconnect(true);
         }
@@ -101,12 +94,9 @@ const startSocketServer = (
         if (room) {
           socketWithTimeout
             .to(chat.id)
-            .emit(
-              `chat-${chat.id}-recipient-status-change`,
-              {
-                isOnline: true,
-              }
-            );
+            .emit(`chat-${chat.id}-recipient-status-change`, {
+              isOnline: true,
+            });
         }
       }
 
@@ -119,15 +109,9 @@ const startSocketServer = (
             },
           });
           // TODO - add other suggestions to this mode
-          if (!res)
-            return socket.volatile.emit(
-              "search-result",
-              []
-            );
+          if (!res) return socket.volatile.emit("search-result", []);
 
-          return socket.volatile.emit("search-result", [
-            res,
-          ] as IUserCard[]);
+          return socket.volatile.emit("search-result", [res] as IUserCard[]);
         }
         const res = await prisma.user.findMany({
           where: {
@@ -164,107 +148,91 @@ const startSocketServer = (
           },
         });
 
-        socket.volatile.emit(
-          "search-result",
-          res as IUserCard[]
-        );
+        socket.volatile.emit("search-result", res as IUserCard[]);
       });
 
       // Create chat
-      socket.on(
-        "create-chat",
-        async ({ recipientName, recipientId }) => {
-          const chat = await prisma.chat.findFirst({
-            where: {
-              users: {
-                every: {
-                  OR: [
-                    { id: id as string },
-                    { id: recipientId },
-                  ],
+      socket.on("create-chat", async ({ recipientName, recipientId }) => {
+        const chat = await prisma.chat.findFirst({
+          where: {
+            users: {
+              every: {
+                OR: [{ id: id as string }, { id: recipientId }],
+              },
+            },
+          },
+        });
+        if (chat) {
+          return socketWithTimeout.emit("chat-exists", {
+            chatId: chat.id,
+          });
+        }
+        const newChat = await prisma.chat.create({
+          data: {
+            users: {
+              connect: [{ id: recipientId }, { id }],
+            },
+            membersStatus: {
+              create: [
+                {
+                  user: { connect: { id: id as string } },
+                  chatName: recipientName,
                 },
-              },
+                {
+                  user: { connect: { id: recipientId } },
+                  chatName: updatedSession.user.displayName,
+                },
+              ],
             },
-          });
-          if (chat) {
-            return socketWithTimeout.emit("chat-exists", {
-              chatId: chat.id,
-            });
-          }
-          const newChat = await prisma.chat.create({
-            data: {
-              users: {
-                connect: [{ id: recipientId }, { id }],
-              },
-              membersStatus: {
-                create: [
-                  {
-                    user: { connect: { id: id as string } },
-                    chatName: recipientName,
-                  },
-                  {
-                    user: { connect: { id: recipientId } },
-                    chatName:
-                      updatedSession.user.displayName,
-                  },
-                ],
-              },
-            },
-            include: {
-              users: true,
-            },
-          });
+          },
+          include: {
+            users: true,
+          },
+        });
 
-          let currentUser;
-          let recipientUser;
+        let currentUser;
+        let recipientUser;
 
-          if (newChat.users[0].id === id) {
-            currentUser = newChat.users[0];
-            recipientUser = newChat.users[1];
-          } else {
-            recipientUser = newChat.users[0];
-            currentUser = newChat.users[1];
-          }
+        if (newChat.users[0].id === id) {
+          currentUser = newChat.users[0];
+          recipientUser = newChat.users[1];
+        } else {
+          recipientUser = newChat.users[0];
+          currentUser = newChat.users[1];
+        }
 
-          const currentUserPayload: IChatCard = {
-            id: newChat.id,
-            bgColor: recipientUser.bgColor,
-            displayName: recipientUser.displayName,
-            profilePicture: recipientUser.profilePicture,
-            lastMessage: newChat.lastMessage,
-            lastMessageDate: newChat.updatedAt,
-            unreadCount: 0,
-            isArchived: false,
+        const currentUserPayload: IChatCard = {
+          id: newChat.id,
+          bgColor: recipientUser.bgColor,
+          displayName: recipientUser.displayName,
+          profilePicture: recipientUser.profilePicture,
+          lastMessage: newChat.lastMessage,
+          lastMessageDate: newChat.updatedAt,
+          unreadCount: 0,
+          isArchived: false,
+        };
+
+        socketWithTimeout.emit("new-chat-created", currentUserPayload);
+        if (recipientUser.isOnline) {
+          const recipientPayload: IChatCard = {
+            ...currentUserPayload,
+            displayName: currentUser.displayName,
+            profilePicture: currentUser.profilePicture,
           };
 
-          socketWithTimeout.emit(
-            "new-chat-created",
-            currentUserPayload
-          );
-          if (recipientUser.isOnline) {
-            const recipientPayload: IChatCard = {
-              ...currentUserPayload,
-              displayName: currentUser.displayName,
-              profilePicture: currentUser.profilePicture,
-            };
-
-            socketWithTimeout
-              .to(recipientId)
-              .emit("new-chat", recipientPayload);
-          }
+          socketWithTimeout.to(recipientId).emit("new-chat", recipientPayload);
         }
-      );
+      });
 
       // Delete chat
       socket.on("delete-chat", async ({ chatId }) => {
-        const deleteRecipients =
-          prisma.recipient.deleteMany({
-            where: {
-              message: {
-                chatId,
-              },
+        const deleteRecipients = prisma.recipient.deleteMany({
+          where: {
+            message: {
+              chatId,
             },
-          });
+          },
+        });
         const deleteMessages = prisma.message.deleteMany({
           where: {
             chatId,
@@ -304,19 +272,16 @@ const startSocketServer = (
           });
 
           if (res[3].users[0].isOnline) {
-            socketWithTimeout
-              .to(res[3].users[0].id)
-              .emit("chat-deleted", {
-                chatId,
-              });
+            socketWithTimeout.to(res[3].users[0].id).emit("chat-deleted", {
+              chatId,
+            });
           }
         } catch (error) {
           console.log("chat deletion error");
           console.log(error);
           socketWithTimeout.emit(`chat-${chatId}-error`, {
             status: 500,
-            errorMessage:
-              "Internal server error.\nFailed to delete chat.",
+            errorMessage: "Internal server error.\nFailed to delete chat.",
           });
         }
       });
@@ -341,13 +306,10 @@ const startSocketServer = (
           },
         });
         if (!chatDetails) {
-          return socketWithTimeout.emit(
-            `chat-${chatId}-error`,
-            {
-              status: 404,
-              errorMessage: "Chat not found",
-            }
-          );
+          return socketWithTimeout.emit(`chat-${chatId}-error`, {
+            status: 404,
+            errorMessage: "Chat not found",
+          });
         }
 
         const recipient =
@@ -365,54 +327,46 @@ const startSocketServer = (
           id: recipient.id,
           chatId: chatDetails.id,
           username: recipient.username,
-          isArchived:
-            chatDetails.membersStatus[0].chatIsArchived,
+          isArchived: chatDetails.membersStatus[0].chatIsArchived,
           chatCreated: chatDetails.createdAt,
           bgColor: recipient.bgColor,
           isOnline: recipient.isOnline,
           lastOnline: recipient.lastOnline,
-          displayName:
-            chatDetails.membersStatus[0].chatName,
+          displayName: chatDetails.membersStatus[0].chatName,
           profilePicture: recipient.profilePicture,
         };
 
-        const chatLatestMessages =
-          await prisma.chat.findUnique({
-            where: {
-              id: chatId,
-            },
-            select: {
-              messages: {
-                take:
-                  chatDetails.membersStatus[0].unreadCount >
-                  50
-                    ? chatDetails.membersStatus[0]
-                        .unreadCount + 10
-                    : 50,
+        const chatLatestMessages = await prisma.chat.findUnique({
+          where: {
+            id: chatId,
+          },
+          select: {
+            messages: {
+              take:
+                chatDetails.membersStatus[0].unreadCount > 50
+                  ? chatDetails.membersStatus[0].unreadCount + 10
+                  : 50,
 
-                orderBy: {
-                  createdAt: "desc",
-                },
-                include: {
-                  recipients: {
-                    select: {
-                      isRead: true,
-                      recipientId: true,
-                    },
+              orderBy: {
+                createdAt: "desc",
+              },
+              include: {
+                recipients: {
+                  select: {
+                    isRead: true,
+                    recipientId: true,
                   },
                 },
               },
             },
-          });
+          },
+        });
 
         if (!chatLatestMessages) {
-          return socketWithTimeout.emit(
-            `chat-${chatId}-error`,
-            {
-              status: 500,
-              errorMessage: "Internal error",
-            }
-          );
+          return socketWithTimeout.emit(`chat-${chatId}-error`, {
+            status: 500,
+            errorMessage: "Internal error",
+          });
         }
 
         socketWithTimeout.emit(`chat-${chatId}-init`, {
@@ -436,13 +390,10 @@ const startSocketServer = (
           },
         });
         if (!chat) {
-          return socketWithTimeout.emit(
-            `chat-${chatId}-error`,
-            {
-              status: 404,
-              errorMessage: "Chat not found",
-            }
-          );
+          return socketWithTimeout.emit(`chat-${chatId}-error`, {
+            status: 404,
+            errorMessage: "Chat not found",
+          });
         }
 
         try {
@@ -451,8 +402,7 @@ const startSocketServer = (
               id: chat.membersStatus[0].id,
             },
             data: {
-              chatIsArchived:
-                !chat.membersStatus[0].chatIsArchived,
+              chatIsArchived: !chat.membersStatus[0].chatIsArchived,
             },
           });
 
@@ -477,60 +427,49 @@ const startSocketServer = (
       });
 
       // Load more messages from chat
-      socket.on(
-        "load-more",
-        async ({ chatId, lastMessageId }) => {
-          const chatLatestMessages =
-            await prisma.chat.findUnique({
-              where: {
-                id: chatId,
+      socket.on("load-more", async ({ chatId, lastMessageId }) => {
+        const chatLatestMessages = await prisma.chat.findUnique({
+          where: {
+            id: chatId,
+          },
+          select: {
+            messages: {
+              take: 50,
+              skip: 1,
+              cursor: {
+                id: lastMessageId,
               },
-              select: {
-                messages: {
-                  take: 50,
-                  skip: 1,
-                  cursor: {
-                    id: lastMessageId,
-                  },
 
-                  orderBy: {
-                    createdAt: "desc",
-                  },
-                  include: {
-                    recipients: {
-                      select: {
-                        isRead: true,
-                        recipientId: true,
-                      },
-                    },
+              orderBy: {
+                createdAt: "desc",
+              },
+              include: {
+                recipients: {
+                  select: {
+                    isRead: true,
+                    recipientId: true,
                   },
                 },
               },
-            });
+            },
+          },
+        });
 
-          if (!chatLatestMessages) {
-            return socketWithTimeout.emit(
-              `chat-${chatId}-error`,
-              {
-                status: 404,
-                errorMessage: "Chat not found",
-              }
-            );
-          }
-
-          const endOfMessages =
-            chatLatestMessages.messages.length < 50;
-
-          socketWithTimeout.emit(
-            `chat-${chatId}-messages-loader`,
-            {
-              messages: chatLatestMessages.messages,
-              endOfMessages,
-              lastMessageId,
-            }
-          );
+        if (!chatLatestMessages) {
+          return socketWithTimeout.emit(`chat-${chatId}-error`, {
+            status: 404,
+            errorMessage: "Chat not found",
+          });
         }
-      );
+
+        const endOfMessages = chatLatestMessages.messages.length < 50;
+
+        socketWithTimeout.emit(`chat-${chatId}-messages-loader`, {
+          messages: chatLatestMessages.messages,
+          endOfMessages,
+          lastMessageId,
+        });
+      });
 
       // Read messages
       socket.on("read-messages", async ({ chatId }) => {
@@ -543,13 +482,10 @@ const startSocketServer = (
         });
 
         if (!chatStatus) {
-          return socketWithTimeout.emit(
-            `chat-${chatId}-error`,
-            {
-              status: 404,
-              errorMessage: "Chat status not found",
-            }
-          );
+          return socketWithTimeout.emit(`chat-${chatId}-error`, {
+            status: 404,
+            errorMessage: "Chat status not found",
+          });
         }
 
         const updateChat = prisma.chat.update({
@@ -583,14 +519,9 @@ const startSocketServer = (
         });
 
         try {
-          await prisma.$transaction([
-            updateChat,
-            updateMessages,
-          ]);
+          await prisma.$transaction([updateChat, updateMessages]);
 
-          socketWithTimeout
-            .to(chatId)
-            .emit(`chat-${chatId}-read-all`);
+          socketWithTimeout.to(chatId).emit(`chat-${chatId}-read-all`);
           socketWithTimeout.emit("chats-list-update", {
             chatId,
             readAll: true,
@@ -606,77 +537,66 @@ const startSocketServer = (
       // Send message
       socket.on(
         "send-message",
-        async ({
-          chatId,
-          recipientId,
-          message,
-          tempId,
-        }) => {
+        async ({ chatId, recipientId, message, tempId }) => {
           let recipientIsInChat = false;
-          const recipientSessions =
-            await prisma.session.findMany({
-              where: {
-                userId: recipientId,
-                socketId: {
-                  not: undefined,
-                },
+          const recipientSessions = await prisma.session.findMany({
+            where: {
+              userId: recipientId,
+              socketId: {
+                not: undefined,
               },
-            });
+            },
+          });
 
           for (const recipientSession of recipientSessions) {
-            const room =
-              io.sockets.adapter.rooms.get(chatId);
-            if (
-              room &&
-              room.has(recipientSession.socketId)
-            ) {
+            const room = io.sockets.adapter.rooms.get(chatId);
+            if (room && room.has(recipientSession.socketId)) {
               recipientIsInChat = true;
               break;
             }
           }
 
           try {
-            const createNewMessage =
-              await prisma.chat.update({
-                where: { id: chatId },
-                data: {
-                  lastMessage: message,
-                  messages: {
-                    create: [
-                      {
-                        body: message,
-                        sender: {
-                          connect: { id: id as string },
-                        },
-                        recipients: {
-                          create: {
-                            isRead: false,
-                            recipientId,
-                          },
-                        },
+            const createNewMessage = await prisma.chat.update({
+              where: { id: chatId },
+              data: {
+                lastMessage: message,
+                messages: {
+                  create: [
+                    {
+                      body: message,
+                      sender: {
+                        connect: { id: id as string },
                       },
-                    ],
-                  },
-                },
-                select: {
-                  membersStatus: {
-                    where: { userId: recipientId },
-                    select: { id: true },
-                  },
-                  messages: {
-                    take: 1,
-                    include: {
                       recipients: {
-                        select: {
-                          isRead: true,
-                          recipientId: true,
+                        create: {
+                          isRead: false,
+                          recipientId,
                         },
                       },
                     },
-                    orderBy: { createdAt: "desc" },
-                  },
+                  ],
                 },
-              });
+              },
+              select: {
+                membersStatus: {
+                  where: { userId: recipientId },
+                  select: { id: true },
+                },
+                messages: {
+                  take: 1,
+                  include: {
+                    recipients: {
+                      select: {
+                        isRead: true,
+                        recipientId: true,
+                      },
+                    },
+                  },
+                  orderBy: { createdAt: "desc" },
+                },
+              },
+            });
             if (!recipientIsInChat) {
               await prisma.status.update({
                 where: {
@@ -686,114 +606,86 @@ const startSocketServer = (
               });
             }
 
-            socketWithTimeout.emit(
-              `chat-${chatId}-delivered`,
-              {
-                tempId,
-                actualId: createNewMessage.messages[0].id,
-              }
-            );
-            socketWithTimeout
-              .to(chatId)
-              .emit(`chat-${chatId}-new-message`, {
-                message: createNewMessage.messages[0],
-              });
+            socketWithTimeout.emit(`chat-${chatId}-delivered`, {
+              tempId,
+              actualId: createNewMessage.messages[0].id,
+            });
+            socketWithTimeout.to(chatId).emit(`chat-${chatId}-new-message`, {
+              message: createNewMessage.messages[0],
+            });
 
             // TODO - improve this
-            const currentChatStatus =
-              await prisma.chat.findUnique({
-                where: {
-                  id: chatId,
-                },
-                include: {
-                  membersStatus: {
-                    where: {
-                      userId: recipientId,
-                    },
+            const currentChatStatus = await prisma.chat.findUnique({
+              where: {
+                id: chatId,
+              },
+              include: {
+                membersStatus: {
+                  where: {
+                    userId: recipientId,
                   },
                 },
-              });
+              },
+            });
             if (currentChatStatus) {
               const currentUserPayload = {
                 chatId,
                 lastMessage: currentChatStatus.lastMessage,
-                lastMessageDate:
-                  currentChatStatus.updatedAt,
+                lastMessageDate: currentChatStatus.updatedAt,
               };
 
-              socketWithTimeout.emit(
-                "chats-list-update",
-                currentUserPayload
-              );
+              socketWithTimeout.emit("chats-list-update", currentUserPayload);
               socketWithTimeout
                 .to(id as string)
-                .emit(
-                  "chats-list-update",
-                  currentUserPayload
-                );
-              socketWithTimeout
-                .to(recipientId)
-                .emit("chats-list-update", {
-                  ...currentUserPayload,
-                  unreadCount:
-                    currentChatStatus.membersStatus[0]
-                      .unreadCount,
-                });
+                .emit("chats-list-update", currentUserPayload);
+              socketWithTimeout.to(recipientId).emit("chats-list-update", {
+                ...currentUserPayload,
+                unreadCount: currentChatStatus.membersStatus[0].unreadCount,
+              });
             }
           } catch (error) {
-            return socketWithTimeout.emit(
-              `chat-${chatId}-error`,
-              {
-                status: 400,
-                errorMessage: "Update failed",
-              }
-            );
+            return socketWithTimeout.emit(`chat-${chatId}-error`, {
+              status: 400,
+              errorMessage: "Update failed",
+            });
           }
-        }
+        },
       );
 
       // Socket termintation
-      socket.on(
-        "session-terminated",
-        async ({ all, socketId }) => {
-          if (all) {
-            return io.sockets.adapter.rooms
-              .get(id as string)
-              ?.forEach(async (activeSocketId) => {
-                if (activeSocketId !== socket.id) {
-                  const foundSockets = await io
-                    .in(activeSocketId)
-                    .fetchSockets();
+      socket.on("session-terminated", async ({ all, socketId }) => {
+        if (all) {
+          return io.sockets.adapter.rooms
+            .get(id as string)
+            ?.forEach(async (activeSocketId) => {
+              if (activeSocketId !== socket.id) {
+                const foundSockets = await io.in(activeSocketId).fetchSockets();
 
-                  for (const foundSocket of foundSockets) {
-                    foundSocket.emit("auth-error", {
-                      status: 401,
-                      errorMessage: "Session termintated.",
-                    });
-                    foundSocket.disconnect(true);
-                  }
+                for (const foundSocket of foundSockets) {
+                  foundSocket.emit("auth-error", {
+                    status: 401,
+                    errorMessage: "Session termintated.",
+                  });
+                  foundSocket.disconnect(true);
                 }
-              });
-          }
-
-          const foundSockets = await io
-            .in(socketId)
-            .fetchSockets();
-
-          for (const foundSocket of foundSockets) {
-            foundSocket.emit("auth-error", {
-              status: 401,
-              errorMessage: "Session termintated.",
+              }
             });
-            foundSocket.disconnect(true);
-          }
         }
-      );
+
+        const foundSockets = await io.in(socketId).fetchSockets();
+
+        for (const foundSocket of foundSockets) {
+          foundSocket.emit("auth-error", {
+            status: 401,
+            errorMessage: "Session termintated.",
+          });
+          foundSocket.disconnect(true);
+        }
+      });
 
       socket.on("disconnect", async (reason) => {
         try {
-          const activeSockets =
-            io.sockets.adapter.rooms.get(id as string);
+          const activeSockets = io.sockets.adapter.rooms.get(id as string);
           if (activeSockets?.size) {
             const lastOnline = new Date(Date.now());
             await prisma.session.update({
@@ -811,18 +703,13 @@ const startSocketServer = (
           }
 
           for (const chat of updatedSession.user.chats) {
-            const room = io.sockets.adapter.rooms.get(
-              chat.id
-            );
+            const room = io.sockets.adapter.rooms.get(chat.id);
             if (room) {
               socketWithTimeout
                 .to(chat.id)
-                .emit(
-                  `chat-${chat.id}-recipient-status-change`,
-                  {
-                    isOnline: false,
-                  }
-                );
+                .emit(`chat-${chat.id}-recipient-status-change`, {
+                  isOnline: false,
+                });
             }
           }
           const lastOnline = new Date(Date.now());

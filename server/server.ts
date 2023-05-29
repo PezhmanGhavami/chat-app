@@ -30,9 +30,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/chats", chatsRouter);
 
 app.use("/api/*", (req, res) => {
-  res
-    .status(404)
-    .json({ status: "ERROR", message: "Not found." });
+  res.status(404).json({ status: "ERROR", message: "Not found." });
 });
 app.use("*", (req, res) => {
   res.status(404).send("Not found");

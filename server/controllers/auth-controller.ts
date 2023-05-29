@@ -14,25 +14,11 @@ import {
  * @route  POST /api/auth
  * @access Public
  * */
-const handleRegister: IExpressEndpointHandler = async (
-  req,
-  res,
-  next
-) => {
+const handleRegister: IExpressEndpointHandler = async (req, res, next) => {
   try {
-    const {
-      email,
-      password,
-      displayName,
-      confirmPassword,
-    } = await req.body;
+    const { email, password, displayName, confirmPassword } = await req.body;
 
-    if (
-      !email ||
-      !password ||
-      !displayName ||
-      !confirmPassword
-    ) {
+    if (!email || !password || !displayName || !confirmPassword) {
       res.status(400);
       throw new Error("All fields are required.");
     }
@@ -55,10 +41,7 @@ const handleRegister: IExpressEndpointHandler = async (
     }
 
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(
-      password,
-      salt
-    );
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = await prisma.user.create({
       data: {
@@ -112,11 +95,7 @@ const handleRegister: IExpressEndpointHandler = async (
  * @route  POST /api/auth/signin
  * @access Public
  * */
-const handleSignin: IExpressEndpointHandler = async (
-  req,
-  res,
-  next
-) => {
+const handleSignin: IExpressEndpointHandler = async (req, res, next) => {
   try {
     const { usernameOrEmail, password } = await req.body;
 
@@ -148,7 +127,7 @@ const handleSignin: IExpressEndpointHandler = async (
 
     const passwordIsCorrect = await bcrypt.compare(
       password,
-      userExists.password
+      userExists.password,
     );
     if (!passwordIsCorrect) {
       res.status(401);
@@ -178,9 +157,7 @@ const handleSignin: IExpressEndpointHandler = async (
 
     if (!updatedUser) {
       res.status(500);
-      throw new Error(
-        "Something went wrong with session creation."
-      );
+      throw new Error("Something went wrong with session creation.");
     }
 
     const user = {
@@ -218,10 +195,7 @@ const handleSignin: IExpressEndpointHandler = async (
  * @route  GET /api/auth/signout
  * @access Public
  * */
-const handleSignout: IExpressEndpointHandler = (
-  req,
-  res
-) => {
+const handleSignout: IExpressEndpointHandler = (req, res) => {
   const user = req.session.user;
   if (user) {
     prisma.user
@@ -249,10 +223,7 @@ const handleSignout: IExpressEndpointHandler = (
  * @route  GET /api/auth/
  * @access Private
  * */
-const getUser: IExpressEndpointHandler = async (
-  req,
-  res
-) => {
+const getUser: IExpressEndpointHandler = async (req, res) => {
   const loggedOutUser: IUser = {
     isLoggedIn: false,
     userID: "",
@@ -266,13 +237,12 @@ const getUser: IExpressEndpointHandler = async (
   const user = req.session.user;
   if (user) {
     if (Date.now() - user.dateCreated > 1000 * 60 * 5) {
-      const userSessionExists =
-        await prisma.session.findFirst({
-          where: {
-            id: user.sessionId,
-            userId: user.userID,
-          },
-        });
+      const userSessionExists = await prisma.session.findFirst({
+        where: {
+          id: user.sessionId,
+          userId: user.userID,
+        },
+      });
       if (!userSessionExists) {
         req.session.destroy();
         return res.json(loggedOutUser);
@@ -304,11 +274,7 @@ const getUser: IExpressEndpointHandler = async (
  * @route  PUT /api/auth/
  * @access Private
  * */
-const updateUser: IExpressEndpointHandler = async (
-  req,
-  res,
-  next
-) => {
+const updateUser: IExpressEndpointHandler = async (req, res, next) => {
   try {
     const user = req.session.user;
     if (!user) {
@@ -344,9 +310,7 @@ const updateUser: IExpressEndpointHandler = async (
 
     if (password) {
       if (
-        (!email &&
-          !newPassword &&
-          !newPasswordConfirmation) ||
+        (!email && !newPassword && !newPasswordConfirmation) ||
         (newPassword && !newPasswordConfirmation) ||
         (newPasswordConfirmation && !newPassword)
       ) {
@@ -356,7 +320,7 @@ const updateUser: IExpressEndpointHandler = async (
 
       const passwordIsCorrect = await bcrypt.compare(
         password,
-        userDbData.password
+        userDbData.password,
       );
       if (!passwordIsCorrect) {
         res.status(401);
@@ -371,9 +335,7 @@ const updateUser: IExpressEndpointHandler = async (
       if (email) {
         if (email === userDbData.email) {
           res.status(400);
-          throw new Error(
-            "New email can't be the old one."
-          );
+          throw new Error("New email can't be the old one.");
         }
         updatePayload.email = email;
       }
@@ -384,24 +346,18 @@ const updateUser: IExpressEndpointHandler = async (
           throw new Error("Passwords should match.");
         }
 
-        const newPasswrodIsOldPassword =
-          await bcrypt.compare(
-            newPassword,
-            userDbData.password
-          );
+        const newPasswrodIsOldPassword = await bcrypt.compare(
+          newPassword,
+          userDbData.password,
+        );
 
         if (newPasswrodIsOldPassword) {
           res.status(400);
-          throw new Error(
-            "New password can't be your old one."
-          );
+          throw new Error("New password can't be your old one.");
         }
 
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(
-          newPassword,
-          salt
-        );
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
 
         updatePayload.password = hashedPassword;
       }
@@ -440,9 +396,7 @@ const updateUser: IExpressEndpointHandler = async (
       if (username) {
         if (username === userDbData.username) {
           res.status(400);
-          throw new Error(
-            "New username can't be the old one."
-          );
+          throw new Error("New username can't be the old one.");
         }
         updatePayload.username = username;
       }
@@ -458,9 +412,7 @@ const updateUser: IExpressEndpointHandler = async (
       if (bgColor) {
         if (bgColor === userDbData.bgColor) {
           res.status(400);
-          throw new Error(
-            "New background color can't be the old one."
-          );
+          throw new Error("New background color can't be the old one.");
         }
         updatePayload.bgColor = bgColor;
       }
@@ -504,11 +456,7 @@ const updateUser: IExpressEndpointHandler = async (
  * @route  GET /api/auth/sessions
  * @access Private
  * */
-const getSessions: IExpressEndpointHandler = async (
-  req,
-  res,
-  next
-) => {
+const getSessions: IExpressEndpointHandler = async (req, res, next) => {
   try {
     const user = req.session.user;
     if (!user) {
@@ -540,11 +488,7 @@ const getSessions: IExpressEndpointHandler = async (
  * @route  DELETE /api/auth/sessions/:sessionId
  * @access Private
  * */
-const terminateSession: IExpressEndpointHandler = async (
-  req,
-  res,
-  next
-) => {
+const terminateSession: IExpressEndpointHandler = async (req, res, next) => {
   try {
     const user = req.session.user;
     if (!user) {
@@ -581,11 +525,7 @@ const terminateSession: IExpressEndpointHandler = async (
  * @route  DELETE /api/auth/signout-all
  * @access Private
  * */
-const signoutAll: IExpressEndpointHandler = async (
-  req,
-  res,
-  next
-) => {
+const signoutAll: IExpressEndpointHandler = async (req, res, next) => {
   try {
     const user = req.session.user;
     if (!user) {
