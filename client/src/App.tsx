@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/protected-route/protected-route";
 
 import Index from "./pages/index/index.page";
 import Chat from "./pages/chat/chat.page";
+import Call from "./pages/call/call.page";
 import Signin from "./pages/signin/signin.page";
 import Signup from "./pages/signup/signup.page";
 import NotFound from "./pages/not-found/not-found.page";
@@ -49,6 +50,7 @@ function App() {
       >
         <Route index element={<Index />} />
         <Route path="chat/:chatId" element={<Chat />} />
+        <Route path="call/:chatId" element={<Chat />} />
       </Route>
 
       <Route path="/auth" element={<AuthLayout />}>
