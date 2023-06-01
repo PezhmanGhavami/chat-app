@@ -243,10 +243,17 @@ function Chat() {
     // Recipient status change
     socket.on(
       `chat-${params.chatId}-recipient-status-change`,
-      ({ isOnline }) => {
+      ({ isOnline, lastOnline }) => {
+        const payload: {
+          isOnline: boolean;
+          lastOnline?: Date;
+        } = { isOnline };
+
+        if (lastOnline) payload.lastOnline = lastOnline;
+
         setCurrentRecipientUser((prev) => ({
           ...prev!,
-          isOnline,
+          ...payload,
         }));
       },
     );

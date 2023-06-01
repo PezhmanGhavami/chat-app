@@ -686,8 +686,9 @@ const startSocketServer = (
       socket.on("disconnect", async (reason) => {
         try {
           const activeSockets = io.sockets.adapter.rooms.get(id as string);
+          const lastOnline = new Date(Date.now());
+
           if (activeSockets?.size) {
-            const lastOnline = new Date(Date.now());
             await prisma.session.update({
               where: {
                 id: updatedSession.id,
@@ -709,10 +710,10 @@ const startSocketServer = (
                 .to(chat.id)
                 .emit(`chat-${chat.id}-recipient-status-change`, {
                   isOnline: false,
+                  lastOnline,
                 });
             }
           }
-          const lastOnline = new Date(Date.now());
           await prisma.session.update({
             where: {
               id: updatedSession.id,
