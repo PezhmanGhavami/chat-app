@@ -1,13 +1,35 @@
 // TODO - Protect this route
 import { ReactNode } from "react";
+import {
+  BiCameraOff,
+  BiMicrophoneOff,
+  BiPhone,
+  BiPhoneOff,
+} from "react-icons/bi";
 
 function SelfCam() {
   return <video className="h-full w-full bg-pink-200" src=""></video>;
 }
 
+function Button({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className: string;
+}) {
+  return (
+    <button
+      className={`flex h-16 w-16 items-center justify-center rounded-full text-4xl hover:brightness-75 ${className}`}
+    >
+      {children}
+    </button>
+  );
+}
+
 function ButtonsContainer({ children }: { children: ReactNode }) {
   return (
-    <div className="fixed bottom-24 flex w-full items-center justify-center space-x-4 bg-yellow-700">
+    <div className="fixed bottom-24 flex w-full items-center justify-center space-x-20">
       {children}
     </div>
   );
@@ -29,9 +51,15 @@ function InCall() {
         <SelfCam />
       </div>
       <ButtonsContainer>
-        <span>mic</span>
-        <span>cam</span>
-        <span className="bg-red-600">end</span>
+        <Button className="bg-gray-800">
+          <BiMicrophoneOff />
+        </Button>
+        <Button className="bg-gray-800">
+          <BiCameraOff />
+        </Button>
+        <Button className="bg-red-600">
+          <BiPhoneOff />
+        </Button>
       </ButtonsContainer>
     </>
   );
@@ -45,8 +73,12 @@ function IncomingCall() {
       </div>
       <CallText text="caller name" />
       <ButtonsContainer>
-        <span className="bg-green-700">accept</span>
-        <span className="bg-red-600">reject</span>
+        <Button className="bg-green-700">
+          <BiPhone />
+        </Button>
+        <Button className="bg-red-600">
+          <BiPhoneOff />
+        </Button>
       </ButtonsContainer>
     </>
   );
@@ -60,7 +92,9 @@ function Calling() {
       </div>
       <CallText text="call status" />
       <ButtonsContainer>
-        <span>stop call</span>
+        <Button className="bg-red-600">
+          <BiPhoneOff />
+        </Button>
       </ButtonsContainer>
     </>
   );
@@ -69,8 +103,8 @@ function Calling() {
 function Call() {
   return (
     <main className={"relative h-screen w-screen"}>
-      {/* <InCall /> */}
-      <IncomingCall />
+      <InCall />
+      {/* <IncomingCall /> */}
       {/* <Calling /> */}
     </main>
   );
