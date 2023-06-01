@@ -94,7 +94,7 @@ const UserCard = ({ user, isInChat, isReconnecting }: IUserCard) => {
       {/* Display name */}
       <div className="pl-2">
         <h3
-          className={`${isInChat ? "text-base font-semibold leading-3" : ""}`}
+          className={`${isInChat ? "text-base font-semibold leading-4" : ""}`}
         >
           {user.displayName}
         </h3>
