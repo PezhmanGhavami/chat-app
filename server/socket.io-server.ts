@@ -1,4 +1,4 @@
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { Server } from "http";
 import { Server as socketServer } from "socket.io";
 
@@ -651,6 +651,13 @@ const startSocketServer = (
           }
         },
       );
+
+      // Call handlers
+      socket.on("call-user", ({ recipientId, signalData, from }) => {
+        return socketWithTimeout.to(recipientId).emit("call-user", {});
+      });
+      socket.on("answer-call", ({ signal }) => {});
+      socket.on("call-ended", () => {});
 
       // Socket termintation
       socket.on("session-terminated", async ({ all, socketId }) => {
