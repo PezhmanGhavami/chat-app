@@ -652,11 +652,15 @@ const startSocketServer = (
         },
       );
 
-      // Call handlers
+      // Call user
       socket.on("call-user", ({ recipientId, signalData, from }) => {
         return socketWithTimeout.to(recipientId).emit("call-user", {});
       });
+
+      // Answer call
       socket.on("answer-call", ({ signal }) => {});
+
+      // Call ended
       socket.on("call-ended", () => {});
 
       // Socket termintation
