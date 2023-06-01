@@ -1,7 +1,7 @@
 import { Outlet, useParams } from "react-router-dom";
 
 import Navigation from "../navigation/navigation.component";
-import WebSocketProvider from "../../context/websocket.context";
+import WebSocketProvider from "../../context/socket.io.context";
 
 const Layout = () => {
   const params = useParams();

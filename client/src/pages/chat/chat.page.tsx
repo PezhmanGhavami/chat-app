@@ -18,7 +18,7 @@ import {
 } from "react-icons/vsc";
 import { BsFillCursorFill } from "react-icons/bs";
 
-import { WebSocketContext } from "../../context/websocket.context";
+import { WebSocketContext } from "../../context/socket.io.context";
 
 import useUser from "../../hooks/useUser";
 

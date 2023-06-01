@@ -20,7 +20,7 @@ import { toast } from "react-toastify";
 
 import useUser from "../../hooks/useUser";
 
-import { WebSocketContext } from "../../context/websocket.context";
+import { WebSocketContext } from "../../context/socket.io.context";
 import { ThemeContext } from "../../context/theme.context";
 
 import fetcher from "../../utils/fetcher";

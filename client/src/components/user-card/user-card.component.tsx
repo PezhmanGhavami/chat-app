@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import Modal from "../modal/modal.component";
 import ProfilePicture from "../profile-picture/profile-picture.component";
 
-import { WebSocketContext } from "../../context/websocket.context";
+import { WebSocketContext } from "../../context/socket.io.context";
 
 import { dateFormatter } from "../chat-card/chat-card.component";
 import { IChatUser } from "../../pages/chat/chat.page";
