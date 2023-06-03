@@ -1,5 +1,10 @@
 // TODO - Protect this route
-import { ReactNode } from "react";
+import {
+  useState,
+  MouseEvent,
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+} from "react";
 import {
   BiCameraOff,
   BiMicrophoneOff,
@@ -14,22 +19,30 @@ function SelfCam() {
 function Button({
   children,
   className,
-}: {
-  children: ReactNode;
-  className: string;
-}) {
+  ...rest
+}: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
-      className={`flex h-16 w-16 items-center justify-center rounded-full text-4xl hover:brightness-75 ${className}`}
+      {...rest}
+      className={`flex h-16 w-16 items-center justify-center rounded-full text-4xl hover:brightness-75${
+        className ? " " + className : ""
+      }`}
     >
       {children}
     </button>
   );
 }
 
-function ButtonsContainer({ children }: { children: ReactNode }) {
+function ButtonsContainer({
+  children,
+  className,
+}: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className="fixed bottom-24 flex w-full items-center justify-center space-x-20">
+    <div
+      className={`fixed bottom-12 z-20 flex w-full items-center justify-between px-8 transition-opacity md:justify-center md:space-x-20 lg:bottom-24${
+        className ? " " + className : ""
+      }`}
+    >
       {children}
     </div>
   );
@@ -43,21 +56,62 @@ function CallText({ text }: { text: string }) {
   );
 }
 
-function InCall() {
+interface IInCall {
+  showControls: boolean;
+  microphoneMuted: boolean;
+  toggleMicrophone: (event: MouseEvent) => void;
+  cameraDisabled: boolean;
+  toggleCamera: (event: MouseEvent) => void;
+}
+
+function InCall({
+  showControls,
+  cameraDisabled,
+  microphoneMuted,
+  toggleCamera,
+  toggleMicrophone,
+}: IInCall) {
   return (
     <>
       <video className="h-full w-full bg-slate-700" src=""></video>
-      <div className="fixed bottom-16 right-16 z-10">
+      <div
+        className={`fixed z-10 transition-all duration-500 ${
+          false
+            ? "inset-0"
+            : "bottom-8 right-8 w-80 lg:bottom-16 lg:right-16 lg:w-96"
+        }`}
+      >
         <SelfCam />
       </div>
-      <ButtonsContainer>
-        <Button className="bg-gray-800">
+
+      <ButtonsContainer
+        className={`${
+          showControls ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      >
+        <Button
+          title={
+            microphoneMuted
+              ? "Click to unmute microphone"
+              : "Click to mute microphone"
+          }
+          onClick={toggleMicrophone}
+          className={microphoneMuted ? "bg-gray-950" : "bg-gray-800"}
+        >
           <BiMicrophoneOff />
         </Button>
-        <Button className="bg-gray-800">
+        <Button
+          title={
+            microphoneMuted
+              ? "Click to enable camera"
+              : "Click to disable camera"
+          }
+          onClick={toggleCamera}
+          className={cameraDisabled ? "bg-gray-950" : "bg-gray-800"}
+        >
           <BiCameraOff />
         </Button>
-        <Button className="bg-red-600">
+        <Button title="Click to end call" className="bg-red-600">
           <BiPhoneOff />
         </Button>
       </ButtonsContainer>
@@ -84,28 +138,35 @@ function IncomingCall() {
   );
 }
 
-function Calling() {
-  return (
-    <>
-      <div className="h-full w-full">
-        <SelfCam />
-      </div>
-      <CallText text="call status" />
-      <ButtonsContainer>
-        <Button className="bg-red-600">
-          <BiPhoneOff />
-        </Button>
-      </ButtonsContainer>
-    </>
-  );
-}
-
 function Call() {
+  const [showControls, setShowControls] = useState(true);
+  const [microphoneMuted, setMicrophoneMuted] = useState(false);
+  const [cameraDisabled, setCameraDisabled] = useState(false);
+
+  const toggleControls = () => {
+    return setShowControls((prev) => !prev);
+  };
+
+  const toggleMicrophone = (event: MouseEvent) => {
+    event.stopPropagation();
+    return setMicrophoneMuted((prev) => !prev);
+  };
+
+  const toggleCamera = (event: MouseEvent) => {
+    event.stopPropagation();
+    return setCameraDisabled((prev) => !prev);
+  };
+
   return (
-    <main className={"relative h-screen w-screen"}>
-      <InCall />
+    <main onClick={toggleControls} className={"relative h-screen w-screen"}>
+      <InCall
+        showControls={showControls}
+        microphoneMuted={microphoneMuted}
+        toggleMicrophone={toggleMicrophone}
+        cameraDisabled={cameraDisabled}
+        toggleCamera={toggleCamera}
+      />
       {/* <IncomingCall /> */}
-      {/* <Calling /> */}
     </main>
   );
 }
