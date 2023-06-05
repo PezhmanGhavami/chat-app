@@ -20,7 +20,7 @@ import { toast } from "react-toastify";
 
 import useUser from "../../hooks/useUser";
 
-import { WebSocketContext } from "../../context/socket.io.context";
+import { SocketIOContext } from "../../context/socket.io.context";
 import { ThemeContext } from "../../context/theme.context";
 
 import fetcher from "../../utils/fetcher";
@@ -113,7 +113,7 @@ const Navigation = () => {
 
   const { user, mutateUser } = useUser();
   const { socket, isConnected, updateIsConnected } =
-    useContext(WebSocketContext);
+    useContext(SocketIOContext);
   const { theme, changeTheme } = useContext(ThemeContext);
 
   const navigate = useNavigate();

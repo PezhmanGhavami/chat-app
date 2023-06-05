@@ -18,7 +18,7 @@ import {
 } from "react-icons/vsc";
 import { BsFillCursorFill } from "react-icons/bs";
 
-import { WebSocketContext } from "../../context/socket.io.context";
+import { SocketIOContext } from "../../context/socket.io.context";
 
 import useUser from "../../hooks/useUser";
 
@@ -164,7 +164,7 @@ function Chat() {
 
   const { user: currentUser } = useUser();
 
-  const { socket, isConnected } = useContext(WebSocketContext);
+  const { socket, isConnected } = useContext(SocketIOContext);
 
   const params = useParams();
   const navigate = useNavigate();

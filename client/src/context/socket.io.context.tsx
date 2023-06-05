@@ -3,22 +3,22 @@ import io, { Socket } from "socket.io-client";
 
 import useUser from "../hooks/useUser";
 
-interface IWebSocketContext {
+interface ISocketIOContext {
   socket: null | Socket;
   isConnected: boolean;
   updateIsConnected: (newState: boolean) => void;
 }
 
-const WebSocketContextInit: IWebSocketContext = {
+const socketIOContextInit: ISocketIOContext = {
   socket: null,
   isConnected: false,
   updateIsConnected: (newState: boolean) => {},
 };
 
-export const WebSocketContext =
-  createContext<IWebSocketContext>(WebSocketContextInit);
+export const SocketIOContext =
+  createContext<ISocketIOContext>(socketIOContextInit);
 
-const WebSocketProvider = ({ children }: { children: ReactNode }) => {
+const SocketIOProvider = ({ children }: { children: ReactNode }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const { user } = useUser();
@@ -49,10 +49,10 @@ const WebSocketProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <WebSocketContext.Provider value={payload}>
+    <SocketIOContext.Provider value={payload}>
       {children}
-    </WebSocketContext.Provider>
+    </SocketIOContext.Provider>
   );
 };
 
-export default WebSocketProvider;
+export default SocketIOProvider;
