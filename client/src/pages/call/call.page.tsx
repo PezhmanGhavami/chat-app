@@ -116,7 +116,7 @@ function InCall({
         className={`fixed z-10 transition-all duration-500 ${
           calling
             ? "inset-0"
-            : "bottom-8 right-8 h-52 w-32 md:h-auto md:w-72 lg:bottom-16 lg:right-16 lg:w-96"
+            : "bottom-8 right-8 h-52 w-32 md:aspect-video md:h-auto md:w-72 lg:bottom-16 lg:right-16 lg:w-96"
         }`}
       >
         <SelfCam
