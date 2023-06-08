@@ -653,12 +653,20 @@ const startSocketServer = (
       );
 
       // Call user
-      socket.on("call-user", ({ recipientId, signalData, from }) => {
-        return socketWithTimeout.to(recipientId).emit("call-user", {});
+      socket.on("call-user", ({ recipientId, signalData }) => {
+        return socketWithTimeout.to(recipientId).emit("incoming-call", {
+          callFrom: {
+            callerName: updatedSession.user.displayName,
+            callerId: id,
+          },
+          signalData,
+        });
       });
 
       // Answer call
-      socket.on("answer-call", ({ signal }) => {});
+      socket.on("answer-call", ({ recipientId, signal }) => {
+        return socketWithTimeout.to(recipientId).emit("call-accepted", signal);
+      });
 
       // Call ended
       socket.on("call-ended", () => {});
