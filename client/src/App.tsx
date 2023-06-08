@@ -51,7 +51,8 @@ function App() {
         <Route index element={<Index />} />
         <Route path="chat/:chatId" element={<Chat />} />
       </Route>
-      <Route path="call/:chatId" element={<Call />} />
+
+      <Route path="call/:userId/*" element={<Call />} />
 
       <Route path="/auth" element={<AuthLayout />}>
         <Route path="signin" element={<Signin />} />
