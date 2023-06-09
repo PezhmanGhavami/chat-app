@@ -24,6 +24,7 @@ const SocketIOProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useUser();
 
   useEffect(() => {
+    if (!user || user.sessionId === "") return;
     const newSocekt = io(import.meta.env.VITE_SOCKET_URL, {
       query: {
         id: user?.userID,
