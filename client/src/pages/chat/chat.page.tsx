@@ -175,7 +175,7 @@ function Chat() {
   const { user: currentUser } = useUser();
 
   const { socket, isConnected } = useContext(SocketIOContext);
-  const { updateRemoteUser, updateIsCallInitiator } = useContext(CallContext);
+  const { callUser } = useContext(CallContext);
 
   const params = useParams();
   const navigate = useNavigate();
@@ -511,16 +511,14 @@ function Chat() {
       );
     }
 
-    updateIsCallInitiator(true);
-
-    updateRemoteUser({
+    const remoteUser = {
       displayName: currentRecipientUser.displayName,
       id: currentRecipientUser.id,
       signalData: null,
       stream: null,
-    });
+    };
 
-    navigate(`/call/${currentRecipientUser.chatId}/call-started`);
+    callUser(remoteUser);
   };
 
   if (!messagesList || !currentRecipientUser) {

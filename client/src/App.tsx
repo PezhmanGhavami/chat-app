@@ -52,7 +52,7 @@ function App() {
         <Route path="chat/:chatId" element={<Chat />} />
       </Route>
 
-      <Route path="call/:userId/*" element={<Call />} />
+      <Route path="/call" element={<Call />} />
 
       <Route path="/auth" element={<AuthLayout />}>
         <Route path="signin" element={<Signin />} />

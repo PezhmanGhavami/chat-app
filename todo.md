@@ -16,7 +16,12 @@
 - [] User profile image
 - [] Image modification (Simple editor)
 - [] Voice messages
-- [] Voice calls
+- [x] Voice calls - Added video/voice calls
+  - [] Toggling the microphone on/off
+  - [] Toggling the camera on/off
+  - [] Sharing screen
+  - [] Call log
+  - [] Fix auto reject for when user is busy
 - [] Group chats
 - [] Channels
 - [x] Toast a link to the repo

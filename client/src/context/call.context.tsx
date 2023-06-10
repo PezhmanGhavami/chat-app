@@ -6,10 +6,18 @@ import {
   ReactNode,
 } from "react";
 import Peer from "simple-peer";
+import { useNavigate } from "react-router-dom";
 
 import useUser from "../hooks/useUser";
 
 import { SocketIOContext } from "./socket.io.context";
+
+function getStreamTracks(stream: MediaStream) {
+  const videoTracks = stream.getVideoTracks();
+  const audioTracks = stream.getAudioTracks();
+
+  return { videoTrack: videoTracks[0], audioTrack: audioTracks[0] };
+}
 
 export interface IRemoteUser {
   id: string;
@@ -20,28 +28,26 @@ export interface IRemoteUser {
 
 interface ICallContext {
   peer: Peer.Instance | null;
+  localStream: MediaStream | null;
   remoteUser: IRemoteUser;
   callStarted: boolean;
   isRecivingCall: boolean;
   isCallInitiator: boolean;
   endCall: () => void;
-  callUser: (localStream: MediaStream) => void;
-  answerCall: (localStream: MediaStream) => void;
-  updateIsCallInitiator: (newState: boolean) => void;
-  updateRemoteUser: (newState: IRemoteUser) => void;
+  callUser: (remoteUser: IRemoteUser) => void;
+  answerCall: () => void;
 }
 
 const callContextInit: ICallContext = {
   peer: null,
+  localStream: null,
   callStarted: false,
   isRecivingCall: false,
   isCallInitiator: false,
   remoteUser: { displayName: "", id: "", stream: null, signalData: null },
   endCall: () => {},
-  callUser: (localStream) => {},
-  answerCall: (localStream) => {},
-  updateRemoteUser: (newState) => {},
-  updateIsCallInitiator: (newState) => {},
+  callUser: (recipientId) => {},
+  answerCall: () => {},
 };
 
 export const CallContext = createContext<ICallContext>(callContextInit);
@@ -55,33 +61,48 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     callContextInit.isRecivingCall,
   );
   const [callStarted, setCallStarted] = useState(callContextInit.callStarted);
-  const [isCallInitiator, setIsCallInitiator] = useState(false);
+  const [isCallInitiator, setIsCallInitiator] = useState(
+    callContextInit.isCallInitiator,
+  );
+  const [localStream, setLocalStream] = useState(callContextInit.localStream);
 
   const { user: currentUser } = useUser();
+  const navigate = useNavigate();
 
   const { socket, isConnected } = useContext(SocketIOContext);
 
   useEffect(() => {
     if (!socket || !currentUser || !isConnected) return;
 
-    socket.on(`incoming-call`, ({ callFrom }: { callFrom: IRemoteUser }) => {
-      console.log("Incoming Call ran");
-      if (callStarted || isCallInitiator || isRecivingCall) {
-        console.log(`
-        callStarted: ${callStarted}
-        isCallInitiator: ${isCallInitiator}
-        isRecivingCall: ${isRecivingCall}
-        `);
-        console.log("auto reject is in some sort of call.");
-        return socket.emit("end-call", {
-          recipientId: callFrom.id,
-        });
-      }
+    socket.on(
+      `incoming-call`,
+      async ({ callFrom }: { callFrom: IRemoteUser }) => {
+        console.log("Incoming Call ran");
+        // FIXME - fix the auto reject
+        // if (callStarted || isCallInitiator || isRecivingCall) {
+        //   console.log(`
+        //   callStarted: ${callStarted}
+        //   isCallInitiator: ${isCallInitiator}
+        //   isRecivingCall: ${isRecivingCall}
+        //   `);
+        //   console.log("auto reject is in some sort of call.");
+        //   return socket.emit("end-call", {
+        //     recipientId: callFrom.id,
+        //   });
+        // }
 
-      updateRemoteUser({ ...callFrom });
-      setIsRecivingCall(true);
-      updateIsCallInitiator(false);
-    });
+        setRemoteUser({ ...callFrom });
+        setIsRecivingCall(true);
+        setIsCallInitiator(false);
+
+        const currentStream =
+          await globalThis.navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+          });
+        setLocalStream(currentStream);
+      },
+    );
 
     socket.on("call-ended", () => {
       console.log("call end recived");
@@ -101,12 +122,22 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     isRecivingCall,
   ]);
 
-  const callUser = (localStream: MediaStream) => {
+  const callUser = async (newRemoteUser: IRemoteUser) => {
     console.log("calling user...");
+
+    const currentStream = await globalThis.navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+    setLocalStream(currentStream);
+
+    setRemoteUser({ ...newRemoteUser });
+    setIsCallInitiator(true);
+
     const newPeer = new Peer({
       initiator: true,
       trickle: false,
-      stream: localStream,
+      stream: currentStream,
     });
 
     setPeer(newPeer);
@@ -114,7 +145,7 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     newPeer.on("signal", (signalData) => {
       socket?.emit("call-user", {
         signalData,
-        recipientId: remoteUser.id,
+        recipientId: newRemoteUser.id,
       });
       console.log("call-user emitted");
     });
@@ -124,44 +155,57 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
       setRemoteUser((prev) => ({ ...prev, stream: remoteStream }));
     });
 
+    newPeer.on("connect", () => {
+      console.log("connected.");
+      setCallStarted(true);
+    });
+
+    newPeer.on("error", (error) => {
+      console.error("ERROR: ", error);
+    });
+
     socket?.on("call-accepted", (signalData) => {
       console.log("call-accepted");
-      newPeer.signal(signalData);
-      setCallStarted(true);
       setRemoteUser((prev) => ({ ...prev, signalData }));
+      newPeer.signal(signalData);
     });
+
+    navigate("/call");
   };
 
-  const answerCall = (localStream: MediaStream) => {
+  const answerCall = async () => {
     console.log("answering call...");
-    setCallStarted(true);
 
     const newPeer = new Peer({
       initiator: false,
       trickle: false,
-      stream: localStream,
+      stream: localStream!,
     });
 
     setPeer(newPeer);
 
     newPeer.on("signal", (signalData) => {
-      console.log(signalData);
+      socket?.emit("answer-call", {
+        signalData,
+        recipientId: remoteUser.id,
+      });
 
-      socket?.emit(
-        "answer-call",
-        {
-          signalData,
-          recipientId: remoteUser.id,
-        },
-        () => {
-          console.log("signal emited");
-        },
-      );
+      console.log("answer call signal emited");
     });
 
     newPeer.on("stream", (remoteStream) => {
       console.log("stream recived");
       setRemoteUser((prev) => ({ ...prev, stream: remoteStream }));
+    });
+
+    newPeer.on("connect", () => {
+      console.log("connected.");
+      setCallStarted(true);
+    });
+
+    newPeer.on("error", (error) => {
+      console.error("ERROR");
+      console.log(error);
     });
 
     newPeer.signal(remoteUser.signalData!);
@@ -175,6 +219,11 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     setIsCallInitiator(false);
     setRemoteUser({ ...callContextInit.remoteUser });
     socket?.off("call-accepted");
+    if (localStream) {
+      localStream.getTracks().forEach((track) => {
+        track.stop();
+      });
+    }
   };
 
   const endCall = () => {
@@ -184,25 +233,16 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     cleanUp();
   };
 
-  const updateIsCallInitiator = (newState: boolean) => {
-    setIsCallInitiator(newState);
-  };
-
-  const updateRemoteUser = (newState: IRemoteUser) => {
-    setRemoteUser({ ...newState });
-  };
-
   const payload = {
     peer,
     remoteUser,
+    localStream,
     callStarted,
     isRecivingCall,
     isCallInitiator,
     endCall,
     callUser,
     answerCall,
-    updateRemoteUser,
-    updateIsCallInitiator,
   };
 
   return (

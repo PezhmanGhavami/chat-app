@@ -13,7 +13,7 @@ const Layout = () => {
 
   useEffect(() => {
     if (isRecivingCall) {
-      navigate(`/call/${remoteUser.id}/incoming-call`);
+      navigate("/call");
     }
   }, [isRecivingCall, remoteUser.id]);
 
