@@ -46,4 +46,9 @@ export default defineConfig({
       },
     },
   },
+  resolve: {
+    alias: {
+      "simple-peer": "simple-peer/simplepeer.min.js",
+    },
+  },
 });
