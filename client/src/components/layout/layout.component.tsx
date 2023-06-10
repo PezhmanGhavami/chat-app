@@ -1,9 +1,21 @@
-import { Outlet, useParams } from "react-router-dom";
+import { useContext, useEffect } from "react";
+import { Outlet, useParams, useNavigate } from "react-router-dom";
+
+import { CallContext } from "../../context/call.context";
 
 import Navigation from "../navigation/navigation.component";
 
 const Layout = () => {
+  const { isRecivingCall, remoteUser } = useContext(CallContext);
+
   const params = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isRecivingCall) {
+      navigate(`/call/${remoteUser.id}/incoming-call`);
+    }
+  }, [isRecivingCall, remoteUser.id]);
 
   return (
     <div className="flex h-screen w-screen">

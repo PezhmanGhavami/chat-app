@@ -3,10 +3,12 @@ import {
   useState,
   useEffect,
   useRef,
+  useContext,
   MouseEvent,
   ButtonHTMLAttributes,
   HTMLAttributes,
 } from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import {
   BiCameraOff,
   BiMicrophoneOff,
@@ -14,36 +16,28 @@ import {
   BiPhoneOff,
 } from "react-icons/bi";
 
+import { CallContext } from "../../context/call.context";
+
 function SelfCam({
-  cameraEnabled,
+  localStream,
   microphoneMuted,
 }: {
-  cameraEnabled: boolean;
+  localStream: MediaStream | undefined;
   microphoneMuted: boolean;
 }) {
-  const [stream, setStream] = useState<MediaStream>();
-
-  const videoRef = useRef<null | HTMLVideoElement>(null);
+  const localVideoRef = useRef<null | HTMLVideoElement>(null);
 
   useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ video: cameraEnabled, audio: true })
-      .then((currentStream) => {
-        setStream(currentStream);
-      });
-  }, [cameraEnabled]);
+    if (!localStream || !localVideoRef.current) return;
 
-  useEffect(() => {
-    if (!stream || !videoRef.current) return;
-
-    videoRef.current.srcObject = stream;
-  }, [stream]);
+    localVideoRef.current.srcObject = localStream;
+  }, [localStream]);
 
   return (
     <video
       autoPlay
       muted={microphoneMuted}
-      ref={videoRef}
+      ref={localVideoRef}
       className="h-full w-full -scale-x-100 border border-gray-200 bg-slate-800 object-cover object-center dark:border-neutral-700"
     />
   );
@@ -81,48 +75,66 @@ function ButtonsContainer({
   );
 }
 
-function CallText({ text }: { text: string }) {
-  return (
-    <div className="fixed inset-x-0 top-24 w-full bg-green-700 text-center">
-      {text}
-    </div>
-  );
-}
-
-interface IInCall {
-  showControls: boolean;
-  calling: boolean;
-  microphoneMuted: boolean;
-  toggleMicrophone: (event: MouseEvent) => void;
+interface ICallStarted {
   cameraEnabled: boolean;
+  microphoneMuted: boolean;
+  localStream: MediaStream;
   toggleCamera: (event: MouseEvent) => void;
+  toggleMicrophone: (event: MouseEvent) => void;
 }
-
-function InCall({
-  showControls,
-  calling,
+function CallStarted({
   cameraEnabled,
   microphoneMuted,
+  localStream,
   toggleCamera,
   toggleMicrophone,
-}: IInCall) {
+}: ICallStarted) {
+  const [showControls, setShowControls] = useState(true);
+
+  const { remoteUser, callStarted, isCallInitiator, endCall, callUser } =
+    useContext(CallContext);
+
+  const remoteVideoRef = useRef<null | HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (!callStarted && isCallInitiator) {
+      callUser(localStream);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!remoteUser.stream || !remoteVideoRef.current) return;
+
+    remoteVideoRef.current.srcObject = remoteUser.stream;
+  }, [remoteUser.stream]);
+
+  console.log(callStarted);
+
+  const toggleControls = () => {
+    return setShowControls((prev) => !prev);
+  };
+
   return (
-    <>
+    <main onClick={toggleControls} className="relative h-screen w-screen">
       <video
         className="h-full w-full -scale-x-100 bg-slate-900 object-cover object-center"
-        src=""
-      ></video>
+        autoPlay
+        // muted={remoteMicrophoneMuted}
+        ref={remoteVideoRef}
+      />
+
+      <div className="fixed inset-x-0 top-24 z-20 w-full text-center">
+        Calling {remoteUser.displayName}...
+      </div>
+
       <div
         className={`fixed z-10 transition-all duration-500 ${
-          calling
-            ? "inset-0"
-            : "bottom-8 right-8 h-52 w-32 md:aspect-video md:h-auto md:w-72 lg:bottom-16 lg:right-16 lg:w-96"
+          callStarted
+            ? "bottom-8 right-8 h-52 w-32 md:aspect-video md:h-auto md:w-72 lg:bottom-16 lg:right-16 lg:w-96"
+            : "inset-0"
         }`}
       >
-        <SelfCam
-          cameraEnabled={cameraEnabled}
-          microphoneMuted={microphoneMuted}
-        />
+        <SelfCam localStream={localStream} microphoneMuted={microphoneMuted} />
       </div>
 
       <ButtonsContainer
@@ -167,41 +179,101 @@ function InCall({
           )}
         </li>
         <li>
-          <Button title="Click to end call" className="bg-red-600">
+          <Button
+            onClick={endCall}
+            title="Click to end call"
+            className="bg-red-600"
+          >
             <BiPhoneOff />
           </Button>
         </li>
       </ButtonsContainer>
-    </>
+    </main>
   );
 }
 
-function IncomingCall() {
+interface IIncomingCall {
+  localStream: MediaStream;
+}
+function IncomingCall({ localStream }: IIncomingCall) {
+  const { callStarted, remoteUser, endCall, answerCall } =
+    useContext(CallContext);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!callStarted) {
+        console.log("timeout");
+        endCall();
+      }
+    }, 60 * 1000);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [callStarted]);
+
+  const callAnswerHandler = () => {
+    answerCall(localStream);
+  };
+
   return (
-    <>
-      <div className="h-full w-full">{/* <SelfCam /> */}</div>
-      <CallText text="caller name" />
+    <main className="relative h-screen w-screen">
+      <div className="h-full w-full">
+        {<SelfCam localStream={localStream} microphoneMuted={false} />}
+      </div>
+      <div className="fixed inset-x-0 top-24 z-20 w-full text-center">
+        Call from {remoteUser.displayName}
+      </div>
       <ButtonsContainer>
-        <Button className="bg-green-700">
+        <Button onClick={callAnswerHandler} className="bg-green-700">
           <BiPhone />
         </Button>
-        <Button className="bg-red-600">
+        <Button onClick={endCall} className="bg-red-600">
           <BiPhoneOff />
         </Button>
       </ButtonsContainer>
-    </>
+    </main>
   );
 }
 
 function Call() {
-  const [showControls, setShowControls] = useState(true);
-  const [calling, setCalling] = useState(false);
   const [microphoneMuted, setMicrophoneMuted] = useState(true);
   const [cameraEnabled, setCameraCameraEnabled] = useState(true);
+  const [localStream, setLocalStream] = useState<MediaStream>();
 
-  const toggleControls = () => {
-    return setShowControls((prev) => !prev);
-  };
+  const { isCallInitiator, isRecivingCall, callStarted } =
+    useContext(CallContext);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    globalThis.navigator.mediaDevices
+      .getUserMedia({ video: cameraEnabled, audio: true })
+      .then((currentStream) => {
+        setLocalStream(currentStream);
+      });
+  }, [cameraEnabled]);
+
+  useEffect(() => {
+    return () => {
+      if (localStream) {
+        localStream.getTracks().forEach((track) => {
+          track.stop();
+        });
+      }
+    };
+  }, [localStream]);
+
+  useEffect(() => {}, []);
+
+  useEffect(() => {
+    if (!isCallInitiator && !isRecivingCall && !callStarted) {
+      console.log("All are false so it will go back");
+      navigate(-1);
+    }
+  }, [isCallInitiator, isRecivingCall, callStarted]);
 
   const toggleMicrophone = (event: MouseEvent) => {
     event.stopPropagation();
@@ -213,18 +285,30 @@ function Call() {
     return setCameraCameraEnabled((prev) => !prev);
   };
 
+  if (!localStream) {
+    return <div>Loading camera...</div>;
+  }
+
   return (
-    <main onClick={toggleControls} className={"relative h-screen w-screen"}>
-      <InCall
-        showControls={showControls}
-        microphoneMuted={microphoneMuted}
-        toggleMicrophone={toggleMicrophone}
-        cameraEnabled={cameraEnabled}
-        toggleCamera={toggleCamera}
-        calling={calling}
+    <Routes>
+      <Route
+        path="/call-started"
+        element={
+          <CallStarted
+            localStream={localStream}
+            microphoneMuted={microphoneMuted}
+            toggleMicrophone={toggleMicrophone}
+            cameraEnabled={cameraEnabled}
+            toggleCamera={toggleCamera}
+          />
+        }
       />
-      {/* <IncomingCall /> */}
-    </main>
+      <Route
+        path="/incoming-call"
+        element={<IncomingCall localStream={localStream} />}
+      />
+      <Route path="*" element={<Navigate to="/not-found" replace />} />
+    </Routes>
   );
 }
 

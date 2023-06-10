@@ -5,48 +5,56 @@ import {
   createContext,
   ReactNode,
 } from "react";
+import Peer from "simple-peer";
 
 import useUser from "../hooks/useUser";
 
 import { SocketIOContext } from "./socket.io.context";
 
-export interface IRemoteUserInfo {
+export interface IRemoteUser {
+  id: string;
   displayName: string;
-  recipientId: string;
+  stream: MediaStream | null;
+  signalData: Peer.SignalData | null;
 }
 
 interface ICallContext {
-  isRecivingCall: boolean;
+  peer: Peer.Instance | null;
+  remoteUser: IRemoteUser;
   callStarted: boolean;
+  isRecivingCall: boolean;
   isCallInitiator: boolean;
-  remoteUserInfo: IRemoteUserInfo;
-  updateCallStatus: (started: boolean) => void;
   endCall: () => void;
-  updateRemoteUserInfo: (newState: IRemoteUserInfo) => void;
-  updateIsCallInitiator: (state: boolean) => void;
+  callUser: (localStream: MediaStream) => void;
+  answerCall: (localStream: MediaStream) => void;
+  updateIsCallInitiator: (newState: boolean) => void;
+  updateRemoteUser: (newState: IRemoteUser) => void;
 }
 
-const callerContextInit: ICallContext = {
-  isRecivingCall: false,
+const callContextInit: ICallContext = {
+  peer: null,
   callStarted: false,
+  isRecivingCall: false,
   isCallInitiator: false,
-  remoteUserInfo: { displayName: "", recipientId: "" },
-  updateCallStatus: (started) => {},
+  remoteUser: { displayName: "", id: "", stream: null, signalData: null },
   endCall: () => {},
-  updateRemoteUserInfo: (newState) => {},
-  updateIsCallInitiator: (state) => {},
+  callUser: (localStream) => {},
+  answerCall: (localStream) => {},
+  updateRemoteUser: (newState) => {},
+  updateIsCallInitiator: (newState) => {},
 };
 
-export const CallContext = createContext<ICallContext>(callerContextInit);
+export const CallContext = createContext<ICallContext>(callContextInit);
 
 const CallProvider = ({ children }: { children: ReactNode }) => {
-  const [isRecivingCall, setIsRecivingCall] = useState(
-    callerContextInit.isRecivingCall,
-  );
-  const [callStarted, setCallStarted] = useState(callerContextInit.callStarted);
-  const [remoteUserInfo, setRemoteUserInfo] = useState({
-    ...callerContextInit.remoteUserInfo,
+  const [peer, setPeer] = useState(callContextInit.peer);
+  const [remoteUser, setRemoteUser] = useState({
+    ...callContextInit.remoteUser,
   });
+  const [isRecivingCall, setIsRecivingCall] = useState(
+    callContextInit.isRecivingCall,
+  );
+  const [callStarted, setCallStarted] = useState(callContextInit.callStarted);
   const [isCallInitiator, setIsCallInitiator] = useState(false);
 
   const { user: currentUser } = useUser();
@@ -56,48 +64,144 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (!socket || !currentUser || !isConnected) return;
 
-    socket.on(`incoming-call`, ({ callFrom, signalData }) => {
-      // TODO - add some sort of reject
-      if (callStarted || isCallInitiator) return;
-      updateRemoteUserInfo({ ...callFrom });
+    socket.on(`incoming-call`, ({ callFrom }: { callFrom: IRemoteUser }) => {
+      console.log("Incoming Call ran");
+      if (callStarted || isCallInitiator || isRecivingCall) {
+        console.log(`
+        callStarted: ${callStarted}
+        isCallInitiator: ${isCallInitiator}
+        isRecivingCall: ${isRecivingCall}
+        `);
+        console.log("auto reject is in some sort of call.");
+        return socket.emit("end-call", {
+          recipientId: callFrom.id,
+        });
+      }
+
+      updateRemoteUser({ ...callFrom });
       setIsRecivingCall(true);
       updateIsCallInitiator(false);
-      // TODO - add a timer to auto reject after 60 sec and reset the state
+    });
+
+    socket.on("call-ended", () => {
+      console.log("call end recived");
+      cleanUp();
     });
 
     return () => {
+      socket.off("call-ended");
       socket.off("incoming-call");
     };
-  }, [socket, currentUser, isConnected]);
+  }, [
+    socket,
+    currentUser,
+    isConnected,
+    callStarted,
+    isCallInitiator,
+    isRecivingCall,
+  ]);
 
-  const updateCallStatus = (started: boolean) => {
-    setCallStarted(started);
-    if (!started) {
-      setIsRecivingCall(false);
-      updateRemoteUserInfo({ ...callerContextInit.remoteUserInfo });
-    }
+  const callUser = (localStream: MediaStream) => {
+    console.log("calling user...");
+    const newPeer = new Peer({
+      initiator: true,
+      trickle: false,
+      stream: localStream,
+    });
+
+    setPeer(newPeer);
+
+    newPeer.on("signal", (signalData) => {
+      socket?.emit("call-user", {
+        signalData,
+        recipientId: remoteUser.id,
+      });
+      console.log("call-user emitted");
+    });
+
+    newPeer.on("stream", (remoteStream) => {
+      console.log("stream recived");
+      setRemoteUser((prev) => ({ ...prev, stream: remoteStream }));
+    });
+
+    socket?.on("call-accepted", (signalData) => {
+      console.log("call-accepted");
+      newPeer.signal(signalData);
+      setCallStarted(true);
+      setRemoteUser((prev) => ({ ...prev, signalData }));
+    });
   };
 
-  const updateIsCallInitiator = (state: boolean) => {
-    setIsCallInitiator(state);
+  const answerCall = (localStream: MediaStream) => {
+    console.log("answering call...");
+    setCallStarted(true);
+
+    const newPeer = new Peer({
+      initiator: false,
+      trickle: false,
+      stream: localStream,
+    });
+
+    setPeer(newPeer);
+
+    newPeer.on("signal", (signalData) => {
+      console.log(signalData);
+
+      socket?.emit(
+        "answer-call",
+        {
+          signalData,
+          recipientId: remoteUser.id,
+        },
+        () => {
+          console.log("signal emited");
+        },
+      );
+    });
+
+    newPeer.on("stream", (remoteStream) => {
+      console.log("stream recived");
+      setRemoteUser((prev) => ({ ...prev, stream: remoteStream }));
+    });
+
+    newPeer.signal(remoteUser.signalData!);
   };
 
-  const updateRemoteUserInfo = (newState: IRemoteUserInfo) => {
-    setRemoteUserInfo({ ...newState });
+  const cleanUp = () => {
+    peer?.destroy();
+    setPeer(null);
+    setCallStarted(false);
+    setIsRecivingCall(false);
+    setIsCallInitiator(false);
+    setRemoteUser({ ...callContextInit.remoteUser });
+    socket?.off("call-accepted");
   };
 
   const endCall = () => {
-    updateCallStatus(false);
+    socket?.emit("end-call", {
+      recipientId: remoteUser.id,
+    });
+    cleanUp();
+  };
+
+  const updateIsCallInitiator = (newState: boolean) => {
+    setIsCallInitiator(newState);
+  };
+
+  const updateRemoteUser = (newState: IRemoteUser) => {
+    setRemoteUser({ ...newState });
   };
 
   const payload = {
-    isRecivingCall,
+    peer,
+    remoteUser,
     callStarted,
+    isRecivingCall,
     isCallInitiator,
-    remoteUserInfo,
     endCall,
-    updateCallStatus,
-    updateRemoteUserInfo,
+    callUser,
+    answerCall,
+    updateRemoteUser,
     updateIsCallInitiator,
   };
 

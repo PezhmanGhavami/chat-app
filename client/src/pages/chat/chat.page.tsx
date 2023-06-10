@@ -17,8 +17,10 @@ import {
   VscTrash,
 } from "react-icons/vsc";
 import { BsFillCursorFill } from "react-icons/bs";
+import { BiPhone } from "react-icons/bi";
 
 import { SocketIOContext } from "../../context/socket.io.context";
+import { CallContext } from "../../context/call.context";
 
 import useUser from "../../hooks/useUser";
 
@@ -55,6 +57,32 @@ const showMessageDate = (messages: IMessage[], index: number) => {
   const currentDate = new Date(messages[index].createdAt);
   const nextDate = new Date(messages[index + 1].createdAt);
   if (Math.floor((nextDate.getTime() - currentDate.getTime()) / 1000) > 90) {
+    return true;
+  }
+  return false;
+};
+
+const isTheSameDay = (
+  currentDateUnformatted: Date,
+  previousDateUnformatted: Date,
+) => {
+  const currentDate = new Date(currentDateUnformatted);
+  const previousDate = new Date(previousDateUnformatted);
+
+  if (currentDate.getDay() !== previousDate.getDay()) {
+    return false;
+  }
+  return true;
+};
+
+const isLast = (messages: IMessage[], index: number) => {
+  if (messages.length - 1 === index) return true;
+  if (!isTheSameDay(messages[index].createdAt, messages[index + 1].createdAt)) {
+    return true;
+  }
+  const currentMessage = messages[index];
+  const nextMessage = messages[index + 1];
+  if (currentMessage.senderId !== nextMessage.senderId) {
     return true;
   }
   return false;
@@ -117,30 +145,12 @@ const Message = ({
   );
 };
 
-const isTheSameDay = (
-  currentDateUnformatted: Date,
-  previousDateUnformatted: Date,
-) => {
-  const currentDate = new Date(currentDateUnformatted);
-  const previousDate = new Date(previousDateUnformatted);
-
-  if (currentDate.getDay() !== previousDate.getDay()) {
-    return false;
-  }
-  return true;
-};
-
-const isLast = (messages: IMessage[], index: number) => {
-  if (messages.length - 1 === index) return true;
-  if (!isTheSameDay(messages[index].createdAt, messages[index + 1].createdAt)) {
-    return true;
-  }
-  const currentMessage = messages[index];
-  const nextMessage = messages[index + 1];
-  if (currentMessage.senderId !== nextMessage.senderId) {
-    return true;
-  }
-  return false;
+const Loading = () => {
+  return (
+    <div className="h-full bg-white text-3xl dark:bg-neutral-900">
+      <LoadingSpinner />
+    </div>
+  );
 };
 
 function Chat() {
@@ -165,9 +175,14 @@ function Chat() {
   const { user: currentUser } = useUser();
 
   const { socket, isConnected } = useContext(SocketIOContext);
+  const { updateRemoteUser, updateIsCallInitiator } = useContext(CallContext);
 
   const params = useParams();
   const navigate = useNavigate();
+
+  if (!currentUser) {
+    return <Loading />;
+  }
 
   // Chat initializer
   // join emit - leave emit
@@ -313,7 +328,7 @@ function Chat() {
     const newMessage: IMessage = {
       body: message,
       id: tempId,
-      senderId: currentUser!.userID,
+      senderId: currentUser.userID,
       recipients: [
         {
           isRead: false,
@@ -354,7 +369,7 @@ function Chat() {
       }
       return prev.map((message) => {
         if (
-          message.senderId !== currentUser!.userID &&
+          message.senderId !== currentUser.userID &&
           !message.recipients[0].isRead
         ) {
           return {
@@ -451,13 +466,13 @@ function Chat() {
     currentRecipientUser,
   ]);
 
-  // TODO - add a prompt to confirm delete
   const deleteChatEmitter = (event: MouseEvent) => {
     event.preventDefault();
-    if (!socket || !currentRecipientUser)
+    if (!socket || !currentRecipientUser) {
       return toast.error(
-        "Connection lost.\n please retry after connection is restablished.",
+        "Connection lost.\n please try again after the connection is restablished.",
       );
+    }
 
     socket.emit("delete-chat", {
       chatId: currentRecipientUser.chatId,
@@ -473,12 +488,13 @@ function Chat() {
     setOpenChatDeleteModal(false);
   };
 
-  const archiveChatEmitter = (event: MouseEvent<HTMLAnchorElement>) => {
+  const archiveChatEmitter = (event: MouseEvent) => {
     event.preventDefault();
-    if (!socket || !currentRecipientUser)
+    if (!socket || !currentRecipientUser) {
       return toast.error(
-        "Connection lost.\n please retry after connection is restablished.",
+        "Connection lost.\n please try again after the connection is restablished.",
       );
+    }
 
     socket.emit("archive-chat", {
       chatId: currentRecipientUser.chatId,
@@ -487,12 +503,28 @@ function Chat() {
     navigate("/");
   };
 
-  if (!messagesList || !currentRecipientUser || !currentUser) {
-    return (
-      <div className="h-full bg-white text-3xl dark:bg-neutral-900">
-        <LoadingSpinner />
-      </div>
-    );
+  const callEmitter = (event: MouseEvent) => {
+    event.preventDefault();
+    if (!currentRecipientUser) {
+      return toast.error(
+        "Connection lost.\n please try again after the connection is restablished.",
+      );
+    }
+
+    updateIsCallInitiator(true);
+
+    updateRemoteUser({
+      displayName: currentRecipientUser.displayName,
+      id: currentRecipientUser.id,
+      signalData: null,
+      stream: null,
+    });
+
+    navigate(`/call/${currentRecipientUser.chatId}/call-started`);
+  };
+
+  if (!messagesList || !currentRecipientUser) {
+    return <Loading />;
   }
 
   return (
@@ -536,8 +568,20 @@ function Chat() {
             </div>
             {/* Content */}
             <div className="invisible absolute right-0 top-9 z-20 flex flex-col whitespace-nowrap rounded-lg border bg-white py-2 text-lg shadow-md group-focus-within:visible group-active:visible dark:border-neutral-600 dark:bg-neutral-800 sm:text-base">
+              {/* Call */}
               <a
-                title="Click to delete chat"
+                title={`Click to start a call`}
+                onClick={callEmitter}
+                className="flex items-center space-x-1 px-5 py-2 hover:bg-gray-200 dark:hover:bg-neutral-700 sm:px-2 sm:py-1"
+              >
+                <BiPhone />
+                <span>Call</span>
+              </a>
+              {/* Archive chat */}
+              <a
+                title={`Click to ${
+                  currentRecipientUser.isArchived ? "unarchive" : "archive"
+                } chat`}
                 onClick={archiveChatEmitter}
                 className="flex items-center space-x-1 px-5 py-2 hover:bg-gray-200 dark:hover:bg-neutral-700 sm:px-2 sm:py-1"
               >
@@ -548,6 +592,9 @@ function Chat() {
                     : "Archive chat"}
                 </span>
               </a>
+              {/* Separator */}
+              <hr className="my-1 dark:border-neutral-600" />
+              {/* Delete chat */}
               <a
                 title="Click to delete chat"
                 onClick={toggleChatDeleteModal}

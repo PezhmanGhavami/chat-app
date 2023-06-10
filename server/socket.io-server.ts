@@ -656,16 +656,24 @@ const startSocketServer = (
       socket.on("call-user", ({ recipientId, signalData }) => {
         return socketWithTimeout.to(recipientId).emit("incoming-call", {
           callFrom: {
-            callerName: updatedSession.user.displayName,
-            callerId: id,
+            id,
+            signalData,
+            stream: null,
+            displayName: updatedSession.user.displayName,
           },
-          signalData,
         });
       });
 
+      // Call rejection
+      socket.on("end-call", ({ recipientId }) => {
+        return socketWithTimeout.to(recipientId).emit("call-ended");
+      });
+
       // Answer call
-      socket.on("answer-call", ({ recipientId, signal }) => {
-        return socketWithTimeout.to(recipientId).emit("call-accepted", signal);
+      socket.on("answer-call", ({ recipientId, signalData }) => {
+        return socketWithTimeout
+          .to(recipientId)
+          .emit("call-accepted", signalData);
       });
 
       // Call ended
