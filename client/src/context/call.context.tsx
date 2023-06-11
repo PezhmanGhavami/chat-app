@@ -4,6 +4,7 @@ import {
   useContext,
   createContext,
   ReactNode,
+  MouseEvent,
 } from "react";
 import Peer from "simple-peer";
 import { useNavigate } from "react-router-dom";
@@ -28,19 +29,25 @@ export interface IRemoteUser {
 
 interface ICallContext {
   peer: Peer.Instance | null;
-  localStream: MediaStream | null;
   remoteUser: IRemoteUser;
+  localStream: MediaStream | null;
+  localCameraEnabled: boolean;
+  localMicrophoneEnabled: boolean;
   callStarted: boolean;
   isRecivingCall: boolean;
   isCallInitiator: boolean;
   endCall: () => void;
   callUser: (remoteUser: IRemoteUser) => void;
   answerCall: () => void;
+  toggleCamera: (event: MouseEvent) => void;
+  toggleMicrophone: (event: MouseEvent) => void;
 }
 
 const callContextInit: ICallContext = {
   peer: null,
   localStream: null,
+  localCameraEnabled: true,
+  localMicrophoneEnabled: true,
   callStarted: false,
   isRecivingCall: false,
   isCallInitiator: false,
@@ -48,6 +55,8 @@ const callContextInit: ICallContext = {
   endCall: () => {},
   callUser: (recipientId) => {},
   answerCall: () => {},
+  toggleCamera: (event) => {},
+  toggleMicrophone: (event) => {},
 };
 
 export const CallContext = createContext<ICallContext>(callContextInit);
@@ -63,6 +72,12 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
   const [callStarted, setCallStarted] = useState(callContextInit.callStarted);
   const [isCallInitiator, setIsCallInitiator] = useState(
     callContextInit.isCallInitiator,
+  );
+  const [localCameraEnabled, setLocalCameraEnabled] = useState(
+    callContextInit.localCameraEnabled,
+  );
+  const [localMicrophoneEnabled, setLocalMicrophoneEnabled] = useState(
+    callContextInit.localMicrophoneEnabled,
   );
   const [localStream, setLocalStream] = useState(callContextInit.localStream);
 
@@ -233,16 +248,43 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     cleanUp();
   };
 
+  const toggleCamera = (event: MouseEvent) => {
+    event.stopPropagation();
+
+    return setLocalCameraEnabled((prev) => {
+      const { videoTrack } = getStreamTracks(localStream!);
+
+      videoTrack.enabled = !prev;
+
+      return !prev;
+    });
+  };
+
+  const toggleMicrophone = (event: MouseEvent) => {
+    event.stopPropagation();
+    return setLocalMicrophoneEnabled((prev) => {
+      const { audioTrack } = getStreamTracks(localStream!);
+
+      audioTrack.enabled = !prev;
+
+      return !prev;
+    });
+  };
+
   const payload = {
     peer,
     remoteUser,
     localStream,
+    localCameraEnabled,
+    localMicrophoneEnabled,
     callStarted,
     isRecivingCall,
     isCallInitiator,
     endCall,
     callUser,
     answerCall,
+    toggleCamera,
+    toggleMicrophone,
   };
 
   return (

@@ -17,8 +17,8 @@
 - [] Image modification (Simple editor)
 - [] Voice messages
 - [x] Voice calls - Added video/voice calls
-  - [] Toggling the microphone on/off
-  - [] Toggling the camera on/off
+  - [x] Toggling the microphone on/off
+  - [x] Toggling the camera on/off
   - [] Sharing screen
   - [] Call log
   - [] Fix auto reject for when user is busy

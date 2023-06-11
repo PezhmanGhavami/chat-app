@@ -4,7 +4,6 @@ import {
   useEffect,
   useRef,
   useContext,
-  MouseEvent,
   ButtonHTMLAttributes,
   HTMLAttributes,
 } from "react";
@@ -68,22 +67,19 @@ function ButtonsContainer({
   );
 }
 
-interface ICallStarted {
-  cameraEnabled: boolean;
-  microphoneEnabled: boolean;
-  toggleCamera: (event: MouseEvent) => void;
-  toggleMicrophone: (event: MouseEvent) => void;
-}
-function CallStarted({
-  cameraEnabled,
-  microphoneEnabled,
-  toggleCamera,
-  toggleMicrophone,
-}: ICallStarted) {
+function CallStarted() {
   const [showControls, setShowControls] = useState(true);
 
-  const { localStream, remoteUser, callStarted, endCall } =
-    useContext(CallContext);
+  const {
+    localStream,
+    localCameraEnabled,
+    localMicrophoneEnabled,
+    remoteUser,
+    callStarted,
+    endCall,
+    toggleCamera,
+    toggleMicrophone,
+  } = useContext(CallContext);
 
   const remoteVideoRef = useRef<null | HTMLVideoElement>(null);
 
@@ -137,16 +133,16 @@ function CallStarted({
         <li className="relative">
           <Button
             title={
-              microphoneEnabled
+              localMicrophoneEnabled
                 ? "Click to mute microphone"
                 : "Click to unmute microphone"
             }
             onClick={toggleMicrophone}
-            className={microphoneEnabled ? "bg-gray-800" : "bg-gray-950"}
+            className={localMicrophoneEnabled ? "bg-gray-800" : "bg-gray-950"}
           >
             <BiMicrophoneOff />
           </Button>
-          {!microphoneEnabled && (
+          {!localMicrophoneEnabled && (
             <span className="absolute w-full select-none text-center text-xs">
               Muted
             </span>
@@ -155,16 +151,16 @@ function CallStarted({
         <li className="relative">
           <Button
             title={
-              cameraEnabled
+              localCameraEnabled
                 ? "Click to disable camera"
                 : "Click to enable camera"
             }
             onClick={toggleCamera}
-            className={cameraEnabled ? "bg-gray-800" : "bg-gray-950"}
+            className={localCameraEnabled ? "bg-gray-800" : "bg-gray-950"}
           >
             <BiCameraOff />
           </Button>
-          {!cameraEnabled && (
+          {!localCameraEnabled && (
             <span className="absolute w-full select-none text-center text-xs">
               Disabled
             </span>
@@ -225,9 +221,6 @@ function IncomingCall() {
 }
 
 function Call() {
-  const [microphoneEnabled, setMicrophoneEnabled] = useState(true);
-  const [cameraEnabled, setCameraCameraEnabled] = useState(true);
-
   const { isCallInitiator, isRecivingCall, callStarted } =
     useContext(CallContext);
 
@@ -239,28 +232,11 @@ function Call() {
     }
   }, [isCallInitiator, isRecivingCall, callStarted]);
 
-  const toggleMicrophone = (event: MouseEvent) => {
-    event.stopPropagation();
-    return setMicrophoneEnabled((prev) => !prev);
-  };
-
-  const toggleCamera = (event: MouseEvent) => {
-    event.stopPropagation();
-    return setCameraCameraEnabled((prev) => !prev);
-  };
-
   if (isRecivingCall && !callStarted) {
     return <IncomingCall />;
   }
 
-  return (
-    <CallStarted
-      microphoneEnabled={microphoneEnabled}
-      toggleMicrophone={toggleMicrophone}
-      cameraEnabled={cameraEnabled}
-      toggleCamera={toggleCamera}
-    />
-  );
+  return <CallStarted />;
 }
 
 export default Call;
