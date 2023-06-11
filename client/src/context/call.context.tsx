@@ -181,7 +181,14 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     });
 
     newPeer.on("error", (error) => {
-      console.error("ERROR: ", error);
+      console.error(
+        "Error name: ",
+        error.name,
+        "Cause: ",
+        error.cause,
+        "Message: ",
+        error.message,
+      );
     });
 
     socket?.on("call-accepted", (signalData) => {
@@ -226,8 +233,14 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     });
 
     newPeer.on("error", (error) => {
-      console.error("ERROR");
-      console.log(error);
+      console.error(
+        "Error name: ",
+        error.name,
+        "Cause: ",
+        error.cause,
+        "Message: ",
+        error.message,
+      );
     });
 
     newPeer.signal(remoteUser.signalData!);
