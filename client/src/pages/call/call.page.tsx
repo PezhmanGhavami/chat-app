@@ -109,8 +109,8 @@ function CallStarted({
         className={`fixed ${
           callStarted
             ? "left-6 top-6 rounded-md bg-black/50 px-2 text-green-300"
-            : "inset-x-0 top-24"
-        } z-20 text-center`}
+            : "inset-x-0 top-24 text-2xl"
+        } z-20 text-center transition-all`}
       >
         {callStarted ? (
           <p>{remoteUser.displayName}</p>
