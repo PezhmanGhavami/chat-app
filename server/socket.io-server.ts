@@ -1,6 +1,7 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { Server } from "http";
 import { Server as socketServer } from "socket.io";
+import axios from "axios";
 
 import { prisma } from "./utils/prisma-client";
 import { IUserCard, IChatCard } from "./utils/types";
@@ -678,6 +679,14 @@ const startSocketServer = (
 
       // Call ended
       socket.on("call-ended", () => {});
+
+      socket.on("get-ice-servers", async () => {
+        const { data: iceServers } = await axios.get(
+          `https://pgc_app.metered.live/api/v1/turn/credentials?apiKey=${process.env.METERED_API_KEY}`,
+        );
+
+        return socketWithTimeout.emit("ice-servers", { iceServers });
+      });
 
       // Socket termintation
       socket.on("session-terminated", async ({ all, socketId }) => {
