@@ -205,7 +205,7 @@ function IncomingCall() {
       <div className="h-full w-full">
         {<SelfCam localStream={localStream} />}
       </div>
-      <div className="fixed inset-x-0 top-24 z-20 text-center">
+      <div className="fixed inset-x-0 top-24 z-20 text-center text-2xl">
         Call from {remoteUser.displayName}
       </div>
       <ButtonsContainer>
