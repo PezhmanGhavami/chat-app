@@ -34,6 +34,7 @@ interface ICallContext {
   localCameraEnabled: boolean;
   localMicrophoneEnabled: boolean;
   callStarted: boolean;
+  isConnecting: boolean;
   isRecivingCall: boolean;
   isCallInitiator: boolean;
   endCall: () => void;
@@ -49,6 +50,7 @@ const callContextInit: ICallContext = {
   localCameraEnabled: true,
   localMicrophoneEnabled: true,
   callStarted: false,
+  isConnecting: false,
   isRecivingCall: false,
   isCallInitiator: false,
   remoteUser: { displayName: "", id: "", stream: null, signalData: null },
@@ -66,6 +68,9 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
   const [remoteUser, setRemoteUser] = useState({
     ...callContextInit.remoteUser,
   });
+  const [isConnecting, setIsConnecting] = useState(
+    callContextInit.isConnecting,
+  );
   const [isRecivingCall, setIsRecivingCall] = useState(
     callContextInit.isRecivingCall,
   );
@@ -190,6 +195,7 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
 
   const answerCall = async () => {
     console.log("answering call...");
+    setIsConnecting(true);
 
     const newPeer = new Peer({
       initiator: false,
@@ -216,6 +222,7 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     newPeer.on("connect", () => {
       console.log("connected.");
       setCallStarted(true);
+      setIsConnecting(false);
     });
 
     newPeer.on("error", (error) => {
@@ -230,6 +237,7 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     peer?.destroy();
     setPeer(null);
     setCallStarted(false);
+    setIsConnecting(false);
     setIsRecivingCall(false);
     setIsCallInitiator(false);
     setRemoteUser({ ...callContextInit.remoteUser });
@@ -278,6 +286,7 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     localCameraEnabled,
     localMicrophoneEnabled,
     callStarted,
+    isConnecting,
     isRecivingCall,
     isCallInitiator,
     endCall,
