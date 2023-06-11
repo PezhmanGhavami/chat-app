@@ -19,19 +19,6 @@ function getStreamTracks(stream: MediaStream) {
 
   return { videoTrack: videoTracks[0], audioTrack: audioTracks[0] };
 }
-
-const PEER_CONFIG = {
-  iceServers: [
-    { urls: "stun:stun.l.google.com:19302" },
-    // { urls: "stun:stun1.l.google.com:19302" },
-    // { urls: "stun:stun2.l.google.com:19302" },
-    // { urls: "stun:stun3.l.google.com:19302" },
-    // { urls: "stun:stun4.l.google.com:19302" },
-  ],
-};
-
-Object.freeze(PEER_CONFIG);
-
 export interface IRemoteUser {
   id: string;
   displayName: string;
@@ -97,6 +84,7 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     callContextInit.localMicrophoneEnabled,
   );
   const [localStream, setLocalStream] = useState(callContextInit.localStream);
+  const [iceServers, setIceServers] = useState<RTCIceServer[]>();
 
   const { user: currentUser } = useUser();
   const navigate = useNavigate();
@@ -104,7 +92,20 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
   const { socket, isConnected } = useContext(SocketIOContext);
 
   useEffect(() => {
-    if (!socket || !currentUser || !isConnected) return;
+    if (!socket || !isConnected || iceServers) return;
+    socket.emit("get-ice-servers");
+
+    socket.on("ice-servers", ({ iceServers }) => {
+      setIceServers(iceServers);
+    });
+
+    return () => {
+      socket.off("ice-servers");
+    };
+  }, [socket, isConnected, iceServers]);
+
+  useEffect(() => {
+    if (!socket || !isConnected) return;
 
     socket.on(
       `incoming-call`,
@@ -170,7 +171,7 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
       initiator: true,
       trickle: false,
       stream: currentStream,
-      config: PEER_CONFIG,
+      config: { iceServers },
     });
 
     setPeer(newPeer);
@@ -217,7 +218,7 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
       initiator: false,
       trickle: false,
       stream: localStream!,
-      config: PEER_CONFIG,
+      config: { iceServers },
     });
 
     setPeer(newPeer);

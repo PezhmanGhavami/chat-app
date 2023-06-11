@@ -23,6 +23,7 @@ jobs:
           echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> ./server/.env
           echo SECRET_COOKIE_PASSWORD=${{ secrets.SECRET_COOKIE_PASSWORD }} >> ./server/.env
           echo ORIGIN=${{ secrets.ORIGIN }} >> ./server/.env
+          echo METERED_API_KEY=${{ secrets.METERED_API_KEY }} >> ./server/.env
       - name: Installing server dependencies
         run: npm ci --prefix ./server
       - name: Restarting the server

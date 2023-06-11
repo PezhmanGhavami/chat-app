@@ -680,12 +680,27 @@ const startSocketServer = (
       // Call ended
       socket.on("call-ended", () => {});
 
+      // Get ICE servers
       socket.on("get-ice-servers", async () => {
-        const { data: iceServers } = await axios.get(
-          `https://pgc_app.metered.live/api/v1/turn/credentials?apiKey=${process.env.METERED_API_KEY}`,
-        );
+        try {
+          const { data: iceServers } = await axios.get(
+            `https://pgc_app.metered.live/api/v1/turn/credentials?apiKey=${process.env.METERED_API_KEY}`,
+          );
+          return socketWithTimeout.emit("ice-servers", { iceServers });
+        } catch (error) {
+          console.log(error);
 
-        return socketWithTimeout.emit("ice-servers", { iceServers });
+          // This is in case of me being behind a firewall/proxy that can't access the metered servers
+          return socketWithTimeout.emit("ice-servers", {
+            iceServers: [
+              { urls: "stun:stun.l.google.com:19302" },
+              { urls: "stun:stun1.l.google.com:19302" },
+              { urls: "stun:stun2.l.google.com:19302" },
+              { urls: "stun:stun3.l.google.com:19302" },
+              { urls: "stun:stun4.l.google.com:19302" },
+            ],
+          });
+        }
       });
 
       // Socket termintation
