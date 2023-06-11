@@ -22,6 +22,7 @@
   - [] Sharing screen
   - [] Call log
   - [] Fix auto reject for when user is busy
+  - [] A setting thingy in the call page so the user can change the stream source device
 - [] Group chats
 - [] Channels
 - [x] Toast a link to the repo
