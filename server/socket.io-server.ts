@@ -26,7 +26,7 @@ const startSocketServer = (
     const id = socket.handshake.query.id;
     const sessionId = socket.handshake.query.sessionId;
     socket.join(id as string);
-    const socketWithTimeout = socket.timeout(1000 * 30);
+    const socketWithTimeout = socket.timeout(1000 * 60);
 
     try {
       if (!sessionId || !id || sessionId === "" || id === "") {
@@ -654,15 +654,16 @@ const startSocketServer = (
       );
 
       // Call user
-      socket.on("call-user", ({ recipientId, signalData }) => {
+      socket.on("call-user", ({ recipientId }) => {
         return socketWithTimeout.to(recipientId).emit("incoming-call", {
-          callFrom: {
-            id,
-            signalData,
-            stream: null,
-            displayName: updatedSession.user.displayName,
-          },
+          id,
+          displayName: updatedSession.user.displayName,
         });
+      });
+
+      // Answer call
+      socket.on("answer-call", ({ recipientId }) => {
+        return socketWithTimeout.to(recipientId).emit("call-accepted");
       });
 
       // Call rejection
@@ -670,15 +671,18 @@ const startSocketServer = (
         return socketWithTimeout.to(recipientId).emit("call-ended");
       });
 
-      // Answer call
-      socket.on("answer-call", ({ recipientId, signalData }) => {
-        return socketWithTimeout
-          .to(recipientId)
-          .emit("call-accepted", signalData);
-      });
-
       // Call ended
       socket.on("call-ended", () => {});
+
+      // Signaling
+      socket.on("send-signals", ({ recipientId, signals }) => {
+        console.log(
+          `send-signals recived from ${updatedSession.user.displayName}`,
+        );
+        return socket.to(recipientId).emit("incoming-signals", {
+          signals,
+        });
+      });
 
       // Get ICE servers
       socket.on("get-ice-servers", async () => {
@@ -688,7 +692,9 @@ const startSocketServer = (
           );
           return socketWithTimeout.emit("ice-servers", { iceServers });
         } catch (error) {
-          console.log(error);
+          console.log(
+            "couldn't get the ICE servers from metered, falling back to google STUN servers",
+          );
 
           // This is in case of me being behind a firewall/proxy that can't access the metered servers
           return socketWithTimeout.emit("ice-servers", {
