@@ -17,6 +17,12 @@ function getStreamTracks(stream: MediaStream) {
 
   return { videoTrack: videoTracks[0], audioTrack: audioTracks[0] };
 }
+
+const constraints: MediaStreamConstraints = {
+  video: true,
+  audio: true,
+};
+
 export interface IRemoteUser {
   id: string;
   displayName: string;
@@ -126,10 +132,7 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
       setIsCallInitiator(false);
 
       const currentStream =
-        await globalThis.navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
+        await globalThis.navigator.mediaDevices.getUserMedia(constraints);
       setLocalStream(currentStream);
     });
 
@@ -161,10 +164,7 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
 
     // Setting up the local stream
     const newLocalStream = await globalThis.navigator.mediaDevices.getUserMedia(
-      {
-        video: true,
-        audio: true,
-      },
+      constraints,
     );
     setLocalStream(newLocalStream);
 
