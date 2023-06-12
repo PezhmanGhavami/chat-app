@@ -72,7 +72,7 @@ function CallStarted() {
 
   const {
     localStream,
-    isConnecting,
+    callIsConnecting,
     localCameraEnabled,
     localMicrophoneEnabled,
     remoteUser,
@@ -113,7 +113,7 @@ function CallStarted() {
           <p>{remoteUser.displayName}</p>
         ) : (
           <p>
-            {`${isConnecting ? "Connecting to" : "Calling"} ${
+            {`${callIsConnecting ? "Connecting to" : "Calling"} ${
               remoteUser.displayName
             }...`}
           </p>
@@ -187,7 +187,7 @@ function CallStarted() {
 
 function IncomingCall() {
   const {
-    isConnecting,
+    callIsConnecting,
     localStream,
     callStarted,
     remoteUser,
@@ -197,7 +197,7 @@ function IncomingCall() {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (!callStarted && !isConnecting) {
+      if (!callStarted && !callIsConnecting) {
         endCall();
       }
     }, 60 * 1000);
@@ -205,7 +205,7 @@ function IncomingCall() {
     return () => {
       clearTimeout(timeout);
     };
-  }, [callStarted]);
+  }, [callStarted, callIsConnecting]);
 
   const callAnswerHandler = () => {
     answerCall();
@@ -232,7 +232,7 @@ function IncomingCall() {
 }
 
 function Call() {
-  const { isConnecting, isCallInitiator, isRecivingCall, callStarted } =
+  const { callIsConnecting, isCallInitiator, isRecivingCall, callStarted } =
     useContext(CallContext);
 
   const navigate = useNavigate();
@@ -243,7 +243,7 @@ function Call() {
     }
   }, [isCallInitiator, isRecivingCall, callStarted]);
 
-  if (isRecivingCall && !callStarted && !isConnecting) {
+  if (isRecivingCall && !callStarted && !callIsConnecting) {
     return <IncomingCall />;
   }
 
