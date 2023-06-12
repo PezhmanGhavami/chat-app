@@ -676,9 +676,6 @@ const startSocketServer = (
 
       // Signaling
       socket.on("send-signals", ({ recipientId, signals }) => {
-        console.log(
-          `send-signals recived from ${updatedSession.user.displayName}`,
-        );
         return socket.to(recipientId).emit("incoming-signals", {
           signals,
         });

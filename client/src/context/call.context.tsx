@@ -255,7 +255,6 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
       config: { iceServers },
     });
     setPeer(newPeer);
-    console.log("new peer created.");
 
     // Getting the local signals
     newPeer.on("signal", (signalData) => {
