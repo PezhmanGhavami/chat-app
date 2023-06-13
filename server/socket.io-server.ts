@@ -675,9 +675,9 @@ const startSocketServer = (
       socket.on("call-ended", () => {});
 
       // Signaling
-      socket.on("send-signals", ({ recipientId, signals }) => {
-        return socket.to(recipientId).emit("incoming-signals", {
-          signals,
+      socket.on("send-signal", ({ recipientId, signal }) => {
+        return socket.to(recipientId).emit("incoming-signal", {
+          signal,
         });
       });
 
@@ -685,7 +685,7 @@ const startSocketServer = (
       socket.on("get-ice-servers", async () => {
         try {
           const { data: iceServers } = await axios.get(
-            `https://pgc_app.metered.live/api/v1/turn/credentials?apiKey=${process.env.METERED_API_KEY}`,
+            `${process.env.METERED_API}`,
           );
           return socketWithTimeout.emit("ice-servers", { iceServers });
         } catch (error) {

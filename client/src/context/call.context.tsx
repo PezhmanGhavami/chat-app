@@ -23,6 +23,11 @@ const constraints: MediaStreamConstraints = {
   audio: true,
 };
 
+interface ISignalTracker {
+  status: "sent" | "pending";
+  signal: Peer.SignalData;
+}
+
 export interface IRemoteUser {
   id: string;
   displayName: string;
@@ -88,7 +93,7 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
   );
   const [localStream, setLocalStream] = useState(callContextInit.localStream);
   const [iceServers, setIceServers] = useState<RTCIceServer[]>();
-  const [localSignals, setLocalSignals] = useState<Peer.SignalData[]>([]);
+  const [signalTracker, setSignalTracker] = useState<ISignalTracker[]>([]);
 
   const navigate = useNavigate();
 
@@ -149,17 +154,38 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
 
   // Signal emitter
   useEffect(() => {
-    if (!callIsConnecting || !socket || !isConnected) return;
+    if ((!callIsConnecting && !callStarted) || !socket || !isConnected) return;
 
-    socket.emit("send-signals", {
-      signals: localSignals,
-      recipientId: remoteUser.id,
-    });
-    console.log("signals emitted to send-signals.");
-  }, [localSignals, socket, isConnected, callIsConnecting]);
+    for (let index = 0; index < signalTracker.length; index++) {
+      if (signalTracker[index].status === "pending") {
+        socket.emit("send-signal", {
+          signal: signalTracker[index].signal,
+          recipientId: remoteUser.id,
+        });
+
+        const newSignalTracker = [...signalTracker];
+        newSignalTracker[index].status = "sent";
+
+        setSignalTracker([...newSignalTracker]);
+      }
+    }
+    console.log("signals emited");
+  }, [
+    socket,
+    isConnected,
+    callStarted,
+    signalTracker,
+    remoteUser.id,
+    callIsConnecting,
+  ]);
 
   // Starting a call to a user
   const callUser = async (newRemoteUser: IRemoteUser) => {
+    if (!socket) {
+      cleanUp();
+      return console.log("Connection interrupted, please try again.");
+    }
+
     console.log("calling user...");
 
     // Setting up the local stream
@@ -173,7 +199,7 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     setIsCallInitiator(true);
 
     // Starting the call
-    socket?.emit("call-user", {
+    socket.emit("call-user", {
       recipientId: newRemoteUser.id,
     });
     console.log("call-user emitted");
@@ -189,7 +215,10 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
 
     // Getting the local signals
     newPeer.on("signal", (signalData) => {
-      setLocalSignals((prev) => [...prev, signalData]);
+      setSignalTracker((prev) => [
+        ...prev,
+        { status: "pending", signal: signalData },
+      ]);
 
       console.log("new signal added to localSignals");
     });
@@ -216,33 +245,36 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     });
 
     // Updating call state on call acceptance and emitting the local signals
-    socket?.on("call-accepted", () => {
+    socket.on("call-accepted", () => {
       console.log("call-accepted");
-      setCallIsConnecting(true);
+
+      setTimeout(() => {
+        setCallIsConnecting(true);
+      }, 1000);
     });
 
     // Listening for remote signals and setting them up
-    socket?.on(
-      "incoming-signals",
-      ({ signals }: { signals: Peer.SignalData[] }) => {
-        console.log("new incoming signals");
-
-        for (const signal of signals) {
-          newPeer.signal(signal);
-          console.log("peer.signal(signal) called.");
-        }
-      },
-    );
+    socket.on("incoming-signal", ({ signal }) => {
+      console.log("new incoming signal");
+      newPeer.signal(signal);
+      console.log("peer.signal(signal) called.");
+    });
 
     navigate("/call");
   };
 
   // Answering an incoming call
   const answerCall = async () => {
+    if (!socket) {
+      endCall();
+      return console.log("Connection interrupted, please try again.");
+    }
+
     console.log("answering call...");
+    setCallIsConnecting(true);
 
     // Emitting the call acceptance
-    socket?.emit("answer-call", {
+    socket.emit("answer-call", {
       recipientId: remoteUser.id,
     });
     console.log("answer-call emitted");
@@ -258,7 +290,10 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
 
     // Getting the local signals
     newPeer.on("signal", (signalData) => {
-      setLocalSignals((prev) => [...prev, signalData]);
+      setSignalTracker((prev) => [
+        ...prev,
+        { status: "pending", signal: signalData },
+      ]);
 
       console.log("new signal added to localSignals");
     });
@@ -285,32 +320,21 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
     });
 
     // Listening for remote signals and setting them up
-    socket?.on(
-      "incoming-signals",
-      ({ signals }: { signals: Peer.SignalData[] }) => {
-        console.log("new incoming signals");
-
-        for (const signal of signals) {
-          newPeer.signal(signal);
-          console.log("peer.signal(signal) called.");
-        }
-
-        // FIXME - this is not ideal, find a better workaround
-        setTimeout(() => {
-          setCallIsConnecting(true);
-        }, 1000);
-      },
-    );
+    socket.on("incoming-signal", ({ signal }) => {
+      console.log("new incoming signal");
+      newPeer.signal(signal);
+      console.log("peer.signal(signal) called.");
+    });
   };
 
   const cleanUp = () => {
     peer?.destroy();
     setPeer(null);
-    setLocalSignals([]);
+    setSignalTracker([]);
     setCallStarted(false);
-    setCallIsConnecting(false);
     setIsRecivingCall(false);
     setIsCallInitiator(false);
+    setCallIsConnecting(false);
     setRemoteUser({ ...callContextInit.remoteUser });
     socket?.off("call-accepted");
     socket?.off("incoming-signal");
