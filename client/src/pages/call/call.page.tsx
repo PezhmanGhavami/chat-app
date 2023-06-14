@@ -8,6 +8,7 @@ import {
   HTMLAttributes,
 } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   BiCameraOff,
   BiMicrophoneOff,
@@ -204,6 +205,7 @@ function IncomingCall() {
 
     return () => {
       clearTimeout(timeout);
+      toast.info("Call timoute; automatically rejected.");
     };
   }, [callStarted, callIsConnecting]);
 

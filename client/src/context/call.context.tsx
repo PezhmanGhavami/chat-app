@@ -7,6 +7,7 @@ import {
   MouseEvent,
 } from "react";
 import Peer from "simple-peer";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 import { SocketIOContext } from "./socket.io.context";
@@ -143,6 +144,7 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
 
     socket.on("call-ended", () => {
       console.log("call end recived");
+      toast.info("call end recived.");
       cleanUp();
     });
 
@@ -238,10 +240,15 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
 
     // Error handling for the peer
     newPeer.on("error", (error) => {
-      console.log("error in callUser peer.");
-      console.log("Error name: ", error.name);
-      console.log("Cause: ", error.cause);
-      console.log("Message: ", error.message);
+      console.log(error);
+      toast.error("Connection failed.");
+      toast.info(
+        "This project uses a free TURN server, and this error might have been caused because my TURN server is temporarily unavailable.",
+      );
+      toast.info(
+        "If you want to see how the video call works, try again using two devices that are connected to the same network (e.g., the same wifi).",
+      );
+      endCall();
     });
 
     // Updating call state on call acceptance and emitting the local signals
@@ -313,10 +320,14 @@ const CallProvider = ({ children }: { children: ReactNode }) => {
 
     // Error handling for the peer
     newPeer.on("error", (error) => {
-      console.log("error in answerCall peer.");
-      console.log("Error name: ", error.name);
-      console.log("Cause: ", error.cause);
-      console.log("Message: ", error.message);
+      console.log(error);
+      toast.error("Connection failed.");
+      toast.info(
+        "This project uses a free TURN server, and this error might have been caused because my TURN server is temporarily unavailable.",
+      );
+      toast.info(
+        "If you want to see how the video call works, try again using two devices that are connected to the same network (e.g., the same wifi).",
+      );
     });
 
     // Listening for remote signals and setting them up
