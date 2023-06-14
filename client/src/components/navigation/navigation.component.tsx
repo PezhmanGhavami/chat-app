@@ -636,6 +636,18 @@ const Navigation = () => {
     }
   };
 
+  const handleSignout = () => {
+    fetcher("/api/auth/signout", { method: "GET" })
+      .then(() => globalThis.location.reload())
+      .catch((error) => {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Couldn't signout the user, please try again.");
+        }
+      });
+  };
+
   if (!user) {
     return (
       <div className="pt-52">
@@ -759,19 +771,20 @@ const Navigation = () => {
                 </button>
               </div>
               {/* Signout button */}
-              <div className={navStyles.button}>
-                <a
-                  href="/api/auth/signout"
+              <div>
+                <button
                   title="Click to sign out"
                   id="the-signout-button"
+                  onClick={handleSignout}
                   className={
-                    "text-red-600 dark:text-red-500 " +
-                    navStyles.buttonDescription
+                    navStyles.button +
+                    navStyles.buttonDescription +
+                    "text-red-600 dark:text-red-500 "
                   }
                 >
                   <VscSignOut />
                   <span>Signout</span>
-                </a>
+                </button>
               </div>
             </div>
           </nav>

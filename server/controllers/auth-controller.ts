@@ -214,8 +214,13 @@ const handleSignout: IExpressEndpointHandler = (req, res) => {
       .catch((error) => console.log(error));
   }
 
+  const payload: IApiMessage = {
+    status: "SUCCESS",
+    message: "User Signed out.",
+  };
+
   req.session.destroy();
-  return res.redirect("/");
+  return res.json(payload);
 };
 
 /**
