@@ -859,8 +859,9 @@ const Navigation = () => {
               <div className="relative mb-2">
                 {/* Selector */}
                 <button
-                  title="Click to change the background color"
                   type="button"
+                  onClick={(e) => e.currentTarget.focus()}
+                  title="Click to change the background color"
                   className="group peer absolute left-1/2 top-0 z-[41] h-24 w-24 -translate-x-1/2 rounded-full"
                 >
                   <div className="invisible absolute left-1/2 top-24 z-[51] h-2 w-2 -translate-x-1/2 rotate-45 cursor-default border border-b-0 border-r-0 bg-white group-focus-within:visible group-active:visible dark:border-neutral-600 dark:bg-neutral-900" />

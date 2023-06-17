@@ -30,6 +30,7 @@ function SelfCam({ localStream }: { localStream: MediaStream | null }) {
   return (
     <video
       autoPlay
+      playsInline
       ref={localVideoRef}
       className="h-full w-full -scale-x-100 border border-gray-200 bg-slate-800 object-cover object-center dark:border-neutral-700"
     />
@@ -98,9 +99,10 @@ function CallStarted() {
   return (
     <main onClick={toggleControls} className="relative h-screen w-screen">
       <video
-        className="h-full w-full -scale-x-100 bg-slate-900 object-cover object-center"
         autoPlay
+        playsInline
         ref={remoteVideoRef}
+        className="h-full w-full -scale-x-100 bg-slate-900 object-cover object-center"
       />
 
       <div

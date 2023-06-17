@@ -555,8 +555,9 @@ function Chat() {
           </div>
           {/* Chat options */}
           <button
-            title="Chat options"
             type="button"
+            onClick={(e) => e.currentTarget.focus()}
+            title="Chat options"
             className="group relative rounded-full p-2 focus:bg-gray-200 dark:focus:bg-neutral-700 "
           >
             <div className="flex h-4 w-4 flex-col items-center justify-center space-y-[3px]">
