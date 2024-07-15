@@ -18,6 +18,8 @@ interface IUser {
 const redirectRoutes = ["/auth/signin", "/auth/signup"];
 
 export default function useUser() {
+  // TODO - fixme
+  // @ts-expect-error
   const { data, mutate } = useSWR<IUser>("/api/auth", fetcher);
 
   const location = useLocation();
