@@ -1,5 +1,7 @@
-import { prisma } from "../utils/prisma-client";
-import { IExpressEndpointHandler, IChatCard } from "../utils/types";
+import { getIronSession } from "iron-session";
+import { prisma } from "@/utils/prisma-client";
+import { SessionData, sessionOptions } from "@/utils/session";
+import type { IExpressEndpointHandler, IChatCard } from "@/utils/types";
 
 /**
  * @desc   Gets all of the chats of a user
@@ -8,7 +10,12 @@ import { IExpressEndpointHandler, IChatCard } from "../utils/types";
  * */
 const getChats: IExpressEndpointHandler = async (req, res, next) => {
   try {
-    const user = req.session.user;
+    const { user } = await getIronSession<SessionData>(
+      req,
+      res,
+      sessionOptions,
+    );
+
     if (user) {
       const userChats = await prisma.user.findUnique({
         where: {

@@ -3,8 +3,8 @@ import { Server } from "http";
 import { Server as socketServer } from "socket.io";
 import axios from "axios";
 
-import { prisma } from "./utils/prisma-client";
-import { IUserCard, IChatCard } from "./utils/types";
+import { prisma } from "@/utils/prisma-client";
+import { IUserCard, IChatCard } from "@/utils/types";
 
 const startSocketServer = (
   httpServer: Server,
@@ -706,7 +706,7 @@ const startSocketServer = (
         }
       });
 
-      // Socket termintation
+      // Socket termination
       socket.on("session-terminated", async ({ all, socketId }) => {
         if (all) {
           return io.sockets.adapter.rooms
@@ -718,7 +718,7 @@ const startSocketServer = (
                 for (const foundSocket of foundSockets) {
                   foundSocket.emit("auth-error", {
                     status: 401,
-                    errorMessage: "Session termintated.",
+                    errorMessage: "Session terminated.",
                   });
                   foundSocket.disconnect(true);
                 }
@@ -731,7 +731,7 @@ const startSocketServer = (
         for (const foundSocket of foundSockets) {
           foundSocket.emit("auth-error", {
             status: 401,
-            errorMessage: "Session termintated.",
+            errorMessage: "Session terminated.",
           });
           foundSocket.disconnect(true);
         }

@@ -3,13 +3,12 @@ dotenv.config();
 import express from "express";
 import { createServer } from "http";
 
-import authRouter from "./routes/auth-routes";
-import chatsRouter from "./routes/chats-routes";
+import authRouter from "@/routes/auth-routes";
+import chatsRouter from "@/routes/chats-routes";
 
-import { session } from "./middlewares/session-middleware";
-import errorHandler from "./middlewares/error-middleware";
+import errorHandler from "@/middlewares/error-middleware";
 
-import startSocketServer from "./socket.io-server";
+import startSocketServer from "@/socket.io-server";
 
 const app = express();
 const httpServer = createServer(app);
@@ -20,11 +19,6 @@ const PORT = envPort ? parseInt(envPort) : 5000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(session);
-
-// app.get("/", (req, res) => {
-// TODO - for production return the react app
-// });
 
 app.use("/api/auth", authRouter);
 app.use("/api/chats", chatsRouter);

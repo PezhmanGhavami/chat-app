@@ -1,6 +1,6 @@
 import express from "express";
 
-import * as chatsController from "../controllers/chats-controller";
+import * as chatsController from "@/controllers/chats-controller";
 
 const chatsRouter = express.Router();
 

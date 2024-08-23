@@ -9,7 +9,7 @@ import ProtectedRoute from "./components/protected-route/protected-route";
 import Index from "./pages/index/index.page";
 import Chat from "./pages/chat/chat.page";
 import Call from "./pages/call/call.page";
-import Signin from "./pages/signin/signin.page";
+import SignIn from "./pages/sign-in/sign-in.page";
 import Signup from "./pages/signup/signup.page";
 import NotFound from "./pages/not-found/not-found.page";
 
@@ -55,7 +55,7 @@ function App() {
       <Route path="/call" element={<Call />} />
 
       <Route path="/auth" element={<AuthLayout />}>
-        <Route path="signin" element={<Signin />} />
+        <Route path="sign-in" element={<SignIn />} />
         <Route path="signup" element={<Signup />} />
       </Route>
 

@@ -15,7 +15,7 @@ interface IUser {
   bgColor: string;
 }
 
-const redirectRoutes = ["/auth/signin", "/auth/signup"];
+const redirectRoutes = ["/auth/sign-in", "/auth/signup"];
 
 export default function useUser() {
   // TODO - fixme

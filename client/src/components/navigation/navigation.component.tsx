@@ -31,7 +31,7 @@ import ProfilePicture from "../profile-picture/profile-picture.component";
 import Modal from "../modal/modal.component";
 import Overlay from "../overlay/overlay.component";
 import LoadingSpinner from "../loading-spinner/loading-spinner.component";
-import { formStyles } from "../../pages/signin/signin.page";
+import { formStyles } from "../../pages/sign-in/sign-in.page";
 import { IChat } from "../chat-card/chat-card.component";
 import { IUser } from "../user-card/user-card.component";
 
@@ -142,7 +142,7 @@ const Navigation = () => {
       toast.error(status + " - " + errorMessage);
       setAuthError(true);
       if (status === 401) {
-        globalThis.document.getElementById("the-signout-button")?.click();
+        globalThis.document.getElementById("the-sign-out-button")?.click();
       }
     });
     socket.on("disconnect", () => {
@@ -235,8 +235,8 @@ const Navigation = () => {
         setChats((prev) => prev!.filter((chat) => chat.id !== chatId));
         setArchivedChats((prev) => [newArchived!, ...prev!]);
       } else {
-        const newUnarchived = archivedChats.find((chat) => chat.id === chatId);
-        setChats((prev) => [newUnarchived!, ...prev!]);
+        const newUnArchived = archivedChats.find((chat) => chat.id === chatId);
+        setChats((prev) => [newUnArchived!, ...prev!]);
         setArchivedChats((prev) => prev!.filter((chat) => chat.id !== chatId));
       }
     });
@@ -304,7 +304,7 @@ const Navigation = () => {
     setShowArchived(true);
     toggleMenu();
   };
-  const closeArchviedChats = () => {
+  const closeArchivedChats = () => {
     setShowArchived(false);
   };
 
@@ -364,7 +364,7 @@ const Navigation = () => {
   };
   const handleSessionTermination = (index: number) => {
     if (index === -1) {
-      return fetcher("/api/auth/signout-all", {
+      return fetcher("/api/auth/sign-out-all", {
         method: "DELETE",
       })
         .then((res) => {
@@ -636,14 +636,14 @@ const Navigation = () => {
     }
   };
 
-  const handleSignout = () => {
-    fetcher("/api/auth/signout", { method: "GET" })
+  const handleSignOut = () => {
+    fetcher("/api/auth/sign-out", { method: "GET" })
       .then(() => globalThis.location.reload())
       .catch((error) => {
         if (error instanceof Error) {
           toast.error(error.message);
         } else {
-          toast.error("Couldn't signout the user, please try again.");
+          toast.error("Couldn't sign out the user, please try again.");
         }
       });
   };
@@ -658,7 +658,7 @@ const Navigation = () => {
 
   return (
     <>
-      {/* Header (seach bar, menu, connection status) */}
+      {/* Header (search bar, menu, connection status) */}
       <div className="border-b border-b-neutral-300 p-3 pb-0 shadow dark:border-b-neutral-500">
         {/* TODO - fix the sizings */}
         <header className="relative flex justify-between pb-3">
@@ -667,7 +667,7 @@ const Navigation = () => {
             <button
               title="Click to go back to chats"
               type="button"
-              onClick={closeArchviedChats}
+              onClick={closeArchivedChats}
               className="mr-8 p-2 pl-0 text-lg"
             >
               <VscArrowLeft />
@@ -770,12 +770,12 @@ const Navigation = () => {
                   <span>Active sessions</span>
                 </button>
               </div>
-              {/* Signout button */}
+              {/* Sign-out button */}
               <div>
                 <button
                   title="Click to sign out"
-                  id="the-signout-button"
-                  onClick={handleSignout}
+                  id="the-sign-out-button"
+                  onClick={handleSignOut}
                   className={
                     navStyles.button +
                     navStyles.buttonDescription +
@@ -783,7 +783,7 @@ const Navigation = () => {
                   }
                 >
                   <VscSignOut />
-                  <span>Signout</span>
+                  <span>Sign out</span>
                 </button>
               </div>
             </div>
@@ -1231,7 +1231,7 @@ const Navigation = () => {
           <ChatCardsContainer chats={chats} />
         ) : (
           <div className="flex h-full select-none flex-col items-center justify-center space-y-4 p-12 text-center sm:px-4">
-            <p className="text-2xl">You haven't started a converstion yet.</p>
+            <p className="text-2xl">You haven't started a conversation yet.</p>
             <p className="text-sm">
               You can start chatting by searching for people you know and begin
               a conversation with them; after that, your chats will be listed
@@ -1255,7 +1255,7 @@ const Navigation = () => {
           <button
             title="Back to chats"
             type="button"
-            onClick={closeArchviedChats}
+            onClick={closeArchivedChats}
             className="rounded-md border px-2 py-1 hover:bg-gray-200 dark:hover:bg-neutral-900"
           >
             Go back to chats

@@ -20,7 +20,7 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
     return children;
   }
 
-  return <Navigate state={{ from: location }} to="/auth/signin" replace />;
+  return <Navigate state={{ from: location }} to="/auth/sign-in" replace />;
 }
 
 export default ProtectedRoute;

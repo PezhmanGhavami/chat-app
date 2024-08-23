@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import { BsSunFill, BsMoonFill } from "react-icons/bs";
 
 import LoadingSpinner from "../loading-spinner/loading-spinner.component";
-import { formStyles } from "../../pages/signin/signin.page";
+import { formStyles } from "../../pages/sign-in/sign-in.page";
 
 import useUser from "../../hooks/useUser";
 
