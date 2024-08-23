@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { IApiMessage } from "../utils/types";
+import { IApiMessage } from "@/utils/types";
 const errorHandler = (
   err: Error,
   req: Request,

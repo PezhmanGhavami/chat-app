@@ -52,7 +52,7 @@ enum inputStatus {
   INVALID,
 }
 
-const Signin = () => {
+const SignIn = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -128,7 +128,7 @@ const Signin = () => {
     });
     try {
       mutateUser(
-        await fetcher("/api/auth/signin", {
+        await fetcher("/api/auth/sign-in", {
           method: "POST",
           headers,
           body: JSON.stringify(userData),
@@ -154,7 +154,7 @@ const Signin = () => {
           <div className={formStyles.inputContainer}>
             <label
               className={formStyles.label}
-              htmlFor="signin-username-or-email"
+              htmlFor="sign-in-username-or-email"
             >
               Username or email address
             </label>
@@ -162,7 +162,7 @@ const Signin = () => {
               className={formStyles.input}
               type="text"
               name="usernameOrEmail"
-              id="signin-username-or-email"
+              id="sign-in-username-or-email"
               value={usernameOrEmail}
               onChange={handleChange}
               autoFocus
@@ -170,14 +170,14 @@ const Signin = () => {
             />
           </div>
           <div className={formStyles.inputContainer}>
-            <label className={formStyles.label} htmlFor="signin-password">
+            <label className={formStyles.label} htmlFor="sign-in-password">
               Password
             </label>
             <input
               className={formStyles.input}
               type="password"
               name="password"
-              id="signin-password"
+              id="sign-in-password"
               value={password}
               onChange={handleChange}
               tabIndex={2}
@@ -195,4 +195,4 @@ const Signin = () => {
   );
 };
 
-export default Signin;
+export default SignIn;

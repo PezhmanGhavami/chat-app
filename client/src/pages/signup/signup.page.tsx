@@ -8,7 +8,7 @@ import useUser from "../../hooks/useUser";
 
 import fetcher from "../../utils/fetcher";
 
-import { formStyles } from "../signin/signin.page";
+import { formStyles } from "../sign-in/sign-in.page";
 
 const initialFormData = {
   email: "",
@@ -204,7 +204,7 @@ const Signup = () => {
               className={formStyles.label}
               htmlFor="signup-password-confirmation"
             >
-              Confirm pasword
+              Confirm password
             </label>
             <input
               className={formStyles.input}
@@ -220,7 +220,7 @@ const Signup = () => {
         <button className={formStyles.submitButton} type="submit" tabIndex={5}>
           {isLoading ? <LoadingSpinner /> : "Sign up"}
         </button>
-        <Link to={"/auth/signin"} tabIndex={6} className={formStyles.link}>
+        <Link to={"/auth/sign-in"} tabIndex={6} className={formStyles.link}>
           <span>or sign in to your account</span>
         </Link>
       </form>

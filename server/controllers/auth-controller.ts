@@ -1,13 +1,15 @@
 import bcrypt from "bcryptjs";
+import { getIronSession } from "iron-session";
 
-import { prisma } from "../utils/prisma-client";
-import getRandomColor from "../utils/getRandomColor";
+import { prisma } from "@/utils/prisma-client";
+import getRandomColor from "@/utils/getRandomColor";
+import { SessionData, sessionOptions } from "@/utils/session";
 import {
   IUser,
   ISession,
   IApiMessage,
   IExpressEndpointHandler,
-} from "../utils/types";
+} from "@/utils/types";
 
 /**
  * @desc   Register a new user
@@ -17,6 +19,7 @@ import {
 const handleRegister: IExpressEndpointHandler = async (req, res, next) => {
   try {
     const { email, password, displayName, confirmPassword } = await req.body;
+    const session = await getIronSession<SessionData>(req, res, sessionOptions);
 
     if (!email || !password || !displayName || !confirmPassword) {
       res.status(400);
@@ -70,8 +73,8 @@ const handleRegister: IExpressEndpointHandler = async (req, res, next) => {
       username: null,
       bgColor: newUser.bgColor,
     };
-    req.session.user = user;
-    await req.session.save();
+    session.user = user;
+    await session.save();
 
     const payload: IUser = {
       isLoggedIn: true,
@@ -92,12 +95,13 @@ const handleRegister: IExpressEndpointHandler = async (req, res, next) => {
 
 /**
  * @desc   Signs in a user
- * @route  POST /api/auth/signin
+ * @route  POST /api/auth/sign-in
  * @access Public
  * */
-const handleSignin: IExpressEndpointHandler = async (req, res, next) => {
+const handleSignIn: IExpressEndpointHandler = async (req, res, next) => {
   try {
     const { usernameOrEmail, password } = await req.body;
+    const session = await getIronSession<SessionData>(req, res, sessionOptions);
 
     if (!usernameOrEmail || !password) {
       res.status(400);
@@ -170,8 +174,8 @@ const handleSignin: IExpressEndpointHandler = async (req, res, next) => {
       sessionId: updatedUser.activeSessions[0].id,
       bgColor: userExists.bgColor,
     };
-    req.session.user = user;
-    await req.session.save();
+    session.user = user;
+    await session.save();
 
     const payload: IUser = {
       isLoggedIn: true,
@@ -192,35 +196,41 @@ const handleSignin: IExpressEndpointHandler = async (req, res, next) => {
 
 /**
  * @desc   Signs out a user
- * @route  GET /api/auth/signout
+ * @route  GET /api/auth/sign-out
  * @access Public
  * */
-const handleSignout: IExpressEndpointHandler = (req, res) => {
-  const user = req.session.user;
-  if (user) {
-    prisma.user
-      .update({
-        where: {
-          id: user.userID,
-        },
-        data: {
-          activeSessions: {
-            delete: {
-              id: user.sessionId,
+const handleSignOut: IExpressEndpointHandler = async (req, res, next) => {
+  try {
+    const session = await getIronSession<SessionData>(req, res, sessionOptions);
+    const user = session.user;
+
+    if (user) {
+      prisma.user
+        .update({
+          where: {
+            id: user.userID,
+          },
+          data: {
+            activeSessions: {
+              delete: {
+                id: user.sessionId,
+              },
             },
           },
-        },
-      })
-      .catch((error) => console.log(error));
+        })
+        .catch((error) => console.log(error));
+    }
+
+    const payload: IApiMessage = {
+      status: "SUCCESS",
+      message: "User Signed out.",
+    };
+
+    session.destroy();
+    return res.json(payload);
+  } catch (error) {
+    next(error);
   }
-
-  const payload: IApiMessage = {
-    status: "SUCCESS",
-    message: "User Signed out.",
-  };
-
-  req.session.destroy();
-  return res.json(payload);
 };
 
 /**
@@ -228,50 +238,57 @@ const handleSignout: IExpressEndpointHandler = (req, res) => {
  * @route  GET /api/auth/
  * @access Private
  * */
-const getUser: IExpressEndpointHandler = async (req, res) => {
-  const loggedOutUser: IUser = {
-    isLoggedIn: false,
-    userID: "",
-    email: "",
-    displayName: "",
-    sessionId: "",
-    bgColor: "",
-    profilePicture: null,
-    username: null,
-  };
-  const user = req.session.user;
-  if (user) {
-    if (Date.now() - user.dateCreated > 1000 * 60 * 5) {
-      const userSessionExists = await prisma.session.findFirst({
-        where: {
-          id: user.sessionId,
-          userId: user.userID,
-        },
-      });
-      if (!userSessionExists) {
-        req.session.destroy();
-        return res.json(loggedOutUser);
-      }
-      const newUser = {
-        ...user,
-        dateCreated: Date.now(),
-      };
-      req.session.user = newUser;
-      await req.session.save();
-    }
-    const payload: IUser = {
-      isLoggedIn: true,
-      userID: user.userID,
-      email: user.email,
-      displayName: user.displayName,
-      profilePicture: user.profilePicture,
-      sessionId: user.sessionId,
-      username: user.username,
-      bgColor: user.bgColor,
+const getUser: IExpressEndpointHandler = async (req, res, next) => {
+  try {
+    const session = await getIronSession<SessionData>(req, res, sessionOptions);
+    const user = session.user;
+
+    const loggedOutUser: IUser = {
+      isLoggedIn: false,
+      userID: "",
+      email: "",
+      displayName: "",
+      sessionId: "",
+      bgColor: "",
+      profilePicture: null,
+      username: null,
     };
-    return res.json(payload);
+
+    if (user) {
+      if (Date.now() - user.dateCreated > 1000 * 60 * 5) {
+        const userSessionExists = await prisma.session.findFirst({
+          where: {
+            id: user.sessionId,
+            userId: user.userID,
+          },
+        });
+        if (!userSessionExists) {
+          session.destroy();
+          return res.json(loggedOutUser);
+        }
+        const newUser = {
+          ...user,
+          dateCreated: Date.now(),
+        };
+        session.user = newUser;
+        await session.save();
+      }
+      const payload: IUser = {
+        isLoggedIn: true,
+        userID: user.userID,
+        email: user.email,
+        displayName: user.displayName,
+        profilePicture: user.profilePicture,
+        sessionId: user.sessionId,
+        username: user.username,
+        bgColor: user.bgColor,
+      };
+      return res.json(payload);
+    }
+    return res.json(loggedOutUser);
+  } catch (error) {
+    next(error);
   }
-  return res.json(loggedOutUser);
 };
 
 /**
@@ -281,7 +298,8 @@ const getUser: IExpressEndpointHandler = async (req, res) => {
  * */
 const updateUser: IExpressEndpointHandler = async (req, res, next) => {
   try {
-    const user = req.session.user;
+    const session = await getIronSession<SessionData>(req, res, sessionOptions);
+    const user = session.user;
     if (!user) {
       res.status(401);
       throw new Error("Unauthorized.");
@@ -351,12 +369,12 @@ const updateUser: IExpressEndpointHandler = async (req, res, next) => {
           throw new Error("Passwords should match.");
         }
 
-        const newPasswrodIsOldPassword = await bcrypt.compare(
+        const newPasswordIsOldPassword = await bcrypt.compare(
           newPassword,
           userDbData.password,
         );
 
-        if (newPasswrodIsOldPassword) {
+        if (newPasswordIsOldPassword) {
           res.status(400);
           throw new Error("New password can't be your old one.");
         }
@@ -384,8 +402,8 @@ const updateUser: IExpressEndpointHandler = async (req, res, next) => {
         ...updatePayload,
         dateCreated: Date.now(),
       };
-      req.session.user = newUser;
-      await req.session.save();
+      session.user = newUser;
+      await session.save();
     } else {
       if (!username && !displayName && !bgColor) {
         res.status(400);
@@ -436,8 +454,8 @@ const updateUser: IExpressEndpointHandler = async (req, res, next) => {
         ...updatePayload,
         dateCreated: Date.now(),
       };
-      req.session.user = newUser;
-      await req.session.save();
+      session.user = newUser;
+      await session.save();
     }
 
     const result: IUser = {
@@ -463,7 +481,9 @@ const updateUser: IExpressEndpointHandler = async (req, res, next) => {
  * */
 const getSessions: IExpressEndpointHandler = async (req, res, next) => {
   try {
-    const user = req.session.user;
+    const session = await getIronSession<SessionData>(req, res, sessionOptions);
+    const user = session.user;
+
     if (!user) {
       res.status(401);
       throw new Error("Unauthorized.");
@@ -495,7 +515,9 @@ const getSessions: IExpressEndpointHandler = async (req, res, next) => {
  * */
 const terminateSession: IExpressEndpointHandler = async (req, res, next) => {
   try {
-    const user = req.session.user;
+    const session = await getIronSession<SessionData>(req, res, sessionOptions);
+    const user = session.user;
+
     if (!user) {
       res.status(401);
       throw new Error("Unauthorized.");
@@ -526,13 +548,15 @@ const terminateSession: IExpressEndpointHandler = async (req, res, next) => {
 };
 
 /**
- * @desc   Deltes all sessions except the current one
- * @route  DELETE /api/auth/signout-all
+ * @desc   Deletes all sessions except the current one
+ * @route  DELETE /api/auth/sign-out-all
  * @access Private
  * */
-const signoutAll: IExpressEndpointHandler = async (req, res, next) => {
+const signOutAll: IExpressEndpointHandler = async (req, res, next) => {
   try {
-    const user = req.session.user;
+    const session = await getIronSession<SessionData>(req, res, sessionOptions);
+    const user = session.user;
+
     if (!user) {
       res.status(401);
       throw new Error("Unauthorized.");
@@ -563,8 +587,8 @@ export {
   updateUser,
   getSessions,
   terminateSession,
-  signoutAll,
-  handleSignin,
-  handleSignout,
+  signOutAll,
+  handleSignIn,
+  handleSignOut,
   handleRegister,
 };
