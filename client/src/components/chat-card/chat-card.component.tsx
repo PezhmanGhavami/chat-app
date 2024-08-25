@@ -2,16 +2,7 @@ import { Link } from "react-router-dom";
 
 import ProfilePicture from "../profile-picture/profile-picture.component";
 
-export interface IChat {
-  id: string;
-  profilePicture: string | null;
-  displayName: string;
-  lastMessage: string;
-  unreadCount: number;
-  lastMessageDate: Date;
-  isArchived: boolean;
-  bgColor: string;
-}
+import type { IChat } from "../../hooks/useChats";
 
 export const dateFormatter = (date: Date) => {
   const today = new Date(Date.now());
@@ -52,7 +43,7 @@ const ChatCard = ({ chat }: { chat: IChat }) => {
         {/* Chat details */}
         <div className="w-full pl-3">
           {/* Title and last message time */}
-          <div className="flex justify-between ">
+          <div className="flex justify-between">
             <h3 className="font-semibold">{chat.displayName}</h3>
             <span className="text-xs opacity-70">
               {dateFormatter(lastMessageDate)}

@@ -4,9 +4,7 @@ import { toast } from "react-toastify";
 
 import LoadingSpinner from "../../components/loading-spinner/loading-spinner.component";
 
-import useUser from "../../hooks/useUser";
-
-import fetcher from "../../utils/fetcher";
+import { useRegisterUser } from "../../hooks/useUser";
 
 import { formStyles } from "../sign-in/sign-in.page";
 
@@ -25,9 +23,8 @@ enum inputStatus {
 
 const Signup = () => {
   const [formData, setFormData] = useState(initialFormData);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const { mutateUser } = useUser();
+  const registerUser = useRegisterUser();
 
   const { email, displayName, password, confirmPassword } = formData;
 
@@ -119,8 +116,6 @@ const Signup = () => {
       return;
     }
 
-    setIsLoading(true);
-
     const userData = {
       email,
       displayName,
@@ -128,27 +123,15 @@ const Signup = () => {
       confirmPassword,
     };
 
-    const headers = new Headers({
-      "Content-Type": "application/json",
+    registerUser.mutate(userData, {
+      onError: (error) => {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Something went wrong.");
+        }
+      },
     });
-    try {
-      mutateUser(
-        await fetcher("/api/auth/", {
-          method: "POST",
-          headers,
-          body: JSON.stringify(userData),
-        }),
-        false,
-      );
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("Something went wrong.");
-      }
-    }
-
-    setIsLoading(false);
   };
 
   return (
@@ -218,7 +201,7 @@ const Signup = () => {
           </div>
         </div>
         <button className={formStyles.submitButton} type="submit" tabIndex={5}>
-          {isLoading ? <LoadingSpinner /> : "Sign up"}
+          {registerUser.isPending ? <LoadingSpinner /> : "Sign up"}
         </button>
         <Link to={"/auth/sign-in"} tabIndex={6} className={formStyles.link}>
           <span>or sign in to your account</span>

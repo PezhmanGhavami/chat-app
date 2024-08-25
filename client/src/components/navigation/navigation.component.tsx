@@ -12,18 +12,16 @@ import {
   VscCheck,
   VscLock,
 } from "react-icons/vsc";
-import { BsPeople, BsSunFill, BsMoonFill } from "react-icons/bs";
+import { BsSunFill, BsMoonFill } from "react-icons/bs";
 import { MdDevices } from "react-icons/md";
 import { AiOutlineStop } from "react-icons/ai";
 import { IoHandLeftOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 
-import useUser from "../../hooks/useUser";
+import { useUser, useSessions, useUpdateUser, TSession } from "../../hooks/useUser";
 
 import { SocketIOContext } from "../../context/socket.io.context";
 import { ThemeContext } from "../../context/theme.context";
-
-import fetcher from "../../utils/fetcher";
 
 import ChatCardsContainer from "../chat-cards-container/chat-cards-container.component";
 import UserCardsContainer from "../user-card-container/user-cards-container.component";
@@ -34,6 +32,7 @@ import LoadingSpinner from "../loading-spinner/loading-spinner.component";
 import { formStyles } from "../../pages/sign-in/sign-in.page";
 import { IChat } from "../chat-card/chat-card.component";
 import { IUser } from "../user-card/user-card.component";
+import { useChats } from "../../hooks/useChats";
 
 const navStyles = {
   button: "w-full px-4 sm:px-6 hover:bg-gray-200 dark:hover:bg-neutral-700 ",
@@ -83,12 +82,56 @@ const unsavedChangSpan = (
   </span>
 );
 
-interface ISession {
-  id: string;
-  socketId: string;
-  isOnline: boolean;
-  lastOnline: Date | null;
-  createdAt: Date;
+type TSessionItemProps={
+  session: TSession
+}
+
+const SessionItem = ({session}:TSessionItemProps)=>{
+  return (                              <div
+    key={session.id}
+    className="flex items-center justify-between rounded-md py-[2px] pl-2 hover:bg-gray-200 dark:hover:bg-neutral-700"
+  >
+    <div>
+      <p>
+        Status:
+        <span>
+          {session.isOnline
+            ? " Online"
+            : ` Last online ${new Date(
+                session.lastOnline!,
+              ).toLocaleDateString("default", {
+                month: "long",
+                day: "2-digit",
+                year: "numeric",
+              })}`}
+        </span>
+      </p>
+      <p>
+        Created at:{" "}
+        <span className="block pl-1 sm:inline sm:p-0">
+          {new Date(
+            session.createdAt,
+          ).toLocaleString("default", {
+            year: "numeric",
+            month: "long",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </span>
+      </p>
+    </div>
+    <button
+      type="button"
+      title="Click to terminate this session"
+      className="rounded-md p-4 hover:bg-gray-200 hover:text-red-600 dark:hover:bg-neutral-700 dark:hover:text-red-500"
+      onClick={() =>
+        handleSessionTermination(index)
+      }
+    >
+      <AiOutlineStop />
+    </button>
+  </div>)
 }
 
 const Navigation = () => {
@@ -97,21 +140,25 @@ const Navigation = () => {
   const [openUserInfoForm, setOpenUserInfoForm] = useState(false);
   const [openUserAuthForm, setOpenUserAuthForm] = useState(false);
   const [openSessionManager, setOpenSessionManager] = useState(false);
-  const [formIsLoading, setFormIsLoading] = useState(false);
   const [chats, setChats] = useState<null | IChat[]>(null);
   const [archivedChats, setArchivedChats] = useState<null | IChat[]>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [searchResult, setSearchResult] = useState<null | IUser[]>(null);
   const [authError, setAuthError] = useState(false);
-  const [activeSessions, setActiveSessions] = useState<null | ISession[]>(null);
   const [currentSessionIndex, setCurrentSessionIndex] = useState<null | number>(
     null,
   );
   const [userInfoForm, setUserInfoForm] = useState(userInfoFormDefault);
   const [userAuthForm, setUserAuthForm] = useState(userAuthFormDefault);
 
-  const { user, mutateUser } = useUser();
+  const user = useUser();
+  const sessions = useSessions();
+  // TODO - add error handling for sessions
+  // toast.error("Couldn't fetch sessions.");
+  const updateUser = useUpdateUser();
+  const initialChats = useChats();
+
   const { socket, isConnected, updateIsConnected } =
     useContext(SocketIOContext);
   const { theme, changeTheme } = useContext(ThemeContext);
@@ -253,25 +300,22 @@ const Navigation = () => {
 
   // Initial chats fetch
   useEffect(() => {
-    fetcher("/api/chats", { method: "GET" })
-      .then((chats) => {
-        const normalChats = (chats as IChat[]).filter(
-          (chat) => !chat.isArchived,
-        );
-        const archivedChats = (chats as IChat[]).filter(
-          (chat) => chat.isArchived,
-        );
-        setChats(normalChats);
-        setArchivedChats(archivedChats);
-      })
-      .catch((error) => {
-        if (error instanceof Error) {
-          toast.error(error.message);
-        } else {
-          toast.error("Something went wrong.");
-        }
-      });
-  }, []);
+    if (!initialChats.data) return;
+    initialChats.data;
+
+    const normalChats = initialChats.data.filter((chat) => !chat.isArchived);
+    setChats(normalChats);
+
+    const archivedChats = initialChats.data.filter((chat) => chat.isArchived);
+    setArchivedChats(archivedChats);
+
+    // TODO - add error handling
+    // if (error instanceof Error) {
+    // toast.error(error.message);
+    // } else {
+    // toast.error("Something went wrong.");
+    // }
+  }, [initialChats.data?.length]);
 
   // Search close key listener
   useEffect(() => {
@@ -309,14 +353,14 @@ const Navigation = () => {
   };
 
   const toggleUserInfoForm = () => {
-    if (user) {
+    if (user.data) {
       setOpenUserInfoForm((prev) => !prev);
       toggleMenu();
       setUserInfoForm({
-        displayName: user.displayName,
-        username: user.username ? user.username : "",
-        bgColor: user.bgColor,
-        profilePicture: user.profilePicture,
+        displayName: user.data.displayName,
+        username: user.data.username ? user.data.username : "",
+        bgColor: user.data.bgColor,
+        profilePicture: user.data.profilePicture,
       });
     }
   };
@@ -325,12 +369,12 @@ const Navigation = () => {
   };
 
   const toggleUserAuthForm = () => {
-    if (user) {
+    if (user.data) {
       setOpenUserAuthForm((prev) => !prev);
       toggleMenu();
       setUserAuthForm({
         ...userAuthFormDefault,
-        email: user.email,
+        email: user.data.email,
       });
     }
   };
@@ -341,25 +385,9 @@ const Navigation = () => {
   const toggleSessionManager = () => {
     setOpenSessionManager(true);
     toggleMenu();
-    fetcher("/api/auth/sessions", { method: "GET" })
-      .then((sessions) => {
-        setActiveSessions(sessions);
-        const index = (sessions as ISession[]).findIndex(
-          (session) => session.id === user?.sessionId,
-        );
-        setCurrentSessionIndex(index);
-      })
-      .catch((error) => {
-        if (error instanceof Error) {
-          toast.error(error.message);
-        } else {
-          toast.error("Couldn't fetch sessions.");
-        }
-      });
   };
   const closeSessionManager = () => {
     setOpenSessionManager(false);
-    setActiveSessions(null);
     setCurrentSessionIndex(null);
   };
   const handleSessionTermination = (index: number) => {
@@ -525,9 +553,9 @@ const Navigation = () => {
     if (!validateForm("info")) return;
 
     if (
-      userInfoForm.bgColor === user?.bgColor &&
-      userInfoForm.displayName === user?.displayName &&
-      userInfoForm.username === user?.username
+      userInfoForm.bgColor === user.data?.bgColor &&
+      userInfoForm.displayName === user.data?.displayName &&
+      userInfoForm.username === user.data?.username
     ) {
       toast.info("Nothing to update.");
       return;
@@ -539,42 +567,31 @@ const Navigation = () => {
       username?: string;
     } = {};
 
-    if (userInfoForm.displayName !== user?.displayName) {
+    if (userInfoForm.displayName !== user.data?.displayName) {
       payload.displayName = userInfoForm.displayName;
     }
-    if (userInfoForm.bgColor !== user?.bgColor) {
+    if (userInfoForm.bgColor !== user.data?.bgColor) {
       payload.bgColor = userInfoForm.bgColor;
     }
     if (
       userInfoForm.username !== "" &&
-      userInfoForm.username !== user?.username
+      userInfoForm.username !== user.data?.username
     ) {
       payload.username = userInfoForm.username;
     }
 
-    const headers = new Headers({
-      "Content-Type": "application/json",
+    updateUser.mutate(payload, {
+      onSuccess: () => {
+        toast.success("Changes saved successfully.");
+      },
+      onError: (error) => {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Couldn't updated user info.");
+        }
+      },
     });
-    try {
-      setFormIsLoading(true);
-      mutateUser(
-        await fetcher("/api/auth", {
-          method: "PUT",
-          headers,
-          body: JSON.stringify(payload),
-        }),
-        { revalidate: true },
-      );
-      toast.success("Changes saved successfully.");
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("Couldn't updated user info.");
-      }
-    } finally {
-      setFormIsLoading(false);
-    }
   };
 
   const handleUserAuthFormChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -588,7 +605,10 @@ const Navigation = () => {
 
     if (!validateForm("auth")) return;
 
-    if (userAuthForm.email === user?.email && userAuthForm.newPassword === "") {
+    if (
+      userAuthForm.email === user.data?.email &&
+      userAuthForm.newPassword === ""
+    ) {
       toast.info("Nothing to update.");
       return;
     }
@@ -602,7 +622,7 @@ const Navigation = () => {
       password: userAuthForm.password,
     };
 
-    if (userAuthForm.email !== user?.email) {
+    if (userAuthForm.email !== user.data?.email) {
       payload.email = userAuthForm.email;
     }
     if (userAuthForm.newPassword !== "") {
@@ -610,30 +630,19 @@ const Navigation = () => {
       payload.newPasswordConfirmation = userAuthForm.newPasswordConfirmation;
     }
 
-    const headers = new Headers({
-      "Content-Type": "application/json",
+    updateUser.mutate(payload, {
+      onSuccess: () => {
+        toast.success("Changes saved successfully.");
+        closeUserAuthForm();
+      },
+      onError: (error) => {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Couldn't updated credentials.");
+        }
+      },
     });
-    try {
-      setFormIsLoading(true);
-      mutateUser(
-        await fetcher("/api/auth", {
-          method: "PUT",
-          headers,
-          body: JSON.stringify(payload),
-        }),
-        { revalidate: true },
-      );
-      toast.success("Changes saved successfully.");
-      closeUserAuthForm();
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("Couldn't updated credentials.");
-      }
-    } finally {
-      setFormIsLoading(false);
-    }
   };
 
   const handleSignOut = () => {
@@ -648,7 +657,7 @@ const Navigation = () => {
       });
   };
 
-  if (!user) {
+  if (!user.data) {
     return (
       <div className="pt-52">
         <LoadingSpinner />
@@ -690,13 +699,13 @@ const Navigation = () => {
           >
             {/* Top part */}
             <div className="dark:border-neutral-b-500 border-b border-b-neutral-300 p-4 pb-2 sm:p-6">
-              <div className=" flex justify-between">
+              <div className="flex justify-between">
                 <div className="h-12 w-12 text-2xl sm:h-14 sm:w-14">
                   <ProfilePicture
                     user={{
-                      bgColor: user.bgColor,
-                      displayName: user.displayName,
-                      profilePicture: user.profilePicture,
+                      bgColor: user.data.bgColor,
+                      displayName: user.data.displayName,
+                      profilePicture: user.data.profilePicture,
                     }}
                   />
                 </div>
@@ -711,8 +720,8 @@ const Navigation = () => {
                   {theme === "dark" ? <BsSunFill /> : <BsMoonFill />}
                 </button>
               </div>
-              <p className="pt-4 font-medium">{user.displayName}</p>
-              <p className="opacity-70">{user.email}</p>
+              <p className="pt-4 font-medium">{user.data.displayName}</p>
+              <p className="opacity-70">{user.data.email}</p>
             </div>
             {/* Links and buttons */}
             <div className="flex flex-1 flex-col justify-between">
@@ -779,7 +788,7 @@ const Navigation = () => {
                   className={
                     navStyles.button +
                     navStyles.buttonDescription +
-                    "text-red-600 dark:text-red-500 "
+                    "text-red-600 dark:text-red-500"
                   }
                 >
                   <VscSignOut />
@@ -829,7 +838,7 @@ const Navigation = () => {
                 </label>
                 <div className="flex h-8 pr-1">
                   <input
-                    className="w-full bg-transparent pl-4 pr-6 focus:outline-none "
+                    className="w-full bg-transparent pl-4 pr-6 focus:outline-none"
                     type="text"
                     name="search"
                     id="user-search"
@@ -885,7 +894,7 @@ const Navigation = () => {
                               displayName:
                                 userInfoForm.displayName.length >= 1
                                   ? userInfoForm.displayName
-                                  : user.displayName,
+                                  : user.data.displayName,
                               bgColor: color,
                               profilePicture: userInfoForm.profilePicture,
                             }}
@@ -907,7 +916,7 @@ const Navigation = () => {
                       displayName:
                         userInfoForm.displayName.length >= 1
                           ? userInfoForm.displayName
-                          : user.displayName,
+                          : user.data.displayName,
                       bgColor: userInfoForm.bgColor,
                       profilePicture: userInfoForm.profilePicture,
                     }}
@@ -919,7 +928,7 @@ const Navigation = () => {
 
                 <div
                   className={`text-center ${
-                    userInfoForm.bgColor !== user.bgColor
+                    userInfoForm.bgColor !== user.data.bgColor
                       ? "visible"
                       : "invisible"
                   }`}
@@ -939,7 +948,7 @@ const Navigation = () => {
                       htmlFor="update-display-name"
                     >
                       Name{" "}
-                      {userInfoForm.displayName !== user.displayName && (
+                      {userInfoForm.displayName !== user.data.displayName && (
                         <div className="float-right">{unsavedChangSpan}</div>
                       )}
                     </label>
@@ -958,10 +967,10 @@ const Navigation = () => {
                       htmlFor="update-username"
                     >
                       Username{" "}
-                      {(user.username &&
-                        userInfoForm.username !== user.username) ||
+                      {(user.data.username &&
+                        userInfoForm.username !== user.data.username) ||
                         (userInfoForm.username.length >= 1 &&
-                          user.username === null && (
+                          user.data.username === null && (
                             <div className="float-right">
                               {unsavedChangSpan}
                             </div>
@@ -982,7 +991,7 @@ const Navigation = () => {
                   title="Click to save info"
                   type="submit"
                 >
-                  {formIsLoading ? <LoadingSpinner /> : "Save"}
+                  {updateUser.isPending ? <LoadingSpinner /> : "Save"}
                 </button>
               </form>
             </Modal>
@@ -1020,7 +1029,7 @@ const Navigation = () => {
                   <div className={formStyles.inputContainer}>
                     <label className={formStyles.label} htmlFor="update-email">
                       Email address{" "}
-                      {userAuthForm.email !== user.email && (
+                      {userAuthForm.email !== user.data.email && (
                         <div className="float-right">{unsavedChangSpan}</div>
                       )}
                     </label>
@@ -1098,7 +1107,7 @@ const Navigation = () => {
                   title="Click to save credentials"
                   type="submit"
                 >
-                  {formIsLoading ? <LoadingSpinner /> : "Save"}
+                  {updateUser.isPending ? <LoadingSpinner /> : "Save"}
                 </button>
               </form>
             </Modal>
@@ -1106,7 +1115,7 @@ const Navigation = () => {
           {/* Session manager */}
           {openSessionManager && (
             <Modal closeModal={closeSessionManager}>
-              {!activeSessions ? (
+              {!sessions.data ? (
                 <div className="py-24 text-3xl">
                   <LoadingSpinner />
                 </div>
@@ -1121,7 +1130,7 @@ const Navigation = () => {
                         Created at:{" "}
                         <span>
                           {new Date(
-                            activeSessions[currentSessionIndex!].createdAt,
+                            sessions.data[currentSessionIndex!].createdAt,
                           ).toLocaleString("default", {
                             year: "numeric",
                             month: "long",
@@ -1131,7 +1140,7 @@ const Navigation = () => {
                           })}
                         </span>
                       </p>
-                      {activeSessions.length > 1 ? (
+                      {sessions.data.length > 1 ? (
                         <button
                           type="button"
                           title="Click to terminate all other sessions except this one"
@@ -1148,13 +1157,13 @@ const Navigation = () => {
                       )}
                     </div>
                   </div>
-                  {activeSessions.length > 1 && (
+                  {sessions.data.length > 1 && (
                     <div>
                       <h2 className="text-lg font-medium text-blue-500 dark:text-blue-400">
                         Active sessions
                       </h2>
                       <div className="max-h-96 overflow-y-auto">
-                        {activeSessions.map(
+                        {sessions.data.map(
                           (session, index) =>
                             index !== currentSessionIndex && (
                               <div

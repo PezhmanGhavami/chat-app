@@ -1,4 +1,4 @@
-const fetcher = async (input: RequestInfo, init: RequestInit) => {
+const fetcher = async <TResponse>(input: RequestInfo, init?: RequestInit) => {
   const res = await fetch(input, init);
 
   if (!res.ok) {
@@ -6,7 +6,7 @@ const fetcher = async (input: RequestInfo, init: RequestInit) => {
     throw new Error(resBody.message);
   }
 
-  return res.json();
+  return (await res.json()) as TResponse;
 };
 
 export default fetcher;

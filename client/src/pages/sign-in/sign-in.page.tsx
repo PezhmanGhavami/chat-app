@@ -4,9 +4,7 @@ import { toast } from "react-toastify";
 
 import LoadingSpinner from "../../components/loading-spinner/loading-spinner.component";
 
-import useUser from "../../hooks/useUser";
-
-import fetcher from "../../utils/fetcher";
+import { useSignInUser } from "../../hooks/useUser";
 
 export const formStyles = {
   formContainer: "max-w-sm mx-auto",
@@ -54,9 +52,8 @@ enum inputStatus {
 
 const SignIn = () => {
   const [formData, setFormData] = useState(initialFormData);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const { mutateUser } = useUser();
+  const signInUser = useSignInUser();
 
   const { usernameOrEmail, password } = formData;
 
@@ -116,34 +113,20 @@ const SignIn = () => {
       return;
     }
 
-    setIsLoading(true);
-
     const userData = {
       usernameOrEmail,
       password,
     };
 
-    const headers = new Headers({
-      "Content-Type": "application/json",
+    signInUser.mutate(userData, {
+      onError: (error) => {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Something went wrong.");
+        }
+      },
     });
-    try {
-      mutateUser(
-        await fetcher("/api/auth/sign-in", {
-          method: "POST",
-          headers,
-          body: JSON.stringify(userData),
-        }),
-        false,
-      );
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("Something went wrong.");
-      }
-    }
-
-    setIsLoading(false);
   };
 
   return (
@@ -185,7 +168,7 @@ const SignIn = () => {
           </div>
         </div>
         <button className={formStyles.submitButton} type="submit" tabIndex={3}>
-          {isLoading ? <LoadingSpinner /> : "Sign in"}
+          {signInUser.isPending ? <LoadingSpinner /> : "Sign in"}
         </button>
         <Link to={"/auth/signup"} tabIndex={4} className={formStyles.link}>
           <span>or create a new account</span>
