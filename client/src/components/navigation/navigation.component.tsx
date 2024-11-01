@@ -253,7 +253,7 @@ const Navigation = () => {
 
   // Initial chats fetch
   useEffect(() => {
-    fetcher("/api/chats", { method: "GET" })
+    fetcher(`${import.meta.env.VITE_SOCKET_URL}/api/chats`, { method: "GET" })
       .then((chats) => {
         const normalChats = (chats as IChat[]).filter(
           (chat) => !chat.isArchived,
@@ -341,7 +341,9 @@ const Navigation = () => {
   const toggleSessionManager = () => {
     setOpenSessionManager(true);
     toggleMenu();
-    fetcher("/api/auth/sessions", { method: "GET" })
+    fetcher(`${import.meta.env.VITE_SOCKET_URL}/api/auth/sessions`, {
+      method: "GET",
+    })
       .then((sessions) => {
         setActiveSessions(sessions);
         const index = (sessions as ISession[]).findIndex(
@@ -364,9 +366,12 @@ const Navigation = () => {
   };
   const handleSessionTermination = (index: number) => {
     if (index === -1) {
-      return fetcher("/api/auth/sign-out-all", {
-        method: "DELETE",
-      })
+      return fetcher(
+        `${import.meta.env.VITE_SOCKET_URL}/api/auth/sign-out-all`,
+        {
+          method: "DELETE",
+        },
+      )
         .then((res) => {
           toast.success(res.message);
           setActiveSessions((prev) =>
@@ -387,9 +392,12 @@ const Navigation = () => {
     }
 
     const selectedSession = activeSessions![index];
-    return fetcher(`/api/auth/sessions/${selectedSession.id}`, {
-      method: "DELETE",
-    })
+    return fetcher(
+      `${import.meta.env.VITE_SOCKET_URL}/api/auth/sessions/${selectedSession.id}`,
+      {
+        method: "DELETE",
+      },
+    )
       .then((res) => {
         console.log(res);
         toast.success(res.message);
@@ -558,7 +566,7 @@ const Navigation = () => {
     try {
       setFormIsLoading(true);
       mutateUser(
-        await fetcher("/api/auth", {
+        await fetcher(`${import.meta.env.VITE_SOCKET_URL}/api/auth`, {
           method: "PUT",
           headers,
           body: JSON.stringify(payload),
@@ -616,7 +624,7 @@ const Navigation = () => {
     try {
       setFormIsLoading(true);
       mutateUser(
-        await fetcher("/api/auth", {
+        await fetcher(`${import.meta.env.VITE_SOCKET_URL}/api/auth`, {
           method: "PUT",
           headers,
           body: JSON.stringify(payload),
@@ -637,7 +645,9 @@ const Navigation = () => {
   };
 
   const handleSignOut = () => {
-    fetcher("/api/auth/sign-out", { method: "GET" })
+    fetcher(`${import.meta.env.VITE_SOCKET_URL}/api/auth/sign-out`, {
+      method: "GET",
+    })
       .then(() => globalThis.location.reload())
       .catch((error) => {
         if (error instanceof Error) {

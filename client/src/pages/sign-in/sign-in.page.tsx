@@ -128,7 +128,7 @@ const SignIn = () => {
     });
     try {
       mutateUser(
-        await fetcher("/api/auth/sign-in", {
+        await fetcher(`${import.meta.env.VITE_SOCKET_URL}/api/auth/sign-in`, {
           method: "POST",
           headers,
           body: JSON.stringify(userData),
