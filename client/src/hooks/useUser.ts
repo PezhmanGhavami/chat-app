@@ -20,12 +20,7 @@ const redirectRoutes = ["/auth/sign-in", "/auth/signup"];
 export default function useUser() {
   // TODO - fixme
   const { data, mutate } = useSWR<IUser>(
-    [
-      `${import.meta.env.VITE_SOCKET_URL}/api/auth`,
-      {
-        credentials: "include",
-      },
-    ],
+    `${import.meta.env.VITE_SOCKET_URL}/api/auth`,
     // @ts-expect-error
     fetcher,
   );
