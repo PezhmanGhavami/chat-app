@@ -1,7 +1,6 @@
 const fetcher = async (input: RequestInfo, init: RequestInit) => {
   const res = await fetch(input, {
     ...init,
-    headers: { ...init.headers, "Access-Control-Allow-Credentials": "true" },
     credentials: "include",
   });
 

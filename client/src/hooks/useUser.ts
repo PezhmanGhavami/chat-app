@@ -19,7 +19,6 @@ function fetcher(url: string): Promise<IUser> {
   return fetch(url, {
     method: "GET",
     credentials: "include",
-    headers: { "Access-Control-Allow-Credentials": "true" },
   }).then((res) => res.json());
 }
 
