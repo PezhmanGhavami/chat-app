@@ -2,8 +2,6 @@ import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import useSWR from "swr";
 
-import fetcher from "../utils/fetcher";
-
 interface IUser {
   isLoggedIn: boolean;
   userID: string;
@@ -17,11 +15,17 @@ interface IUser {
 
 const redirectRoutes = ["/auth/sign-in", "/auth/signup"];
 
+function fetcher(url: string): Promise<IUser> {
+  return fetch(url, {
+    method: "GET",
+    credentials: "include",
+    headers: { "Access-Control-Allow-Credentials": "true" },
+  }).then((res) => res.json());
+}
+
 export default function useUser() {
-  // TODO - fixme
   const { data, mutate } = useSWR<IUser>(
     `${import.meta.env.VITE_SOCKET_URL}/api/auth`,
-    // @ts-expect-error
     fetcher,
   );
 
