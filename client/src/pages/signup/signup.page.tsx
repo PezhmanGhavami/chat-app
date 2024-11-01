@@ -137,6 +137,7 @@ const Signup = () => {
           method: "POST",
           headers,
           body: JSON.stringify(userData),
+          credentials: "include",
         }),
         false,
       );

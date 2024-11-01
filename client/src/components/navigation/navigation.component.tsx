@@ -253,7 +253,10 @@ const Navigation = () => {
 
   // Initial chats fetch
   useEffect(() => {
-    fetcher(`${import.meta.env.VITE_SOCKET_URL}/api/chats`, { method: "GET" })
+    fetcher(`${import.meta.env.VITE_SOCKET_URL}/api/chats`, {
+      method: "GET",
+      credentials: "include",
+    })
       .then((chats) => {
         const normalChats = (chats as IChat[]).filter(
           (chat) => !chat.isArchived,
@@ -343,6 +346,7 @@ const Navigation = () => {
     toggleMenu();
     fetcher(`${import.meta.env.VITE_SOCKET_URL}/api/auth/sessions`, {
       method: "GET",
+      credentials: "include",
     })
       .then((sessions) => {
         setActiveSessions(sessions);
@@ -370,6 +374,7 @@ const Navigation = () => {
         `${import.meta.env.VITE_SOCKET_URL}/api/auth/sign-out-all`,
         {
           method: "DELETE",
+          credentials: "include",
         },
       )
         .then((res) => {
@@ -396,6 +401,7 @@ const Navigation = () => {
       `${import.meta.env.VITE_SOCKET_URL}/api/auth/sessions/${selectedSession.id}`,
       {
         method: "DELETE",
+        credentials: "include",
       },
     )
       .then((res) => {
@@ -570,6 +576,7 @@ const Navigation = () => {
           method: "PUT",
           headers,
           body: JSON.stringify(payload),
+          credentials: "include",
         }),
         { revalidate: true },
       );
@@ -628,6 +635,7 @@ const Navigation = () => {
           method: "PUT",
           headers,
           body: JSON.stringify(payload),
+          credentials: "include",
         }),
         { revalidate: true },
       );
@@ -647,6 +655,7 @@ const Navigation = () => {
   const handleSignOut = () => {
     fetcher(`${import.meta.env.VITE_SOCKET_URL}/api/auth/sign-out`, {
       method: "GET",
+      credentials: "include",
     })
       .then(() => globalThis.location.reload())
       .catch((error) => {
