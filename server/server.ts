@@ -21,7 +21,13 @@ const PORT = envPort ? parseInt(envPort) : 5000;
 
 app.use(express.json());
 
-app.use(cors({ origin: process.env.ORIGIN, optionsSuccessStatus: 200 }));
+app.use(
+  cors({
+    origin: process.env.ORIGIN,
+    optionsSuccessStatus: 200,
+    preflightContinue: true,
+  }),
+);
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/api/auth", authRouter);
