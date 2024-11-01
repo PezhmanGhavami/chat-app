@@ -52,7 +52,7 @@ COPY --from=build-stage /app/client/dist /usr/share/nginx/html
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
 # Expose Nginx port
-EXPOSE 80
+EXPOSE 3000
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
