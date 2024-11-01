@@ -25,7 +25,9 @@ app.use(
   cors({
     origin: process.env.ORIGIN,
     optionsSuccessStatus: 200,
+    credentials: true,
     preflightContinue: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   }),
 );
 app.use(express.urlencoded({ extended: false }));
