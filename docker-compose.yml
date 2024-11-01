@@ -1,0 +1,20 @@
+services:
+  # Node server for API and WebSocket handling
+  node-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+    expose:
+      - "5000"
+
+  # Nginx to serve client static files and proxy API/WebSocket requests
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - node-server
