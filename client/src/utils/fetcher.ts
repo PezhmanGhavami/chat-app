@@ -1,5 +1,5 @@
 const fetcher = async (input: RequestInfo, init: RequestInit) => {
-  const res = await fetch(input, init);
+  const res = await fetch(`${import.meta.env.VITE_SOCKET_URL}${input}`, init);
 
   if (!res.ok) {
     const resBody = await res.json();
