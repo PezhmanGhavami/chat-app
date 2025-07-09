@@ -1,6 +1,6 @@
 A prototype chat application made to be a playground for trying out different kinds of tech in a more App like environment with real-time communications using socket.io and video call functionality using simple-peer as its WebRTC implementation.
 
-You can checkout the live version [here](https://chatapp.pezhman.io/)
+You can checkout the live version [here](https://chatapp.pezhmangh.ir/)
 
 ## Get Started
 
